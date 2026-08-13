@@ -2,19 +2,20 @@ package com.example.findmyphonebyclaplauncher.ui.findphone
 
 import android.Manifest
 import android.content.Intent
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityFindPhoneBinding
-import com.example.findmyphonebyclaplauncher.ui.settings.SettingsActivity
-import com.example.findmyphonebyclaplauncher.utils.BatteryOptimizationManager
+import com.example.findmyphonebyclaplauncher.ui.menu.MenuActivity
+import com.example.findmyphonebyclaplauncher.ui.settings.AlertSensitivityActivity
+import com.example.findmyphonebyclaplauncher.ui.settings.AlertSoundActivity
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
 import com.google.android.material.snackbar.Snackbar
 
@@ -22,8 +23,7 @@ class FindPhoneActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFindPhoneBinding
     private val viewModel: FindPhoneViewModel by viewModels()
-
-    private var previewMediaPlayer: MediaPlayer? = null
+    private lateinit var prefs: UserPreferencesDataSource
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -37,13 +37,18 @@ class FindPhoneActivity : AppCompatActivity() {
         binding = ActivityFindPhoneBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        prefs = UserPreferencesDataSource(this)
+
         setupWindowInsets()
         setupListeners()
         observeViewModel()
     }
 
     private fun setupWindowInsets() {
-        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
+        }
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.layoutHeader.setPadding(
@@ -64,8 +69,33 @@ class FindPhoneActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.refreshState()
+        viewModel.refreshState(this)
+        refreshSettingsUI()
         checkAndRequestPermissionsIfNeeded()
+    }
+
+    private fun refreshSettingsUI() {
+        val soundName = when (prefs.selectedAlertSound.lowercase()) {
+            "whistle"   -> getString(R.string.your_ringtone_single)
+            "airhorn"   -> getString(R.string.air_horn).replace("\n", " ")
+            "babylaugh" -> getString(R.string.baby_laugh).replace("\n", " ")
+            "cat"       -> getString(R.string.cat)
+            "dog"       -> getString(R.string.dog)
+            "doorbell"  -> getString(R.string.door_bell).replace("\n", " ")
+            "train"     -> getString(R.string.train)
+            "hello"     -> getString(R.string.hello)
+            "horn"      -> getString(R.string.horn)
+            else        -> getString(R.string.your_ringtone_single)
+        }
+        binding.txtSelectedSound.text = soundName
+
+        val vol = prefs.alertSoundVolume
+        binding.seekBarVolumePreview.max = 100
+        binding.seekBarVolumePreview.progress = vol
+        binding.seekBarVolumePreview.isEnabled = false
+
+        binding.txtSelectedSensitivity.text = prefs.alertSensitivity
+        binding.txtSelectedDuration.text = "${prefs.selectedAlertDuration} Sec"
     }
 
     private fun checkAndRequestPermissionsIfNeeded() {
@@ -74,186 +104,129 @@ class FindPhoneActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        stopSoundPreview()
+    private fun AppCompatImageView.setSwitchState(isChecked: Boolean) {
+        if (isChecked) {
+            setImageResource(R.drawable.ic_switch_on)
+            contentDescription = "Enabled"
+        } else {
+            setImageResource(R.drawable.ic_switch_off)
+            contentDescription = "Disabled"
+        }
+        tag = isChecked
     }
 
     private fun setupListeners() {
-        binding.btnSettings.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+        // Hamburger Menu click -> MenuActivity
+        binding.btnMenu.setOnClickListener {
+            startActivity(Intent(this, MenuActivity::class.java))
         }
 
-        binding.swMaster.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && !PermissionManager.hasRecordAudioPermission(this)) {
-                binding.swMaster.isChecked = false
+        // Master Custom Switch
+        binding.switchMasterDetection.setOnClickListener {
+            val isChecked = binding.switchMasterDetection.tag as? Boolean ?: false
+            val newState = !isChecked
+            if (newState && !PermissionManager.hasRecordAudioPermission(this)) {
                 requestDetectionPermissions()
-                return@setOnCheckedChangeListener
+                return@setOnClickListener
             }
-            viewModel.setMasterDetection(this, isChecked)
+            viewModel.setMasterDetection(this, newState)
         }
 
-        binding.swClap.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && !PermissionManager.hasRecordAudioPermission(this)) {
-                binding.swClap.isChecked = false
+        // Clap Custom Switch
+        binding.switchClapDetection.setOnClickListener {
+            val isMasterOn = binding.switchMasterDetection.tag as? Boolean ?: false
+            if (!isMasterOn) {
+                Snackbar.make(binding.root, getString(R.string.enable_master_detection_first), Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val isChecked = binding.switchClapDetection.tag as? Boolean ?: false
+            val newState = !isChecked
+            if (newState && !PermissionManager.hasRecordAudioPermission(this)) {
                 requestDetectionPermissions()
-                return@setOnCheckedChangeListener
+                return@setOnClickListener
             }
-            viewModel.setClapDetection(this, isChecked)
+            viewModel.setClapDetection(this, newState)
         }
 
-        binding.swWhistle.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && !PermissionManager.hasRecordAudioPermission(this)) {
-                binding.swWhistle.isChecked = false
+        // Whistle Custom Switch
+        binding.switchWhistleDetection.setOnClickListener {
+            val isMasterOn = binding.switchMasterDetection.tag as? Boolean ?: false
+            if (!isMasterOn) {
+                Snackbar.make(binding.root, getString(R.string.enable_master_detection_first), Snackbar.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val isChecked = binding.switchWhistleDetection.tag as? Boolean ?: false
+            val newState = !isChecked
+            if (newState && !PermissionManager.hasRecordAudioPermission(this)) {
                 requestDetectionPermissions()
-                return@setOnCheckedChangeListener
+                return@setOnClickListener
             }
-            viewModel.setWhistleDetection(this, isChecked)
+            viewModel.setWhistleDetection(this, newState)
         }
 
-        binding.swSoundAlert.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setSoundAlertEnabled(isChecked)
+        // Alert Sound Card click -> AlertSoundActivity
+        binding.cardAlertSound.setOnClickListener {
+            startActivity(Intent(this, AlertSoundActivity::class.java))
         }
 
-        binding.swFlashlightAlert.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setFlashlightEnabled(isChecked)
+        // Alert Sensitivity Card click -> AlertSensitivityActivity
+        binding.cardAlertSensitivity.setOnClickListener {
+            startActivity(Intent(this, AlertSensitivityActivity::class.java))
         }
 
-        binding.swVibrationAlert.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setVibrationEnabled(isChecked)
-        }
-
-        binding.rgSounds.setOnCheckedChangeListener { _, checkedId ->
-            val soundKey = when (checkedId) {
-                R.id.rbSoundWhistle   -> "whistle"
-                R.id.rbSoundMelody    -> "melody"
-                R.id.rbSoundAnimal    -> "animal"
-                R.id.rbSoundElectronic -> "electronic"
-                else                  -> "whistle"
+        // Alert Duration Card click -> Cycle durations (10s, 30s, 60s, 120s)
+        binding.cardAlertDuration.setOnClickListener {
+            val current = prefs.selectedAlertDuration
+            val next = when (current) {
+                10   -> 30
+                30   -> 60
+                60   -> 120
+                else -> 10
             }
-            viewModel.setSelectedAlertSound(soundKey)
+            viewModel.setSelectedAlertDuration(next)
+            binding.txtSelectedDuration.text = "$next Sec"
         }
 
-        binding.btnPreviewSound.setOnClickListener {
-            toggleSoundPreview()
+        // Flashlight Custom Switch
+        binding.switchFlashlight.setOnClickListener {
+            val isChecked = binding.switchFlashlight.tag as? Boolean ?: false
+            viewModel.setFlashlightEnabled(!isChecked)
         }
 
-        binding.btnDuration10.setOnClickListener  { viewModel.setSelectedAlertDuration(10) }
-        binding.btnDuration30.setOnClickListener  { viewModel.setSelectedAlertDuration(30) }
-        binding.btnDuration60.setOnClickListener  { viewModel.setSelectedAlertDuration(60) }
-        binding.btnDuration120.setOnClickListener { viewModel.setSelectedAlertDuration(120) }
-
-        binding.btnOpenBatteryOpt.setOnClickListener {
-            BatteryOptimizationManager.requestIgnoreBatteryOptimizations(this)
+        // Vibration Custom Switch
+        binding.switchVibration.setOnClickListener {
+            val isChecked = binding.switchVibration.tag as? Boolean ?: false
+            viewModel.setVibrationEnabled(!isChecked)
         }
     }
 
     private fun observeViewModel() {
         viewModel.isClapEnabled.observe(this) { enabled ->
-            if (binding.swClap.isChecked != enabled) {
-                binding.swClap.isChecked = enabled
-            }
-            updateMasterStatusText()
+            binding.switchClapDetection.setSwitchState(enabled)
         }
 
         viewModel.isWhistleEnabled.observe(this) { enabled ->
-            if (binding.swWhistle.isChecked != enabled) {
-                binding.swWhistle.isChecked = enabled
-            }
-            updateMasterStatusText()
+            binding.switchWhistleDetection.setSwitchState(enabled)
         }
 
         viewModel.isServiceRunning.observe(this) { running ->
-            if (binding.swMaster.isChecked != running) {
-                binding.swMaster.isChecked = running
-            }
-            updateMasterStatusText()
-        }
-
-        viewModel.isSoundAlertEnabled.observe(this) { enabled ->
-            binding.swSoundAlert.isChecked = enabled
+            binding.switchMasterDetection.setSwitchState(running)
+            binding.cardClap.alpha = if (running) 1.0f else 0.5f
+            binding.cardWhistle.alpha = if (running) 1.0f else 0.5f
+            binding.switchClapDetection.isEnabled = running
+            binding.switchWhistleDetection.isEnabled = running
         }
 
         viewModel.isFlashlightEnabled.observe(this) { enabled ->
-            binding.swFlashlightAlert.isChecked = enabled
+            binding.switchFlashlight.setSwitchState(enabled)
         }
 
         viewModel.isVibrationEnabled.observe(this) { enabled ->
-            binding.swVibrationAlert.isChecked = enabled
-        }
-
-        viewModel.selectedAlertSound.observe(this) { sound ->
-            val checkedId = when (sound) {
-                "whistle"    -> R.id.rbSoundWhistle
-                "melody"     -> R.id.rbSoundMelody
-                "animal"     -> R.id.rbSoundAnimal
-                "electronic" -> R.id.rbSoundElectronic
-                else         -> R.id.rbSoundWhistle
-            }
-            if (binding.rgSounds.checkedRadioButtonId != checkedId) {
-                binding.rgSounds.check(checkedId)
-            }
+            binding.switchVibration.setSwitchState(enabled)
         }
 
         viewModel.selectedAlertDuration.observe(this) { duration ->
-            highlightDurationButton(duration)
-        }
-    }
-
-    private fun updateMasterStatusText() {
-        val active = (viewModel.isClapEnabled.value == true) || (viewModel.isWhistleEnabled.value == true)
-        if (active) {
-            binding.txtMasterStatus.text = getString(R.string.service_status_active)
-            binding.txtMasterStatus.setTextColor(getColor(R.color.color_success))
-        } else {
-            binding.txtMasterStatus.text = getString(R.string.service_status_off)
-            binding.txtMasterStatus.setTextColor(getColor(R.color.color_text_secondary))
-        }
-    }
-
-    private fun highlightDurationButton(selected: Int) {
-        val activeColor = getColor(R.color.color_primary)
-        val inactiveColor = getColor(R.color.color_card)
-
-        binding.btnDuration10.setBackgroundColor(if (selected == 10)  activeColor else inactiveColor)
-        binding.btnDuration30.setBackgroundColor(if (selected == 30)  activeColor else inactiveColor)
-        binding.btnDuration60.setBackgroundColor(if (selected == 60)  activeColor else inactiveColor)
-        binding.btnDuration120.setBackgroundColor(if (selected == 120) activeColor else inactiveColor)
-    }
-
-    private fun toggleSoundPreview() {
-        if (previewMediaPlayer != null && previewMediaPlayer!!.isPlaying) {
-            stopSoundPreview()
-        } else {
-            startSoundPreview()
-        }
-    }
-
-    private fun startSoundPreview() {
-        stopSoundPreview()
-        try {
-            previewMediaPlayer = MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
-            previewMediaPlayer?.apply {
-                isLooping = false
-                start()
-            }
-            binding.btnPreviewSound.text = getString(R.string.label_stop_sound)
-            binding.btnPreviewSound.setIconResource(R.drawable.ic_stop_small)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun stopSoundPreview() {
-        try {
-            previewMediaPlayer?.stop()
-            previewMediaPlayer?.release()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            previewMediaPlayer = null
-            binding.btnPreviewSound.text = getString(R.string.label_preview_sound)
-            binding.btnPreviewSound.setIconResource(R.drawable.ic_play)
+            binding.txtSelectedDuration.text = "$duration Sec"
         }
     }
 
@@ -296,7 +269,7 @@ class FindPhoneActivity : AppCompatActivity() {
                 ).show()
             }
         } else {
-            viewModel.refreshState()
+            viewModel.refreshState(this)
         }
     }
 

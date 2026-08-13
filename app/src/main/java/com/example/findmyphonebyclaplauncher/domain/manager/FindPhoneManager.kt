@@ -94,28 +94,57 @@ class FindPhoneManager(private val context: Context) {
     // Sound
     // ─────────────────────────────────────────────────────────────────────────
 
+    private fun getSoundRawResId(soundId: String): Int? {
+        return when (soundId.lowercase()) {
+            "airhorn"               -> R.raw.airhorn
+            "babylaugh", "baby"     -> R.raw.baby
+            "cat"                   -> R.raw.cat
+            "dog"                   -> R.raw.dog
+            "doorbell", "door_bell" -> R.raw.door_bell
+            "train"                 -> R.raw.train
+            "hello"                 -> R.raw.hello
+            "horn", "car"           -> R.raw.car
+            else                    -> null
+        }
+    }
+
     private fun startAlertSound() {
         try {
-            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
-                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            val prefs = UserPreferencesDataSource(context)
+            val selectedSound = prefs.selectedAlertSound
+            val volumePercent = prefs.alertSoundVolume
+            val rawResId = getSoundRawResId(selectedSound)
 
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
-            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0)
+            val targetStreamVol = (maxVol * (volumePercent / 100.0f)).toInt().coerceAtLeast(1)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetStreamVol, 0)
 
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(context, alarmUri)
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build()
-                )
+            mediaPlayer = if (rawResId != null) {
+                MediaPlayer.create(context, rawResId)
+            } else {
+                val ringtoneUri = android.provider.Settings.System.DEFAULT_RINGTONE_URI
+                    ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                    ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+                MediaPlayer().apply {
+                    setDataSource(context, ringtoneUri)
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_ALARM)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                            .build()
+                    )
+                    prepare()
+                }
+            }
+
+            val volFloat = volumePercent / 100.0f
+            mediaPlayer?.apply {
+                setVolume(volFloat, volFloat)
                 isLooping = true
-                prepare()
                 start()
             }
-            Log.d(tag, "Alert sound started")
+            Log.d(tag, "Alert sound started: sound=$selectedSound, volume=$volumePercent%")
         } catch (e: Exception) {
             Log.e(tag, "Failed to start alert sound: ${e.message}")
         }

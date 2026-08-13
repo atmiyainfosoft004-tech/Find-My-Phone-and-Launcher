@@ -71,13 +71,34 @@
             android:name=".ui.findphone.FindPhoneActivity"
             android:exported="false"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Settings -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
+
+        <!-- Menu Activity -->
+        <activity
+            android:name=".ui.menu.MenuActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
+
+        <!-- Alert Sensitivity Activity -->
+        <activity
+            android:name=".ui.settings.AlertSensitivityActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
+
+        <!-- Alert Sound Activity -->
+        <activity
+            android:name=".ui.settings.AlertSoundActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Alert (lock-screen capable) -->
         <activity

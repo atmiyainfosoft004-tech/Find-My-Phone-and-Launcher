@@ -28,15 +28,15 @@ class UserPreferencesDataSource(context: Context) {
         set(value) = prefs.edit().putBoolean(Constants.KEY_FIRST_LAUNCH, value).apply()
 
     var isClapDetectionEnabled: Boolean
-        get() = prefs.getBoolean(Constants.KEY_CLAP_DETECTION_ENABLED, false)
+        get() = prefs.getBoolean(Constants.KEY_CLAP_DETECTION_ENABLED, true)
         set(value) = prefs.edit().putBoolean(Constants.KEY_CLAP_DETECTION_ENABLED, value).apply()
 
     var isWhistleDetectionEnabled: Boolean
-        get() = prefs.getBoolean(Constants.KEY_WHISTLE_DETECTION_ENABLED, false)
+        get() = prefs.getBoolean(Constants.KEY_WHISTLE_DETECTION_ENABLED, true)
         set(value) = prefs.edit().putBoolean(Constants.KEY_WHISTLE_DETECTION_ENABLED, value).apply()
 
     var isFindPhoneEnabled: Boolean
-        get() = prefs.getBoolean(Constants.KEY_FIND_PHONE_ENABLED, false)
+        get() = prefs.getBoolean(Constants.KEY_FIND_PHONE_ENABLED, true)
         set(value) = prefs.edit().putBoolean(Constants.KEY_FIND_PHONE_ENABLED, value).apply()
 
     var isBatteryOptimizationGuidanceShown: Boolean
@@ -66,4 +66,8 @@ class UserPreferencesDataSource(context: Context) {
     var alertSoundVolume: Int
         get() = prefs.getInt(Constants.KEY_ALERT_SOUND_VOLUME, 50)
         set(value) = prefs.edit().putInt(Constants.KEY_ALERT_SOUND_VOLUME, value).apply()
+
+    var alertSensitivity: String
+        get() = prefs.getString("alert_sensitivity", "Medium") ?: "Medium"
+        set(value) = prefs.edit().putString("alert_sensitivity", value).apply()
 }

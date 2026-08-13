@@ -4,125 +4,124 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background">
+    android:background="@color/color_onboarding_background">
 
-    <!-- Top Header Bar -->
-    <LinearLayout
+    <!-- Header Section -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="@dimen/_20sdp"
-        android:paddingTop="@dimen/_40sdp"
-        android:paddingBottom="@dimen/_12sdp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingHorizontal="@dimen/_16sdp"
+        android:paddingVertical="@dimen/_12sdp"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Settings Button -->
-        <ImageView
-            android:id="@+id/btnSettings"
-            android:layout_width="@dimen/_36sdp"
-            android:layout_height="@dimen/_36sdp"
-            android:padding="@dimen/_4sdp"
-            android:src="@drawable/ic_menu"
-            android:contentDescription="@string/settings"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_marginEnd="@dimen/_14sdp"
-            app:tint="@color/color_text_primary" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btnMenu"
+            android:layout_width="@dimen/_38sdp"
+            android:layout_height="@dimen/_38sdp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/_19sdp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/color_card_stroke_light"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_menu"
+                app:tint="@color/color_onboarding_text_primary"
+                android:contentDescription="@string/app_name" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/txtTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:text="@string/find_my_phone_launcher_title"
+            android:textColor="@color/color_onboarding_text_primary"
+            android:textSize="@dimen/_16ssp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_marginStart="@dimen/_12sdp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnMenu"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-            <TextView
-                android:id="@+id/txtTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/find_phone_title"
-                android:textAppearance="@style/TextAppearance.App.HeadlineMedium" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/txtSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/find_phone_subtitle"
-                android:textAppearance="@style/TextAppearance.App.BodySmall"
-                android:layout_marginTop="@dimen/_2sdp" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Main Content Scroll Container -->
+    <!-- Main Scrollable Dashboard Content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollContent"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:fillViewport="true"
         android:clipToPadding="false"
+        android:paddingHorizontal="@dimen/_16sdp"
         android:paddingBottom="@dimen/_24sdp"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="@dimen/_16sdp"
-            android:paddingTop="@dimen/_8sdp">
+            android:orientation="vertical">
 
-            <!-- 1. Main Status Card -->
+            <!-- Card 1: Master Detection Switch (Tinted Blue Card) -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardMasterStatus"
+                android:id="@+id/cardMaster"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/color_card"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="@dimen/card_elevation"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/color_card_stroke">
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/color_card_master_bg"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1.5dp"
+                app:strokeColor="@color/color_card_master_stroke">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingHorizontal="@dimen/_20sdp"
-                    android:paddingVertical="@dimen/_20sdp">
+                    android:padding="@dimen/_14sdp">
 
                     <TextView
                         android:id="@+id/txtMasterTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/find_phone_title"
-                        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+                        android:text="@string/clap_and_whistle_detection"
+                        android:textColor="@color/color_primary"
+                        android:textSize="@dimen/_13ssp"
+                        android:fontFamily="@font/inter_bold"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/swMaster" />
+                        app:layout_constraintEnd_toStartOf="@id/switchMasterDetection" />
 
                     <TextView
-                        android:id="@+id/txtMasterStatus"
+                        android:id="@+id/txtMasterSubtitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/service_status_off"
-                        android:textAppearance="@style/TextAppearance.App.BodySmall"
-                        android:layout_marginTop="@dimen/_4sdp"
+                        android:text="@string/always_watching_background"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginTop="@dimen/_2sdp"
                         app:layout_constraintTop_toBottomOf="@id/txtMasterTitle"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/swMaster" />
+                        app:layout_constraintEnd_toStartOf="@id/switchMasterDetection" />
 
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/swMaster"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:scaleX="1.2"
-                        android:scaleY="1.2"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/switchMasterDetection"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_switch_off"
+                        android:contentDescription="@string/app_name"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent" />
@@ -131,410 +130,644 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 2. Detection Cards (3 Clap + Whistle Side-by-Side) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/_16sdp">
-
-                <!-- Card: 3 Clap Detection -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardClap"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/_180sdp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="@dimen/_8sdp"
-                    app:cardBackgroundColor="@color/color_card"
-                    app:cardCornerRadius="@dimen/card_corner_radius"
-                    app:cardElevation="@dimen/card_elevation"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="@color/color_card_stroke">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="@dimen/_14sdp">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/imgClap"
-                            android:layout_width="@dimen/_48sdp"
-                            android:layout_height="@dimen/_48sdp"
-                            android:src="@drawable/ic_clap_hands"
-                            android:contentDescription="@string/content_desc_clap_icon"
-                            app:tint="@color/color_text_primary" />
-
-                        <TextView
-                            android:id="@+id/txtClapTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/find_phone_3_claps"
-                            android:textAppearance="@style/TextAppearance.App.TitleSmall"
-                            android:textAlignment="center"
-                            android:layout_marginTop="@dimen/_6sdp" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/swClap"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_10sdp" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <!-- Card: Whistle Detection -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardWhistle"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/_180sdp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="@dimen/_8sdp"
-                    app:cardBackgroundColor="@color/color_card"
-                    app:cardCornerRadius="@dimen/card_corner_radius"
-                    app:cardElevation="@dimen/card_elevation"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="@color/color_card_stroke">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="@dimen/_14sdp">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/imgWhistle"
-                            android:layout_width="@dimen/_48sdp"
-                            android:layout_height="@dimen/_48sdp"
-                            android:src="@drawable/ic_whistle"
-                            android:contentDescription="@string/content_desc_whistle_icon"
-                            app:tint="@color/color_text_primary" />
-
-                        <TextView
-                            android:id="@+id/txtWhistleTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/find_phone_whistle"
-                            android:textAppearance="@style/TextAppearance.App.TitleSmall"
-                            android:textAlignment="center"
-                            android:layout_marginTop="@dimen/_6sdp" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/swWhistle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_10sdp" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
-
-            </LinearLayout>
-
-            <!-- 3. Alert Multi System Settings Card -->
+            <!-- Card 2: Find Phone with 3 Claps -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardAlertSettings"
+                android:id="@+id/cardClap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_16sdp"
-                app:cardBackgroundColor="@color/color_card"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="@dimen/card_elevation"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/color_card_stroke">
+                app:strokeColor="@color/color_card_stroke_light">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_18sdp">
+                    android:padding="@dimen/_12sdp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardClapIcon"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        app:cardBackgroundColor="@color/color_circle_icon_bg"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_sound_ringtone"
+                            app:tint="@color/color_primary"
+                            android:contentDescription="@string/app_name" />
+
+                    </com.google.android.material.card.MaterialCardView>
 
                     <TextView
-                        android:id="@+id/txtMultiAlertTitle"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/txtClapTitle"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_multi_alert_settings"
-                        android:textAppearance="@style/TextAppearance.App.TitleSmall" />
+                        android:text="@string/find_phone_with_3_claps"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_12ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/cardClapIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchClapDetection" />
 
-                    <!-- Sound Alert Row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="@dimen/_12sdp">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/imgSoundAlert"
-                            android:layout_width="@dimen/_20sdp"
-                            android:layout_height="@dimen/_20sdp"
-                            android:src="@drawable/ic_volume_high"
-                            android:contentDescription="@string/content_desc_sound_alert"
-                            app:tint="@color/color_text_primary" />
-
-                        <TextView
-                            android:id="@+id/txtSoundAlert"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_sound_alert"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium"
-                            android:layout_marginStart="@dimen/_8sdp" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/swSoundAlert"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                    <!-- Flashlight Row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="@dimen/_8sdp">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/imgFlashlightAlert"
-                            android:layout_width="@dimen/_20sdp"
-                            android:layout_height="@dimen/_20sdp"
-                            android:src="@drawable/ic_flashlight"
-                            android:contentDescription="@string/content_desc_flashlight_alert"
-                            app:tint="@color/color_text_primary" />
-
-                        <TextView
-                            android:id="@+id/txtFlashlightAlert"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_flashlight_alert"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium"
-                            android:layout_marginStart="@dimen/_8sdp" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/swFlashlightAlert"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                    <!-- Vibration Row -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="@dimen/_8sdp">
-
-                        <androidx.appcompat.widget.AppCompatImageView
-                            android:id="@+id/imgVibrationAlert"
-                            android:layout_width="@dimen/_20sdp"
-                            android:layout_height="@dimen/_20sdp"
-                            android:src="@drawable/ic_vibration"
-                            android:contentDescription="@string/content_desc_vibration_alert"
-                            app:tint="@color/color_text_primary" />
-
-                        <TextView
-                            android:id="@+id/txtVibrationAlert"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_vibration_alert"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium"
-                            android:layout_marginStart="@dimen/_8sdp" />
-
-                        <com.google.android.material.materialswitch.MaterialSwitch
-                            android:id="@+id/swVibrationAlert"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/color_divider_subtle"
-                        android:layout_marginVertical="@dimen/_14sdp" />
-
-                    <!-- Alert Sound Selection + Preview -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:id="@+id/txtAlertSoundTitle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/label_alert_sound"
-                            android:textAppearance="@style/TextAppearance.App.TitleSmall" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnPreviewSound"
-                            android:layout_width="wrap_content"
-                            android:layout_height="@dimen/_36sdp"
-                            android:text="@string/label_preview_sound"
-                            android:textAppearance="@style/TextAppearance.App.LabelSmall"
-                            android:textColor="@color/color_primary"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            app:icon="@drawable/ic_play"
-                            app:iconTint="@color/color_primary"
-                            app:iconGravity="textStart"
-                            app:strokeColor="@color/color_primary"
-                            app:cornerRadius="@dimen/_18sdp" />
-
-                    </LinearLayout>
-
-                    <!-- Radio Group for Alert Sound -->
-                    <RadioGroup
-                        android:id="@+id/rgSounds"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginTop="@dimen/_8sdp">
-
-                        <RadioButton
-                            android:id="@+id/rbSoundWhistle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/radio_sound_whistle"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium" />
-
-                        <RadioButton
-                            android:id="@+id/rbSoundMelody"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/radio_sound_melody"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium" />
-
-                        <RadioButton
-                            android:id="@+id/rbSoundAnimal"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/radio_sound_animal"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium" />
-
-                        <RadioButton
-                            android:id="@+id/rbSoundElectronic"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/radio_sound_electronic"
-                            android:textAppearance="@style/TextAppearance.App.BodyMedium" />
-
-                    </RadioGroup>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/color_divider_subtle"
-                        android:layout_marginVertical="@dimen/_14sdp" />
-
-                    <!-- Alert Duration Selection -->
                     <TextView
-                        android:id="@+id/txtAlertDurationTitle"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/txtClapSubtitle"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_alert_duration"
-                        android:textAppearance="@style/TextAppearance.App.TitleSmall" />
+                        android:text="@string/alerts_on_double_triple_clap"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        app:layout_constraintTop_toBottomOf="@id/txtClapTitle"
+                        app:layout_constraintStart_toEndOf="@id/cardClapIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchClapDetection" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="@dimen/_10sdp">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/switchClapDetection"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_switch_off"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDuration10"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_40sdp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="@dimen/_4sdp"
-                            android:text="10s"
-                            style="@style/Widget.App.Button.Duration" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDuration30"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_40sdp"
-                            android:layout_weight="1"
-                            android:layout_marginHorizontal="@dimen/_2sdp"
-                            android:text="30s"
-                            style="@style/Widget.App.Button.Duration" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDuration60"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_40sdp"
-                            android:layout_weight="1"
-                            android:layout_marginHorizontal="@dimen/_2sdp"
-                            android:text="60s"
-                            style="@style/Widget.App.Button.Duration" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnDuration120"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_40sdp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="@dimen/_4sdp"
-                            android:text="120s"
-                            style="@style/Widget.App.Button.Duration" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- 4. Battery Optimization Card -->
+            <!-- Card 3: Find Phone by Whistle -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardBatteryOpt"
+                android:id="@+id/cardWhistle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_16sdp"
-                app:cardBackgroundColor="@color/color_card_battery"
-                app:cardCornerRadius="@dimen/card_corner_radius"
-                app:cardElevation="@dimen/card_elevation"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="@color/color_card_battery_stroke">
+                app:strokeColor="@color/color_card_stroke_light">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/_18sdp">
+                    android:padding="@dimen/_12sdp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardWhistleIcon"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        app:cardBackgroundColor="@color/color_circle_icon_bg"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_whistle"
+                            app:tint="@color/color_primary"
+                            android:contentDescription="@string/app_name" />
+
+                    </com.google.android.material.card.MaterialCardView>
 
                     <TextView
-                        android:id="@+id/txtKeepActiveTitle"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/txtWhistleTitle"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_keep_active"
-                        android:textAppearance="@style/TextAppearance.App.TitleSmall" />
+                        android:text="@string/find_phone_by_whistle"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_12ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/cardWhistleIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchWhistleDetection" />
 
                     <TextView
-                        android:id="@+id/txtBatteryDesc"
+                        android:id="@+id/txtWhistleSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alerts_on_sharp_whistle"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        app:layout_constraintTop_toBottomOf="@id/txtWhistleTitle"
+                        app:layout_constraintStart_toEndOf="@id/cardWhistleIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchWhistleDetection" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/switchWhistleDetection"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_switch_off"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 4: Alert Sound (Clickable) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAlertSound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_card_stroke_light">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_12sdp">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/imgSoundIcon"
+                        android:layout_width="@dimen/_22sdp"
+                        android:layout_height="@dimen/_22sdp"
+                        android:src="@drawable/ic_volume_high"
+                        app:tint="@color/color_primary"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="@id/txtSoundTitle"
+                        app:layout_constraintBottom_toBottomOf="@id/txtSoundTitle"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <TextView
+                        android:id="@+id/txtSoundTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_alert_sound"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_13ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/imgSoundIcon"
+                        app:layout_constraintEnd_toStartOf="@id/txtSelectedSound" />
+
+                    <TextView
+                        android:id="@+id/txtSelectedSound"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_battery_desc"
-                        android:textAppearance="@style/TextAppearance.App.BodySmall"
-                        android:lineSpacingExtra="@dimen/_3sdp"
-                        android:layout_marginTop="@dimen/_6sdp" />
+                        android:text="@string/your_ringtone_single"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_11ssp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        app:layout_constraintTop_toTopOf="@id/txtSoundTitle"
+                        app:layout_constraintBottom_toBottomOf="@id/txtSoundTitle"
+                        app:layout_constraintEnd_toStartOf="@id/imgChevronSound" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnOpenBatteryOpt"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/imgChevronSound"
+                        android:layout_width="@dimen/_14sdp"
+                        android:layout_height="@dimen/_14sdp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/color_text_muted"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="@id/txtSoundTitle"
+                        app:layout_constraintBottom_toBottomOf="@id/txtSoundTitle"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <!-- Volume Bar under Alert Sound -->
+                    <TextView
+                        android:id="@+id/txtVolumeLabel"
                         android:layout_width="wrap_content"
-                        android:layout_height="@dimen/_40sdp"
-                        android:text="@string/label_open_battery_settings"
-                        style="@style/Widget.App.Button.OutlinedWarning"
-                        android:layout_marginTop="@dimen/_12sdp" />
+                        android:layout_height="wrap_content"
+                        android:text="@string/volume"
+                        android:textColor="@color/color_text_muted"
+                        android:textSize="@dimen/_8ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginTop="@dimen/_12sdp"
+                        app:layout_constraintTop_toBottomOf="@id/imgSoundIcon"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                </LinearLayout>
+                    <SeekBar
+                        android:id="@+id/seekBarVolumePreview"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/_6sdp"
+                        android:maxHeight="@dimen/_6sdp"
+                        android:progress="50"
+                        android:progressDrawable="@drawable/bg_seekbar_track"
+                        android:thumb="@drawable/bg_slider_thumb_circle"
+                        android:layout_marginStart="@dimen/_8sdp"
+                        app:layout_constraintTop_toTopOf="@id/txtVolumeLabel"
+                        app:layout_constraintBottom_toBottomOf="@id/txtVolumeLabel"
+                        app:layout_constraintStart_toEndOf="@id/txtVolumeLabel"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 5: Alert Sensitivity (Clickable) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAlertSensitivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_card_stroke_light">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_12sdp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardSensitivityIcon"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        app:cardBackgroundColor="@color/color_circle_icon_bg"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_settings"
+                            app:tint="@color/color_primary"
+                            android:contentDescription="@string/app_name" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/txtSensitivityTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alert_sensitivity"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_12ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/cardSensitivityIcon" />
+
+                    <!-- NEW Red Badge Pill -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardNewBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_6sdp"
+                        app:cardBackgroundColor="@color/color_badge_new"
+                        app:cardCornerRadius="@dimen/_4sdp"
+                        app:cardElevation="0dp"
+                        app:layout_constraintTop_toTopOf="@id/txtSensitivityTitle"
+                        app:layout_constraintBottom_toBottomOf="@id/txtSensitivityTitle"
+                        app:layout_constraintStart_toEndOf="@id/txtSensitivityTitle">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="@dimen/_4sdp"
+                            android:paddingVertical="@dimen/_1sdp"
+                            android:text="@string/badge_new"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_7ssp"
+                            android:fontFamily="@font/inter_extrabold" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/txtSensitivitySubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/set_how_easily_alert_triggers"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        app:layout_constraintTop_toBottomOf="@id/txtSensitivityTitle"
+                        app:layout_constraintStart_toEndOf="@id/cardSensitivityIcon"
+                        app:layout_constraintEnd_toStartOf="@id/txtSelectedSensitivity" />
+
+                    <TextView
+                        android:id="@+id/txtSelectedSensitivity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/sensitivity_medium"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_11ssp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/imgChevronSensitivity" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/imgChevronSensitivity"
+                        android:layout_width="@dimen/_14sdp"
+                        android:layout_height="@dimen/_14sdp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/color_text_muted"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 6: Alert Duration (Clickable) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAlertDuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_card_stroke_light">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_12sdp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardDurationIcon"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        app:cardBackgroundColor="@color/color_circle_icon_bg"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_duration"
+                            app:tint="@color/color_primary"
+                            android:contentDescription="@string/app_name" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/txtDurationTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_alert_duration"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_12ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/cardDurationIcon"
+                        app:layout_constraintEnd_toStartOf="@id/txtSelectedDuration" />
+
+                    <TextView
+                        android:id="@+id/txtDurationSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/how_long_alert_plays"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        app:layout_constraintTop_toBottomOf="@id/txtDurationTitle"
+                        app:layout_constraintStart_toEndOf="@id/cardDurationIcon"
+                        app:layout_constraintEnd_toStartOf="@id/txtSelectedDuration" />
+
+                    <TextView
+                        android:id="@+id/txtSelectedDuration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/default_duration_30s"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_11ssp"
+                        android:fontFamily="@font/inter_semibold"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/imgChevronDuration" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/imgChevronDuration"
+                        android:layout_width="@dimen/_14sdp"
+                        android:layout_height="@dimen/_14sdp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/color_text_muted"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 7: Flashlight -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardFlashlight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_card_stroke_light">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_12sdp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardFlashIcon"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        app:cardBackgroundColor="@color/color_circle_icon_bg"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_flashlight"
+                            app:tint="@color/color_primary"
+                            android:contentDescription="@string/app_name" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/txtFlashTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/flashlight"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_12ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/cardFlashIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchFlashlight" />
+
+                    <TextView
+                        android:id="@+id/txtFlashSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/strobe_flash_on_alert"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        app:layout_constraintTop_toBottomOf="@id/txtFlashTitle"
+                        app:layout_constraintStart_toEndOf="@id/cardFlashIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchFlashlight" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/switchFlashlight"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_switch_off"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 8: Vibration -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardVibration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/_16sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_card_stroke_light">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/_12sdp">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardVibIcon"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        app:cardBackgroundColor="@color/color_circle_icon_bg"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_vibration"
+                            app:tint="@color/color_primary"
+                            android:contentDescription="@string/app_name" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:id="@+id/txtVibTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vibration"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_12ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/cardVibIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchVibration" />
+
+                    <TextView
+                        android:id="@+id/txtVibSubtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vibrate_together_with_alert_sound"
+                        android:textColor="@color/color_text_subtitle"
+                        android:textSize="@dimen/_10ssp"
+                        android:fontFamily="@font/inter_regular"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_2sdp"
+                        app:layout_constraintTop_toBottomOf="@id/txtVibTitle"
+                        app:layout_constraintStart_toEndOf="@id/cardVibIcon"
+                        app:layout_constraintEnd_toStartOf="@id/switchVibration" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/switchVibration"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_switch_off"
+                        android:contentDescription="@string/app_name"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </com.google.android.material.card.MaterialCardView>
 

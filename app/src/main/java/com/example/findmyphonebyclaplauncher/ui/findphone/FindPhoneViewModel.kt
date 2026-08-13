@@ -31,19 +31,30 @@ class FindPhoneViewModel(application: Application) : AndroidViewModel(applicatio
         refreshState()
     }
 
-    fun refreshState() {
+    fun refreshState(context: Context? = null) {
         val clap    = prefsDataSource.isClapDetectionEnabled
         val whistle = prefsDataSource.isWhistleDetectionEnabled
+        val hasMic  = PermissionManager.hasRecordAudioPermission(getApplication())
+
         isClapEnabled.value          = clap
         isWhistleEnabled.value       = whistle
-        isServiceRunning.value       = clap || whistle
-        hasMicPermission.value       = PermissionManager.hasRecordAudioPermission(getApplication())
+        hasMicPermission.value       = hasMic
+
+        val shouldRun = (clap || whistle) && hasMic
+        isServiceRunning.value       = shouldRun
 
         isSoundAlertEnabled.value    = prefsDataSource.isSoundAlertEnabled
         isFlashlightEnabled.value    = prefsDataSource.isFlashlightEnabled
         isVibrationEnabled.value     = prefsDataSource.isVibrationEnabled
         selectedAlertSound.value     = prefsDataSource.selectedAlertSound
         selectedAlertDuration.value  = prefsDataSource.selectedAlertDuration
+
+        val ctx = context ?: getApplication()
+        if (shouldRun) {
+            updateService(ctx, clap, whistle)
+        } else if (!clap && !whistle) {
+            updateService(ctx, false, false)
+        }
     }
 
     fun setMasterDetection(context: Context, enabled: Boolean) {

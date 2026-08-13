@@ -50,6 +50,16 @@
     <color name="color_alert_background">#8B0000</color>
     <color name="color_warning_surface">#2D2200</color>
 
+    <!-- ── Dashboard / Cards / Badges Colors ────────────────────────────── -->
+    <color name="color_card_master_bg">#EFF6FF</color>
+    <color name="color_card_master_stroke">#BFDBFE</color>
+    <color name="color_card_stroke_light">#E2E8F0</color>
+    <color name="color_circle_icon_bg">#EFF6FF</color>
+    <color name="color_text_subtitle">#64748B</color>
+    <color name="color_text_muted">#94A3B8</color>
+    <color name="color_badge_new">#EF4444</color>
+    <color name="color_navy_ad_bg">#0F172A</color>
+
     <!-- ── Utility ───────────────────────────────────────────────────────── -->
     <color name="color_text_on_light">#0F172A</color>
     <color name="black">#FF000000</color>

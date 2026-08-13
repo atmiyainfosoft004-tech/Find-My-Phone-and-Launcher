@@ -187,14 +187,12 @@ class SplashActivity : AppCompatActivity() {
         releaseMediaPlayer()
 
         val userPrefs = UserPreferencesDataSource(applicationContext)
-        val isFirst = userPrefs.isFirstLaunch
         val isCompleted = userPrefs.isOnboardingCompleted
         val isSkipped = userPrefs.isOnboardingSkipped
 
-        val targetClass = if (isCompleted || isSkipped || !isFirst) {
+        val targetClass = if (isCompleted || isSkipped) {
             FindPhoneActivity::class.java
         } else {
-            userPrefs.isFirstLaunch = false
             OnboardingActivity::class.java
         }
 

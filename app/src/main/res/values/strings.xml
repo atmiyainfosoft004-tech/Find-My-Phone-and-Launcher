@@ -122,4 +122,43 @@
     <string name="train">Train</string>
     <string name="hello">Hello</string>
     <string name="horn">Horn</string>
+
+    <!-- ── Dashboard / Settings New Strings ───────────────────────────── -->
+    <string name="find_my_phone_launcher_title">Find My Phone Launcher</string>
+    <string name="clap_and_whistle_detection">Clap &amp; Whistle Detection</string>
+    <string name="always_watching_background">Always watching in background</string>
+    <string name="find_phone_with_3_claps">Find Phone with 3 Claps</string>
+    <string name="alerts_on_double_triple_clap">Alerts on double/triple hand clap</string>
+    <string name="find_phone_by_whistle">Find Phone by Whistle</string>
+    <string name="alerts_on_sharp_whistle">Alerts on sharp sound whistle</string>
+    <string name="volume">VOLUME</string>
+    <string name="alert_sensitivity">Alert Sensitivity</string>
+    <string name="badge_new">NEW</string>
+    <string name="set_how_easily_alert_triggers">Set how easily alert triggers</string>
+    <string name="how_long_alert_plays">How long the alert plays</string>
+    <string name="flashlight">Flashlight</string>
+    <string name="strobe_flash_on_alert">Strobe flash on phone alert</string>
+    <string name="vibration">Vibration</string>
+    <string name="vibrate_together_with_alert_sound">Vibrate together with alert sound</string>
+
+    <!-- ── Menu Screen Strings ────────────────────────────────────────── -->
+    <string name="menu">Menu</string>
+    <string name="about_us">About Us</string>
+    <string name="help">Help</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_service">Terms of Service</string>
+
+    <!-- ── Alert Sensitivity Screen Strings ────────────────────────────── -->
+    <string name="alert_sensitivity_desc">Set how sensitive Find My Phone is to your clap or whistle.</string>
+    <string name="sensitivity_low">Low</string>
+    <string name="sensitivity_medium">Medium</string>
+    <string name="sensitivity_high">High</string>
+    <string name="recommended">Recommended</string>
+    <string name="btn_save">Save</string>
+
+    <!-- ── Alert Sound Screen Strings ─────────────────────────────────── -->
+    <string name="ad_placeholder">Ad Placeholder</string>
+    <string name="your_ringtone_single">Your Ringtone</string>
+    <string name="default_duration_30s">30 Sec</string>
+    <string name="enable_master_detection_first">Please enable Clap &amp; Whistle Detection first</string>
 </resources>
