@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Find My Phone</string>
+    <string name="launcher_title">Find My Phone</string>
+
+    <!-- ── Onboarding ─────────────────────────────────────────────────── -->
+    <string name="onboarding_title_1">Just clap or\nwhistle</string>
+    <string name="onboarding_subtitle_1">To find your lost phone instantly</string>
+    <string name="btn_continue">Continue</string>
+
+    <string name="mascot_permission_text">Let\'s test it out! Allow audio and notification access so I can hear you.</string>
+    <string name="audio_access_title">Audio Access Needed</string>
+    <string name="audio_access_desc">Only listens for your unique claps and whistles. We never upload or save any audio files.</string>
+    <string name="privacy_matters_text">Your privacy matters</string>
+
+    <string name="mascot_sound_picker_text">Now choose your favorite alert sound and set your listening volume.</string>
+    <string name="alert_sound_volume_label">Alert Sound Volume</string>
+    <string name="tap_to_play_sound_label">TAP TO PLAY SOUND</string>
+    <string name="btn_test_it_now">Test it now</string>
+    <string name="btn_skip_for_now"><u>Skip for now</u></string>
+
+    <string name="mascot_listening_test_text">Let\'s test! Clap 3 times or whistle out loud.</string>
+    <string name="listening_header">Listening…</string>
+    <string name="listening_subtitle">Say whistle or clap 3 times</string>
+    <string name="btn_test_it_later">I\'ll test it later</string>
+
+    <string name="mascot_home_preview_text">Your system data is safe! Our launcher only updates your layout for direct access to features.</string>
+    <string name="label_find_phone_active">Find My Phone Active</string>
+    <string name="btn_got_it">Got it</string>
+    <string name="label_camera">Camera</string>
+    <string name="label_maps">Maps</string>
+    <string name="label_messages">Messages</string>
+    <string name="label_photos">Photos</string>
+    <string name="label_search_apps">Search apps…</string>
+
+    <!-- ── Home / Main Dashboard ──────────────────────────────────────── -->
+    <string name="find_phone_title">Find My Phone</string>
+    <string name="find_phone_subtitle">Find your phone with a clap or whistle</string>
+    <string name="detection_master_label_off">Clap &amp; Whistle\nDetection is OFF</string>
+    <string name="detection_master_label_on">Clap &amp; Whistle\nDetection is ON</string>
+    <string name="find_phone_3_claps">3 Clap Detection</string>
+    <string name="find_phone_whistle">Whistle Detection</string>
+    <string name="alert_sound">Alert Sound</string>
+    <string name="your_ringtone">Your\nRingtone</string>
+
+    <string name="label_sound_alert">Sound Alert</string>
+    <string name="label_flashlight_alert">Flashlight Alert</string>
+    <string name="label_vibration_alert">Vibration Alert</string>
+    <string name="label_multi_alert_settings">Multi Alert Settings</string>
+    <string name="label_alert_duration">Alert Duration</string>
+    <string name="label_alert_sound">Alert Sound</string>
+    <string name="label_preview_sound">Preview</string>
+    <string name="label_stop_sound">Stop</string>
+    <string name="label_keep_active">Keep Find My Phone Active</string>
+    <string name="label_battery_desc">Battery optimization may stop background detection on some phones. Allow background activity for more reliable detection.</string>
+    <string name="label_open_battery_settings">Open Battery Settings</string>
+
+    <string name="radio_sound_whistle">Whistle Tone</string>
+    <string name="radio_sound_melody">Loud Melody</string>
+    <string name="radio_sound_animal">Dog Barking</string>
+    <string name="radio_sound_electronic">Electronic Siren</string>
+
+    <string name="service_status_active">Detection Active</string>
+    <string name="service_status_off">Detection Off</string>
+
+    <!-- ── Permissions ─────────────────────────────────────────────────── -->
+    <string name="mic_permission_required">Microphone permission is required to detect claps and whistles.</string>
+    <string name="mic_permission_rationale">Allow microphone access so the app can listen for claps and whistles.</string>
+    <string name="mic_permission_denied">Microphone permission denied. Detection will not work.</string>
+    <string name="mic_permission_permanently_denied">Microphone permission permanently denied. Open Settings to grant it manually.</string>
+    <string name="allow">Allow</string>
+    <string name="open_settings">Open Settings</string>
+
+    <!-- ── Alert ───────────────────────────────────────────────────────── -->
+    <string name="alert_title">Your Phone Was Found!</string>
+    <string name="alert_subtitle">Tap STOP to silence the alert</string>
+    <string name="stop_alert">STOP</string>
+    <string name="alert_notification_title">Find My Phone — Active</string>
+    <string name="alert_notification_text">Tap to stop the phone alert.</string>
+
+    <!-- ── Service Notification ────────────────────────────────────────── -->
+    <string name="service_notification_title">Find My Phone is active</string>
+    <string name="service_notification_text">Listening for claps and whistles…</string>
+
+    <!-- ── Notification Channels ──────────────────────────────────────── -->
+    <string name="channel_detection_name">Sound Detection</string>
+    <string name="channel_detection_description">Foreground service for clap and whistle detection</string>
+    <string name="channel_alert_name">Find Phone Alert</string>
+    <string name="channel_alert_description">Alert when your phone is found via clap or whistle</string>
+
+    <!-- ── Settings ────────────────────────────────────────────────────── -->
+    <string name="settings">Settings</string>
+    <string name="battery_optimization_title">Background Activity</string>
+    <string name="battery_optimization_description">For reliable detection, allow this app to run in the background without restrictions.</string>
+    <string name="battery_status_unrestricted">Unrestricted — detection will work reliably</string>
+    <string name="battery_status_restricted">Restricted — detection may stop in background</string>
+    <string name="allow_background_activity">Allow Background Activity</string>
+    <string name="oem_autostart_title">Autostart Permission</string>
+    <string name="oem_autostart_description">Enable autostart for %1$s devices so the detection service restarts automatically after reboot.</string>
+    <string name="open_autostart_settings">Open Autostart Settings</string>
+    <string name="oem_settings_not_found">Could not find autostart settings on this device. Please enable it manually.</string>
+    <string name="audio_access_needed">Audio Access Needed</string>
+
+    <!-- ── Content Descriptions ────────────────────────────────────────── -->
+    <string name="content_desc_clap_icon">Clap detection icon</string>
+    <string name="content_desc_whistle_icon">Whistle detection icon</string>
+    <string name="content_desc_sound_alert">Sound alert icon</string>
+    <string name="content_desc_flashlight_alert">Flashlight alert icon</string>
+    <string name="content_desc_vibration_alert">Vibration alert icon</string>
+    <string name="content_desc_mascot">Mascot character</string>
+    <string name="content_desc_microphone">Microphone listening icon</string>
+    <string name="content_desc_volume_low">Low volume</string>
+    <string name="content_desc_volume_high">High volume</string>
+    <string name="content_desc_checkmark">Selected</string>
+    <string name="content_desc_sound_item_icon">Sound option icon</string>
+    <string name="content_desc_clap_hands">Clapping hands illustration</string>
+    <string name="air_horn">Air\nHorn</string>
+    <string name="baby_laugh">Baby\nLaugh</string>
+    <string name="cat">Cat</string>
+    <string name="dog">Dog</string>
+    <string name="door_bell">Door\nBell</string>
+    <string name="train">Train</string>
+    <string name="hello">Hello</string>
+    <string name="horn">Horn</string>
+</resources>

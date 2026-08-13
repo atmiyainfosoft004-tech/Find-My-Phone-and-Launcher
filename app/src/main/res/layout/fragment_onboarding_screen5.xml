@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/_15sdp"
+    android:paddingVertical="@dimen/_10sdp"
+    android:background="@color/color_onboarding_background">
+
+    <!-- Top Mascot Speech Bubble Section -->
+    <LinearLayout
+        android:id="@+id/layoutMascotBubble"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Mascot Circle Avatar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMascot"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:cardBackgroundColor="@color/color_listening_circle_bg"
+            app:cardCornerRadius="@dimen/_23sdp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="@color/color_listening_circle_stroke">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgMascot"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_mascot_owl"
+                android:contentDescription="@string/content_desc_mascot" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- White Speech Bubble Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSpeechBubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/_10sdp"
+            app:strokeColor="@color/color_onboarding_stroke">
+
+            <TextView
+                android:id="@+id/txtMascotBubble"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_10sdp"
+                android:text="@string/mascot_listening_test_text"
+                android:textAppearance="@style/TextAppearance.App.Onboarding.BodyBold"
+                android:textSize="@dimen/_11ssp"
+                android:lineSpacingExtra="@dimen/_2sdp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- Center Device Frame Container Mockup -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardDeviceMockup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="@dimen/_12sdp"
+        app:cardBackgroundColor="#F8FAFC"
+        app:cardCornerRadius="@dimen/_24sdp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1.5dp"
+        app:strokeColor="#E2E8F0"
+        app:layout_constraintTop_toBottomOf="@id/layoutMascotBubble"
+        app:layout_constraintBottom_toTopOf="@id/btnTestLater"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/_10sdp">
+
+            <!-- Top Camera Notch Pill -->
+            <View
+                android:id="@+id/viewCameraNotch"
+                android:layout_width="@dimen/_64sdp"
+                android:layout_height="@dimen/_12sdp"
+                android:background="@drawable/bg_notch_pill"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Inner White Screen Canvas -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardInnerCanvas"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/_10sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_18sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:layout_constraintTop_toBottomOf="@id/viewCameraNotch"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <!-- Dashed Ring Circle Container -->
+                    <FrameLayout
+                        android:id="@+id/cardMicCircle"
+                        android:layout_width="@dimen/_130sdp"
+                        android:layout_height="@dimen/_130sdp"
+                        android:background="@drawable/bg_circle_dashed_ring">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/imgMicrophone"
+                            android:layout_width="@dimen/_48sdp"
+                            android:layout_height="@dimen/_48sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_mic_waveform"
+                            android:contentDescription="@string/content_desc_microphone" />
+
+                    </FrameLayout>
+
+                    <!-- Status Title Header ("Listening...") -->
+                    <TextView
+                        android:id="@+id/txtStatusHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/listening_header"
+                        android:textColor="@color/color_primary"
+                        android:textSize="@dimen/_16ssp"
+                        android:fontFamily="@font/inter_extrabold"
+                        android:layout_marginTop="@dimen/_20sdp" />
+
+                    <!-- Status Subtitle ("Say whistle or clap 3 times") -->
+                    <TextView
+                        android:id="@+id/txtStatusSub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/listening_subtitle"
+                        android:textColor="#64748B"
+                        android:textSize="@dimen/_11ssp"
+                        android:fontFamily="@font/inter_medium"
+                        android:textAlignment="center"
+                        android:layout_marginTop="@dimen/_6sdp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Bottom Blue Action Button ("I'll test it later") -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTestLater"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/btn_test_it_later"
+        style="@style/Widget.App.Button.Primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

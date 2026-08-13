@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Outer White Ring -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+            <size
+                android:width="@dimen/_16sdp"
+                android:height="@dimen/_16sdp" />
+        </shape>
+    </item>
+    <!-- Inner Blue Circle -->
+    <item
+        android:bottom="@dimen/_2sdp"
+        android:left="@dimen/_2sdp"
+        android:right="@dimen/_2sdp"
+        android:top="@dimen/_2sdp">
+        <shape android:shape="oval">
+            <solid android:color="@color/color_primary" />
+        </shape>
+    </item>
+</layer-list>

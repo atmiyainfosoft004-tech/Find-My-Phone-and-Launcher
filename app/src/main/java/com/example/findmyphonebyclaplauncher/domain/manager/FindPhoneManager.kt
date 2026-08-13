@@ -1,0 +1,227 @@
+package com.example.findmyphonebyclaplauncher.domain.manager
+
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
+import com.example.findmyphonebyclaplauncher.ui.alert.AlertActivity
+import com.example.findmyphonebyclaplauncher.utils.Constants
+
+/**
+ * Centralized alert manager for Find My Phone.
+ * Coordinates Sound, Flashlight, and Vibration alerts based on user preferences and handles auto-stop timers.
+ */
+class FindPhoneManager(private val context: Context) {
+
+    private val tag = "FindPhoneManager"
+
+    private var mediaPlayer: MediaPlayer? = null
+    private var isAlertActive = false
+
+    private val flashlightManager = FlashlightManager(context)
+
+    private val autoStopHandler = Handler(Looper.getMainLooper())
+    private var autoStopRunnable: Runnable? = null
+
+    fun isAlertActive(): Boolean = isAlertActive
+
+    /**
+     * Begins the full phone-finding alert using saved preferences.
+     * Safe to call from background service or detector thread.
+     */
+    fun triggerFindPhone(flashlightEnabledOverride: Boolean? = null) {
+        if (isAlertActive) {
+            Log.d(tag, "Alert already active — ignoring duplicate trigger")
+            return
+        }
+
+        val prefs = UserPreferencesDataSource(context)
+        val soundEnabled = prefs.isSoundAlertEnabled
+        val flashEnabled = flashlightEnabledOverride ?: prefs.isFlashlightEnabled
+        val vibrationEnabled = prefs.isVibrationEnabled
+        val durationSeconds = prefs.selectedAlertDuration
+
+        Log.d(tag, "Find Phone triggered (sound=$soundEnabled, flash=$flashEnabled, vib=$vibrationEnabled, duration=$durationSeconds s)")
+
+        isAlertActive = true
+
+        if (soundEnabled) startAlertSound()
+        if (vibrationEnabled) startVibration()
+        if (flashEnabled) flashlightManager.startFlashing()
+
+        showAlertNotification()
+        launchAlertActivity()
+
+        // Schedule auto-stop timer
+        autoStopRunnable?.let { autoStopHandler.removeCallbacks(it) }
+        autoStopRunnable = Runnable {
+            Log.d(tag, "Auto-stopping alert after $durationSeconds seconds")
+            stopFindPhone()
+        }
+        autoStopHandler.postDelayed(autoStopRunnable!!, durationSeconds * 1000L)
+    }
+
+    /** Stops all active alert signals (sound, flashlight, vibration). */
+    fun stopFindPhone() {
+        autoStopRunnable?.let { autoStopHandler.removeCallbacks(it) }
+        autoStopRunnable = null
+
+        if (!isAlertActive) return
+        Log.d(tag, "Stopping Find Phone alert")
+        isAlertActive = false
+
+        stopAlertSound()
+        stopVibration()
+        flashlightManager.stopFlashing()
+        cancelAlertNotification()
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Sound
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun startAlertSound() {
+        try {
+            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0)
+
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(context, alarmUri)
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                isLooping = true
+                prepare()
+                start()
+            }
+            Log.d(tag, "Alert sound started")
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to start alert sound: ${e.message}")
+        }
+    }
+
+    private fun stopAlertSound() {
+        try {
+            mediaPlayer?.apply {
+                if (isPlaying) stop()
+                release()
+            }
+            mediaPlayer = null
+            Log.d(tag, "Alert sound stopped")
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to stop alert sound: ${e.message}")
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Vibration
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun startVibration() {
+        try {
+            val pattern = longArrayOf(0, 600, 200)
+            val vibrationEffect = VibrationEffect.createWaveform(pattern, 0)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                manager.defaultVibrator.vibrate(vibrationEffect)
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.vibrate(vibrationEffect)
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to start vibration: ${e.message}")
+        }
+    }
+
+    private fun stopVibration() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                manager.defaultVibrator.cancel()
+            } else {
+                @Suppress("DEPRECATION")
+                (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).cancel()
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to stop vibration: ${e.message}")
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Notification
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private fun showAlertNotification() {
+        val alertIntent = Intent(context, AlertActivity::class.java).apply {
+            action = Constants.ACTION_STOP_ALERT
+            flags  = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        val fullScreenPi = PendingIntent.getActivity(
+            context, 0, alertIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val stopPi = PendingIntent.getActivity(
+            context, 1, alertIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, Constants.CHANNEL_ID_ALERT)
+            .setSmallIcon(R.drawable.ic_notification_phone)
+            .setContentTitle(context.getString(R.string.alert_notification_title))
+            .setContentText(context.getString(R.string.alert_notification_text))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setOngoing(true)
+            .setAutoCancel(false)
+            .setFullScreenIntent(fullScreenPi, true)
+            .setContentIntent(fullScreenPi)
+            .addAction(
+                R.drawable.ic_stop,
+                context.getString(R.string.stop_alert),
+                stopPi
+            )
+            .build()
+
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.notify(Constants.NOTIFICATION_ID_ALERT, notification)
+    }
+
+    private fun cancelAlertNotification() {
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        nm.cancel(Constants.NOTIFICATION_ID_ALERT)
+    }
+
+    private fun launchAlertActivity() {
+        try {
+            val intent = Intent(context, AlertActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to launch AlertActivity: ${e.message}")
+        }
+    }
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Standard spacing ──────────────────────────────────────────────── -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="spacing_xxl">48dp</dimen>
+
+    <!-- ── Card ──────────────────────────────────────────────────────────── -->
+    <dimen name="card_corner_radius">20dp</dimen>
+    <dimen name="card_padding">20dp</dimen>
+    <dimen name="card_elevation">0dp</dimen>
+
+    <!-- ── Button ────────────────────────────────────────────────────────── -->
+    <dimen name="button_height">56dp</dimen>
+    <dimen name="button_corner_radius">28dp</dimen>
+    <dimen name="button_text_size">15sp</dimen>
+
+    <!-- ── Typography ───────────────────────────────────────────────────── -->
+    <dimen name="text_size_xs">11sp</dimen>
+    <dimen name="text_size_sm">13sp</dimen>
+    <dimen name="text_size_md">15sp</dimen>
+    <dimen name="text_size_lg">18sp</dimen>
+    <dimen name="text_size_xl">22sp</dimen>
+    <dimen name="text_size_xxl">28sp</dimen>
+    <dimen name="text_size_clock">80sp</dimen>
+
+    <!-- ── Icon sizes ────────────────────────────────────────────────────── -->
+    <dimen name="icon_sm">24dp</dimen>
+    <dimen name="icon_md">40dp</dimen>
+    <dimen name="icon_lg">56dp</dimen>
+    <dimen name="icon_xl">96dp</dimen>
+    <dimen name="icon_hero">120dp</dimen>
+
+    <!-- ── App grid ──────────────────────────────────────────────────────── -->
+    <dimen name="app_icon_size">56dp</dimen>
+    <dimen name="app_label_size">11sp</dimen>
+    <dimen name="app_item_padding">8dp</dimen>
+
+    <!-- ── Page indicator dots ───────────────────────────────────────────── -->
+    <dimen name="dot_size">10dp</dimen>
+    <dimen name="dot_margin">5dp</dimen>
+
+    <!-- ── Status dot ────────────────────────────────────────────────────── -->
+    <dimen name="status_dot_size">10dp</dimen>
+</resources>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/_15sdp"
+    android:paddingVertical="@dimen/_10sdp"
+    android:background="@color/color_onboarding_background">
+
+    <!-- Top Mascot Speech Bubble Section -->
+    <LinearLayout
+        android:id="@+id/layoutMascotBubble"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Mascot Circle Avatar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMascot"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:cardBackgroundColor="@color/color_listening_circle_bg"
+            app:cardCornerRadius="@dimen/_23sdp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="@color/color_listening_circle_stroke">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgMascot"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_mascot_owl"
+                android:contentDescription="@string/content_desc_mascot" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- White Speech Bubble Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSpeechBubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/_10sdp"
+            app:strokeColor="@color/color_onboarding_stroke">
+
+            <TextView
+                android:id="@+id/txtMascotBubble"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_10sdp"
+                android:text="@string/mascot_home_preview_text"
+                android:textAppearance="@style/TextAppearance.App.Onboarding.BodyBold"
+                android:textSize="@dimen/_11ssp"
+                android:lineSpacingExtra="@dimen/_2sdp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- Center Device Mockup Direct Image -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imgDevicePreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="@dimen/_12sdp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        android:src="@drawable/img_home_preview_device"
+        android:contentDescription="@string/label_find_phone_active"
+        app:layout_constraintTop_toBottomOf="@id/layoutMascotBubble"
+        app:layout_constraintBottom_toTopOf="@id/btnGotIt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom Blue Action Button ("Got it") -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGotIt"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/btn_got_it"
+        style="@style/Widget.App.Button.Primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

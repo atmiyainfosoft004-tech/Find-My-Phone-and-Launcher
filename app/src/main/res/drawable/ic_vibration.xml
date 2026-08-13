@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Phone silhouette with vibration waves -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M0,15h2c0-4.97,4.03-9,9-9v-2C4.93,4,0,8.93,0,15zM0,11h2c0-2.76,2.24-5,5-5V4C3.13,4,0,7.13,0,11zM1.5,6.5C0.56,7.44,0,8.7,0,10h2c0-0.79,0.32-1.52,0.83-2.04L1.5,6.5zM15,1H9C7.9,1,7,1.9,7,3v18c0,1.1,0.9,2,2,2h6c1.1,0,2-0.9,2-2V3C17,1.9,16.1,1,15,1zM15,19H9V5h6V19z" />
+</vector>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/color_background"
+        app:title="@string/settings"
+        app:titleTextColor="@color/color_text_primary"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Battery optimization card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBattery"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_16sdp"
+        android:layout_marginTop="@dimen/_16sdp"
+        app:cardBackgroundColor="@color/color_card"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/color_card_stroke"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/card_padding">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/battery_optimization_title"
+                android:textAppearance="@style/TextAppearance.App.TitleSmall" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/battery_optimization_description"
+                android:textAppearance="@style/TextAppearance.App.BodySmall"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:lineSpacingMultiplier="1.4" />
+
+            <TextView
+                android:id="@+id/txtBatteryStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.App.LabelMedium"
+                android:layout_marginTop="@dimen/_12sdp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBatteryOptimization"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_40sdp"
+                android:text="@string/allow_background_activity"
+                android:layout_marginTop="@dimen/_12sdp"
+                style="@style/Widget.App.Button.Outlined" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- OEM Autostart card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardOemAutostart"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_16sdp"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/color_card"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="@dimen/card_elevation"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/color_card_stroke"
+        app:layout_constraintTop_toBottomOf="@id/cardBattery"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/card_padding">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/oem_autostart_title"
+                android:textAppearance="@style/TextAppearance.App.TitleSmall" />
+
+            <TextView
+                android:id="@+id/txtOemBrand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.App.BodySmall"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:lineSpacingMultiplier="1.4" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOemAutostart"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_40sdp"
+                android:text="@string/open_autostart_settings"
+                android:layout_marginTop="@dimen/_12sdp"
+                style="@style/Widget.App.Button.Outlined" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

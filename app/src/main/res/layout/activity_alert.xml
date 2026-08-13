@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_alert_background">
+
+    <!-- Pulsing phone icon -->
+    <ImageView
+        android:id="@+id/imgAlertIcon"
+        android:layout_width="@dimen/_120sdp"
+        android:layout_height="@dimen/_120sdp"
+        android:src="@drawable/ic_notification_phone"
+        android:contentDescription="@string/alert_notification_title"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.30"
+        app:layout_constraintBottom_toTopOf="@id/txtAlertTitle" />
+
+    <!-- Alert title -->
+    <TextView
+        android:id="@+id/txtAlertTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/alert_title"
+        android:textAppearance="@style/TextAppearance.App.HeadlineLarge"
+        android:textColor="@color/color_text_primary"
+        android:textAlignment="center"
+        android:layout_marginTop="@dimen/_24sdp"
+        android:layout_marginHorizontal="@dimen/_24sdp"
+        app:layout_constraintTop_toBottomOf="@id/imgAlertIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Alert subtitle -->
+    <TextView
+        android:id="@+id/txtAlertSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/alert_subtitle"
+        android:textAppearance="@style/TextAppearance.App.BodyMedium"
+        android:textColor="@color/color_text_secondary"
+        android:textAlignment="center"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginHorizontal="@dimen/_24sdp"
+        app:layout_constraintTop_toBottomOf="@id/txtAlertTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- STOP button (large, prominent) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnStopAlert"
+        android:layout_width="@dimen/_160sdp"
+        android:layout_height="@dimen/_54sdp"
+        android:text="@string/stop_alert"
+        android:textAppearance="@style/TextAppearance.App.TitleMedium"
+        android:textColor="@color/color_alert_background"
+        style="@style/Widget.Material3.Button"
+        app:backgroundTint="@color/color_text_primary"
+        app:cornerRadius="@dimen/_28sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="@dimen/_60sdp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

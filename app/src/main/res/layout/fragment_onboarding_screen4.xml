@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/_15sdp"
+    android:paddingTop="@dimen/_10sdp"
+    android:background="@color/color_onboarding_background">
+
+    <!-- Top Mascot Speech Bubble Section -->
+    <LinearLayout
+        android:id="@+id/layoutMascotBubble"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Mascot Circle Avatar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMascot"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:cardBackgroundColor="@color/color_listening_circle_bg"
+            app:cardCornerRadius="@dimen/_23sdp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1.5dp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            app:strokeColor="@color/color_listening_circle_stroke">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgMascot"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true"
+                android:src="@drawable/ic_mascot_owl"
+                android:contentDescription="@string/content_desc_mascot" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- White Speech Bubble Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSpeechBubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/_10sdp"
+            app:strokeColor="@color/color_onboarding_stroke">
+
+            <TextView
+                android:id="@+id/txtMascotBubble"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_10sdp"
+                android:gravity="bottom"
+                android:text="@string/mascot_sound_picker_text"
+                android:textAppearance="@style/TextAppearance.App.Onboarding.BodyBold"
+                android:textColor="@color/color_onboarding_text_primary"
+                android:fontFamily="@font/inter_medium"
+                app:fontFamily="@font/inter_medium"
+                android:lineSpacingExtra="@dimen/_2sdp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- Scrollable Middle Section -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:layout_marginBottom="@dimen/_8sdp"
+        app:layout_constraintTop_toBottomOf="@id/layoutMascotBubble"
+        app:layout_constraintBottom_toTopOf="@id/layoutBottomActions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Alert Sound Volume Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardVolume"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_onboarding_stroke">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_14sdp">
+
+                    <!-- Volume Card Header Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/txtVolumeLabel"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/alert_sound_volume_label"
+                            android:textAppearance="@style/TextAppearance.App.Onboarding.BodyBold"
+                            android:textColor="@color/color_text_on_light"
+                            android:fontFamily="@font/inter_semibold"
+                            app:fontFamily="@font/inter_bold" />
+
+                        <TextView
+                            android:id="@+id/txtVolumeValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="80%"
+                            android:textAppearance="@style/TextAppearance.App.Onboarding.BodyBold"
+                            android:textColor="@color/color_primary"
+                            android:fontFamily="@font/inter_bold"
+                            app:fontFamily="@font/inter_bold" />
+
+                    </LinearLayout>
+
+                    <!-- Volume Slider Row with Low/High Volume Speaker Icons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="@dimen/_8sdp">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/imgVolumeLow"
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginEnd="@dimen/_4sdp"
+                            android:src="@drawable/ic_volume_low"
+                            android:contentDescription="@string/content_desc_volume_low"
+                            app:tint="#475569" />
+
+                        <SeekBar
+                            android:id="@+id/sliderVolume"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:max="100"
+                            android:progress="80"
+                            android:minHeight="@dimen/_6sdp"
+                            android:maxHeight="@dimen/_6sdp"
+                            android:progressDrawable="@drawable/bg_seekbar_track"
+                            android:thumb="@drawable/bg_slider_thumb_circle"
+                            android:splitTrack="false"
+                            android:paddingStart="@dimen/_8sdp"
+                            android:paddingEnd="@dimen/_8sdp" />
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/imgVolumeHigh"
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_marginStart="@dimen/_4sdp"
+                            android:src="@drawable/ic_volume_high"
+                            android:contentDescription="@string/content_desc_volume_high"
+                            app:tint="#475569" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- TAP TO PLAY SOUND Section Header -->
+            <TextView
+                android:id="@+id/txtTapToPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tap_to_play_sound_label"
+                android:textAppearance="@style/TextAppearance.App.Onboarding.LabelSmall"
+                android:textColor="@color/color_sound_tap_to_play"
+                android:textSize="@dimen/text_size_sm"
+                android:fontFamily="@font/inter_semibold"
+                app:fontFamily="@font/inter_semibold"
+                android:letterSpacing="0.05"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:layout_marginBottom="@dimen/_8sdp" />
+
+            <!-- 3x3 Sound Selection Grid -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSounds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Actions Sticky Footer -->
+    <LinearLayout
+        android:id="@+id/layoutBottomActions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="@dimen/_8sdp"
+        android:paddingBottom="@dimen/_12sdp"
+        android:background="@color/color_onboarding_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTestItNow"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height"
+            android:text="@string/btn_test_it_now"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:fontFamily="@font/inter_semibold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/txtSkip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_skip_for_now"
+            android:textAppearance="@style/TextAppearance.App.Onboarding.BodyMedium"
+            android:textColor="@color/color_onboarding_text_secondary"
+            android:fontFamily="@font/inter_semibold"
+            app:fontFamily="@font/inter_medium"
+            android:padding="@dimen/_6sdp"
+            android:layout_marginTop="@dimen/_4sdp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

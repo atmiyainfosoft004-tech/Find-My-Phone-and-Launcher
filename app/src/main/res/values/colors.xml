@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Brand / Primary ───────────────────────────────────────────────── -->
+    <color name="color_primary">#2563EB</color>
+    <color name="color_primary_variant">#7986CB</color>
+    <color name="color_on_primary">#FFFFFF</color>
+
+    <!-- ── Dark Theme — Background / Surface ────────────────────────────── -->
+    <color name="color_background">#0D1117</color>
+    <color name="color_card">#161B22</color>
+    <color name="color_card_secondary">#21262D</color>
+    <color name="color_card_battery">#1F2836</color>
+
+    <!-- ── Dark Theme — Strokes / Dividers ──────────────────────────────── -->
+    <color name="color_card_stroke">#255C6BC0</color>
+    <color name="color_divider_subtle">#20FFFFFF</color>
+    <color name="color_card_battery_stroke">#25D29922</color>
+
+    <!-- ── Dark Theme — Text ─────────────────────────────────────────────── -->
+    <color name="color_text_primary">#E6EDF3</color>
+    <color name="color_text_secondary">#8B949E</color>
+
+    <!-- ── Light Theme — Onboarding ─────────────────────────────────────── -->
+    <color name="color_onboarding_background">#F8FAFC</color>
+    <color name="color_onboarding_surface">#FFFFFF</color>
+    <color name="color_onboarding_stroke">#E2E8F0</color>
+    <color name="color_onboarding_splash_stroke">#F1F5F9</color>
+    <color name="color_onboarding_text_primary">#0F172A</color>
+    <color name="color_onboarding_text_secondary">#64748B</color>
+    <color name="color_onboarding_text_body">#334155</color>
+    <color name="color_onboarding_mascot_bg">#FEF3C7</color>
+
+    <!-- ── Onboarding — Listening Circle ────────────────────────────────── -->
+    <color name="color_listening_circle_bg">#EFF6FF</color>
+    <color name="color_listening_circle_stroke">#93C5FD</color>
+
+    <!-- ── Sound Picker ──────────────────────────────────────────────────── -->
+    <color name="color_sound_item_bg">#F8FAFC</color>
+    <color name="color_sound_item_stroke">#F1F5F9</color>
+    <color name="color_sound_item_selected_bg">#EFF6FF</color>
+    <color name="color_sound_tap_to_play">#475569</color>
+
+
+    <!-- ── Semantic ──────────────────────────────────────────────────────── -->
+    <color name="color_success">#3FB950</color>
+    <color name="color_warning">#D29922</color>
+    <color name="color_error">#F85149</color>
+
+    <!-- ── Alert Screen ──────────────────────────────────────────────────── -->
+    <color name="color_alert_background">#8B0000</color>
+    <color name="color_warning_surface">#2D2200</color>
+
+    <!-- ── Utility ───────────────────────────────────────────────────────── -->
+    <color name="color_text_on_light">#0F172A</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
