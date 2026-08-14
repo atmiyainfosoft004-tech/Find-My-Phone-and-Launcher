@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/_15sdp"
+    android:paddingVertical="@dimen/_10sdp"
+    android:background="@color/white">
+
+    <!-- Clapping Hands Video Container -->
+    <FrameLayout
+        android:id="@+id/layoutIllustration"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/_16sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/txtTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- TextureView for smooth looping video playback -->
+        <TextureView
+            android:id="@+id/videoSplash"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <!-- Main Headline - Inter ExtraBold -->
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/onboarding_title_1"
+        android:textAppearance="@style/TextAppearance.App.Onboarding.HeadlineLarge"
+        android:fontFamily="@font/inter_extrabold"
+        app:fontFamily="@font/inter_extrabold"
+        android:textSize="@dimen/_24ssp"
+        android:textAlignment="center"
+        android:layout_marginBottom="@dimen/_5sdp"
+        app:layout_constraintBottom_toTopOf="@id/txtSubtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Subtitle - Inter Medium -->
+    <TextView
+        android:id="@+id/txtSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/onboarding_subtitle_1"
+        android:fontFamily="@font/inter_medium"
+        app:fontFamily="@font/inter_medium"
+        android:textSize="@dimen/_10sdp"
+        android:textColor="@color/color_onboarding_text_secondary"
+        android:textAlignment="center"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Blue Pill Continue Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/btn_continue"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:fontFamily="@font/inter_semibold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
