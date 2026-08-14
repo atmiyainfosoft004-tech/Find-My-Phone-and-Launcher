@@ -20,6 +20,13 @@ import com.example.findmyphonebyclaplauncher.ui.settings.AlertSoundActivity
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
 import com.google.android.material.snackbar.Snackbar
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
+import com.example.findmyphonebyclaplauncher.databinding.DialogAlertDurationBinding
+
 class FindPhoneActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFindPhoneBinding
@@ -175,17 +182,9 @@ class FindPhoneActivity : AppCompatActivity() {
             startActivity(Intent(this, AlertSensitivityActivity::class.java))
         }
 
-        // Alert Duration Card click -> Cycle durations (10s, 30s, 60s, 120s)
+        // Alert Duration Card click -> Show Alert Duration Dialog
         binding.cardAlertDuration.setOnClickListener {
-            val current = prefs.selectedAlertDuration
-            val next = when (current) {
-                10   -> 30
-                30   -> 60
-                60   -> 120
-                else -> 10
-            }
-            viewModel.setSelectedAlertDuration(next)
-            binding.txtSelectedDuration.text = "$next Sec"
+            showAlertDurationDialog()
         }
 
         // Flashlight Custom Switch
@@ -306,5 +305,76 @@ class FindPhoneActivity : AppCompatActivity() {
         ).setAction(getString(R.string.allow)) {
             permissionLauncher.launch(PermissionManager.requiredDetectionPermissions())
         }.show()
+    }
+
+    private fun showAlertDurationDialog() {
+        val dialogBinding = DialogAlertDurationBinding.inflate(layoutInflater)
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialog.window?.let { window ->
+            window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window.decorView.background = ColorDrawable(Color.TRANSPARENT)
+        }
+
+        val fontBold = ResourcesCompat.getFont(this, R.font.inter_bold)
+        val fontMedium = ResourcesCompat.getFont(this, R.font.inter_medium)
+
+        val radioButtons = listOf(
+            dialogBinding.radio10,
+            dialogBinding.radio30,
+            dialogBinding.radio60,
+            dialogBinding.radio120
+        )
+
+        fun updateFontStyles(checkedId: Int) {
+            for (rb in radioButtons) {
+                if (rb.id == checkedId) {
+                    rb.typeface = fontBold
+                } else {
+                    rb.typeface = fontMedium
+                }
+            }
+        }
+
+        val currentDuration = prefs.selectedAlertDuration
+        when (currentDuration) {
+            10   -> dialogBinding.radio10.isChecked = true
+            60   -> dialogBinding.radio60.isChecked = true
+            120  -> dialogBinding.radio120.isChecked = true
+            else -> dialogBinding.radio30.isChecked = true
+        }
+
+        updateFontStyles(dialogBinding.radioGroupDuration.checkedRadioButtonId)
+
+        dialogBinding.radioGroupDuration.setOnCheckedChangeListener { _, checkedId ->
+            updateFontStyles(checkedId)
+        }
+
+        dialogBinding.btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialogBinding.btnOk.setOnClickListener {
+            val selectedDuration = when (dialogBinding.radioGroupDuration.checkedRadioButtonId) {
+                R.id.radio10  -> 10
+                R.id.radio60  -> 60
+                R.id.radio120 -> 120
+                else          -> 30
+            }
+            viewModel.setSelectedAlertDuration(selectedDuration)
+            binding.txtSelectedDuration.text = "$selectedDuration Sec"
+            dialog.dismiss()
+        }
+
+        dialog.show()
+
+        // Configure dialog width & side margins to match Figma UI spacing from screen edges
+        dialog.window?.let { window ->
+            val marginPx = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._24sdp)
+            val targetWidth = (resources.displayMetrics.widthPixels - (marginPx * 2)).coerceAtLeast(1)
+            window.setLayout(targetWidth, ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
     }
 }

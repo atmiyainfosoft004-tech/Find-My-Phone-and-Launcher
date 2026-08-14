@@ -161,4 +161,13 @@
     <string name="your_ringtone_single">Your Ringtone</string>
     <string name="default_duration_30s">30 Sec</string>
     <string name="enable_master_detection_first">Please enable Clap &amp; Whistle Detection first</string>
+
+    <!-- ── Alert Duration Dialog Strings (camelCase) ──────────────────── -->
+    <string name="alertDurationTitle">ALERT DURATION</string>
+    <string name="duration10Sec">10 sec</string>
+    <string name="duration30Sec">30 sec</string>
+    <string name="duration60Sec">60 sec</string>
+    <string name="duration120Sec">120 sec</string>
+    <string name="btnCancel">CANCEL</string>
+    <string name="btnOk">OK</string>
 </resources>

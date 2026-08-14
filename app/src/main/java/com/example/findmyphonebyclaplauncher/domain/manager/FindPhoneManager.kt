@@ -21,6 +21,10 @@ import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSourc
 import com.example.findmyphonebyclaplauncher.ui.alert.AlertActivity
 import com.example.findmyphonebyclaplauncher.utils.Constants
 
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
 /**
  * Centralized alert manager for Find My Phone.
  * Coordinates Sound, Flashlight, and Vibration alerts based on user preferences and handles auto-stop timers.
@@ -30,7 +34,11 @@ class FindPhoneManager(private val context: Context) {
     private val tag = "FindPhoneManager"
 
     private var mediaPlayer: MediaPlayer? = null
+    @Volatile
     private var isAlertActive = false
+
+    private val _isAlertActiveState = MutableStateFlow(false)
+    val isAlertActiveState: StateFlow<Boolean> = _isAlertActiveState.asStateFlow()
 
     private val flashlightManager = FlashlightManager(context)
 
@@ -43,6 +51,7 @@ class FindPhoneManager(private val context: Context) {
      * Begins the full phone-finding alert using saved preferences.
      * Safe to call from background service or detector thread.
      */
+    @Synchronized
     fun triggerFindPhone(flashlightEnabledOverride: Boolean? = null) {
         if (isAlertActive) {
             Log.d(tag, "Alert already active — ignoring duplicate trigger")
@@ -58,6 +67,7 @@ class FindPhoneManager(private val context: Context) {
         Log.d(tag, "Find Phone triggered (sound=$soundEnabled, flash=$flashEnabled, vib=$vibrationEnabled, duration=$durationSeconds s)")
 
         isAlertActive = true
+        _isAlertActiveState.value = true
 
         if (soundEnabled) startAlertSound()
         if (vibrationEnabled) startVibration()
@@ -76,6 +86,7 @@ class FindPhoneManager(private val context: Context) {
     }
 
     /** Stops all active alert signals (sound, flashlight, vibration). */
+    @Synchronized
     fun stopFindPhone() {
         autoStopRunnable?.let { autoStopHandler.removeCallbacks(it) }
         autoStopRunnable = null
@@ -83,6 +94,7 @@ class FindPhoneManager(private val context: Context) {
         if (!isAlertActive) return
         Log.d(tag, "Stopping Find Phone alert")
         isAlertActive = false
+        _isAlertActiveState.value = false
 
         stopAlertSound()
         stopVibration()
