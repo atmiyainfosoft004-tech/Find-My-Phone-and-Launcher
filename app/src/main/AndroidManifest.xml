@@ -27,6 +27,25 @@
     <!-- System alert window for lock-screen alert -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
+    <!-- Package query permission for Launcher -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DELETE" />
+            <data android:scheme="package" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
+            <data android:scheme="package" />
+        </intent>
+    </queries>
+
     <uses-feature
         android:name="android.hardware.camera.flash"
         android:required="false" />
@@ -69,12 +88,20 @@
             android:exported="false"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
-        <!-- Find Phone Main Dashboard Activity -->
+        <!-- Find Phone Main Dashboard / Default Home Launcher Activity -->
         <activity
             android:name=".ui.findphone.FindPhoneActivity"
-            android:exported="false"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:stateNotNeeded="true"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light"
+            android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <!-- Settings -->
         <activity

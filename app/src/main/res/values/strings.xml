@@ -9,6 +9,10 @@
     <string name="btn_continue">Continue</string>
 
     <string name="mascot_permission_text">Let\'s test it out! Allow audio and notification access so I can hear you.</string>
+    <string name="mascot_default_launcher_text">To make sure Find My Phone is always alert, please select me as your default home app!</string>
+    <string name="default_home_app_title">Default Home App</string>
+    <string name="find_my_phone_launcher_name">Find My Phone Launcher</string>
+    <string name="other_app_label">Other App</string>
     <string name="audio_access_title">Audio Access Needed</string>
     <string name="audio_access_desc">Only listens for your unique claps and whistles. We never upload or save any audio files.</string>
     <string name="privacy_matters_text">Your privacy matters</string>
@@ -173,4 +177,8 @@
     <string name="duration120Sec">120 sec</string>
     <string name="btnCancel">CANCEL</string>
     <string name="btnOk">OK</string>
+    <string name="app_info">App info</string>
+    <string name="add_to_favorites">Add to favorites</string>
+    <string name="remove_from_favorites">Remove from favorites</string>
+    <string name="uninstall">Uninstall</string>
 </resources>

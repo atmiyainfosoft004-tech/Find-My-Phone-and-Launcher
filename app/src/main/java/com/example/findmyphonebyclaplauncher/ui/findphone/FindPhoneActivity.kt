@@ -42,10 +42,16 @@ class FindPhoneActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        prefs = UserPreferencesDataSource(this)
+
+        if (!prefs.isOnboardingCompleted && !prefs.isOnboardingSkipped) {
+            startActivity(Intent(this, com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity::class.java))
+            finish()
+            return
+        }
+
         binding = ActivityFindPhoneBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        prefs = UserPreferencesDataSource(this)
 
         setupWindowInsets()
         setupListeners()

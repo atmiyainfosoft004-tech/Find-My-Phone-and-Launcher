@@ -27,6 +27,7 @@ class OnboardingScreen1Fragment : Fragment() {
     private val binding get() = _binding!!
 
     private var mediaPlayer: MediaPlayer? = null
+    private var surface: Surface? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -84,11 +85,12 @@ class OnboardingScreen1Fragment : Fragment() {
         releaseMediaPlayer()
         val ctx = context ?: return
         try {
-            val surface = Surface(surfaceTexture)
+            val surf = Surface(surfaceTexture)
+            surface = surf
             val videoUri = Uri.parse("android.resource://${ctx.packageName}/${R.raw.splash_video}")
             mediaPlayer = MediaPlayer().apply {
                 setDataSource(ctx.applicationContext, videoUri)
-                setSurface(surface)
+                setSurface(surf)
                 isLooping = true
                 setOnPreparedListener { mp ->
                     adjustVideoAspect(viewWidth, viewHeight)
@@ -141,6 +143,13 @@ class OnboardingScreen1Fragment : Fragment() {
             e.printStackTrace()
         } finally {
             mediaPlayer = null
+        }
+        try {
+            surface?.release()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            surface = null
         }
     }
 

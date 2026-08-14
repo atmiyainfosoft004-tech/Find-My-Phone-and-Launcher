@@ -73,4 +73,12 @@
         <item name="strokeColor">@color/color_onboarding_stroke</item>
     </style>
 
+    <style name="TextAppearance.CallLauncher.AppLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">center</item>
+    </style>
+
 </resources>

@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/_15sdp"
+    android:paddingVertical="@dimen/_10sdp"
+    android:background="@color/color_onboarding_background">
+
+    <!-- Top Mascot Speech Bubble Section -->
+    <LinearLayout
+        android:id="@+id/layoutMascotBubble"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Mascot Circle Avatar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMascot"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:layout_marginEnd="@dimen/_10sdp"
+            app:cardBackgroundColor="@color/color_listening_circle_bg"
+            app:cardCornerRadius="@dimen/_25sdp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1.5dp"
+            app:strokeColor="@color/color_listening_circle_stroke">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/imgMascot"
+                android:layout_width="@dimen/_50sdp"
+                android:layout_height="@dimen/_50sdp"
+                android:layout_gravity="center"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_mascot_owl"
+                android:contentDescription="@string/content_desc_mascot" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Speech Bubble Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSpeechBubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="@dimen/_12sdp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/color_onboarding_stroke">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_10sdp">
+
+                <TextView
+                    android:id="@+id/txtMascotBubble"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mascot_default_launcher_text"
+                    android:textColor="@color/color_onboarding_text_primary"
+                    android:textSize="@dimen/_11ssp"
+                    android:fontFamily="@font/inter_medium"
+                    android:lineSpacingExtra="@dimen/_2sdp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btnAudioSpeaker" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnAudioSpeaker"
+                    android:layout_width="@dimen/_28sdp"
+                    android:layout_height="@dimen/_28sdp"
+                    android:layout_marginStart="@dimen/_6sdp"
+                    app:cardBackgroundColor="#F1F5F9"
+                    app:cardCornerRadius="@dimen/_14sdp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="@dimen/_14sdp"
+                        android:layout_height="@dimen/_14sdp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_sound_ringtone"
+                        app:tint="@color/color_primary"
+                        android:contentDescription="@string/app_name" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- Center Phone Device Mockup Container -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardDeviceFrame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/_14sdp"
+        android:layout_marginBottom="@dimen/_14sdp"
+        app:cardBackgroundColor="#F1F5F9"
+        app:cardCornerRadius="@dimen/_28sdp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1.5dp"
+        app:strokeColor="@color/color_onboarding_stroke"
+        app:layout_constraintTop_toBottomOf="@id/layoutMascotBubble"
+        app:layout_constraintBottom_toTopOf="@id/btnContinue"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Black Notch -->
+            <View
+                android:id="@+id/viewNotch"
+                android:layout_width="@dimen/_54sdp"
+                android:layout_height="@dimen/_10sdp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:background="@drawable/bg_notch_pill" />
+
+            <!-- Inner White Selection Dialog Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardDefaultLauncherBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/viewNotch"
+                android:layout_marginHorizontal="@dimen/_14sdp"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:layout_marginBottom="@dimen/_14sdp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_20sdp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/color_onboarding_stroke">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_16sdp">
+
+                    <!-- Top Black Drag Bar Handle -->
+                    <View
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_5sdp"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/bg_notch_pill"
+                        android:layout_marginBottom="@dimen/_16sdp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:text="@string/default_home_app_title"
+                        android:textColor="@color/color_onboarding_text_primary"
+                        android:textSize="@dimen/_14ssp"
+                        android:fontFamily="@font/inter_bold"
+                        android:layout_marginBottom="@dimen/_20sdp" />
+
+                    <!-- Option 1: Other App -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="@dimen/_12sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E2E8F0">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/_10sdp">
+
+                            <View
+                                android:layout_width="@dimen/_28sdp"
+                                android:layout_height="@dimen/_28sdp"
+                                android:background="@drawable/bg_circle_grey"
+                                android:layout_marginEnd="@dimen/_12sdp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/other_app_label"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/_11ssp"
+                                android:fontFamily="@font/inter_medium" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Option 2: Find My Phone Launcher (Selected Blue Highlight) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardFindMyPhoneOption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_10sdp"
+                        app:cardBackgroundColor="#EFF6FF"
+                        app:cardCornerRadius="@dimen/_12sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="@color/color_primary">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/_10sdp">
+
+                            <!-- Radio Button Checked Dot -->
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="@dimen/_18sdp"
+                                android:layout_height="@dimen/_18sdp"
+                                android:src="@drawable/ic_radio_checked"
+                                app:tint="@color/color_primary"
+                                android:layout_marginEnd="@dimen/_10sdp" />
+
+                            <!-- App Icon -->
+                            <ImageView
+                                android:layout_width="@dimen/_28sdp"
+                                android:layout_height="@dimen/_28sdp"
+                                android:src="@mipmap/ic_launcher"
+                                android:contentDescription="@string/app_name"
+                                android:layout_marginEnd="@dimen/_10sdp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/find_my_phone_launcher_name"
+                                android:textColor="@color/color_primary"
+                                android:textSize="@dimen/_11ssp"
+                                android:fontFamily="@font/inter_bold" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Option 3: Other App -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="@dimen/_12sdp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E2E8F0">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="@dimen/_10sdp">
+
+                            <View
+                                android:layout_width="@dimen/_28sdp"
+                                android:layout_height="@dimen/_28sdp"
+                                android:background="@drawable/bg_circle_grey"
+                                android:layout_marginEnd="@dimen/_12sdp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/other_app_label"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/_11ssp"
+                                android:fontFamily="@font/inter_medium" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Bottom Continue Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:text="@string/btn_continue"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:fontFamily="@font/inter_semibold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

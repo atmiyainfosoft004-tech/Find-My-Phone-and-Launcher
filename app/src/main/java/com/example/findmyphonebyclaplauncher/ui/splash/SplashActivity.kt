@@ -11,6 +11,7 @@ import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSourc
 import com.example.findmyphonebyclaplauncher.databinding.ActivitySplashBinding
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
+import com.example.findmyphonebyclaplauncher.utils.LauncherHelper
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,14 +55,15 @@ class SplashActivity : AppCompatActivity() {
         val isCompleted = userPrefs.isOnboardingCompleted
         val isSkipped = userPrefs.isOnboardingSkipped
         val hasPermission = PermissionManager.hasRecordAudioPermission(applicationContext)
+        val isDefaultLauncher = LauncherHelper.isDefaultLauncher(applicationContext)
 
         lifecycleScope.launch {
             delay(1500L) // Display new Figma Splash screen for 1.5 seconds
             if (isFinishing || isDestroyed) return@launch
 
-            // If permission is already allowed, or onboarding is completed/skipped -> launch FindPhoneActivity.
-            // Otherwise (permission not given) -> launch OnboardingActivity starting from first fragment (OnboardingScreen1Fragment).
-            val targetClass = if (hasPermission || isCompleted || isSkipped) {
+            // If default launcher is set AND (permission given or onboarding completed/skipped) -> launch FindPhoneActivity.
+            // Otherwise -> launch OnboardingActivity.
+            val targetClass = if (isDefaultLauncher && (hasPermission || isCompleted || isSkipped)) {
                 FindPhoneActivity::class.java
             } else {
                 OnboardingActivity::class.java
