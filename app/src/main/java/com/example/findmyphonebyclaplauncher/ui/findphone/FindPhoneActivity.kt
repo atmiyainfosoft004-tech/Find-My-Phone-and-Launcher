@@ -56,6 +56,24 @@ class FindPhoneActivity : AppCompatActivity() {
         setupWindowInsets()
         setupListeners()
         observeViewModel()
+        setupBackPressedHandler()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+
+    private fun setupBackPressedHandler() {
+        onBackPressedDispatcher.addCallback(this, object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (com.example.findmyphonebyclaplauncher.utils.LauncherHelper.isDefaultLauncher(this@FindPhoneActivity)) {
+                    moveTaskToBack(true)
+                } else {
+                    finish()
+                }
+            }
+        })
     }
 
     private fun setupWindowInsets() {
