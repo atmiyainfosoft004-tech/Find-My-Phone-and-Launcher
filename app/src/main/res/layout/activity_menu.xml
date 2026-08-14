@@ -4,6 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingHorizontal="@dimen/_15sdp"
+    android:paddingVertical="@dimen/_10sdp"
     android:background="@color/color_onboarding_background">
 
     <!-- Header Section -->
@@ -11,8 +13,6 @@
         android:id="@+id/layoutHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/_16sdp"
-        android:paddingVertical="@dimen/_12sdp"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.card.MaterialCardView
@@ -33,7 +33,7 @@
                 android:layout_height="@dimen/_18sdp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_arrow_back"
-                app:tint="#0F172A"
+                app:tint="@color/color_text_on_light"
                 android:contentDescription="@string/app_name" />
 
         </com.google.android.material.card.MaterialCardView>
@@ -43,7 +43,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/menu"
-            android:textColor="#0F172A"
+            android:textColor="@color/color_text_on_light"
             android:textSize="@dimen/_16ssp"
             android:fontFamily="@font/inter_bold"
             android:layout_marginStart="@dimen/_12sdp"
@@ -106,7 +106,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/about_us"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/color_text_on_light"
                     android:textSize="@dimen/_13ssp"
                     android:fontFamily="@font/inter_bold"
                     android:layout_marginStart="@dimen/_12sdp"
@@ -173,7 +173,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/help"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/color_text_on_light"
                     android:textSize="@dimen/_13ssp"
                     android:fontFamily="@font/inter_bold"
                     android:layout_marginStart="@dimen/_12sdp"
@@ -240,7 +240,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/privacy_policy"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/color_text_on_light"
                     android:textSize="@dimen/_13ssp"
                     android:fontFamily="@font/inter_bold"
                     android:layout_marginStart="@dimen/_12sdp"
@@ -307,7 +307,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/terms_of_service"
-                    android:textColor="#0F172A"
+                    android:textColor="@color/color_text_on_light"
                     android:textSize="@dimen/_13ssp"
                     android:fontFamily="@font/inter_bold"
                     android:layout_marginStart="@dimen/_12sdp"
