@@ -1,6 +1,7 @@
 package com.example.findmyphonebyclaplauncher.ui.findphone
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -196,7 +197,31 @@ class FindPhoneActivity : AppCompatActivity() {
         // Vibration Custom Switch
         binding.switchVibration.setOnClickListener {
             val isChecked = binding.switchVibration.tag as? Boolean ?: false
-            viewModel.setVibrationEnabled(!isChecked)
+            val newState = !isChecked
+            viewModel.setVibrationEnabled(newState)
+            if (newState) {
+                triggerHapticFeedback()
+            }
+        }
+    }
+
+    private fun triggerHapticFeedback() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val manager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as android.os.VibratorManager
+                manager.defaultVibrator.vibrate(android.os.VibrationEffect.createOneShot(300, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as android.os.Vibrator
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(android.os.VibrationEffect.createOneShot(300, android.os.VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(300)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

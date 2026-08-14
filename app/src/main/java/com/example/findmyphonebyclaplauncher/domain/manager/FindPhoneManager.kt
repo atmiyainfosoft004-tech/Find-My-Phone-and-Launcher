@@ -169,17 +169,27 @@ class FindPhoneManager(private val context: Context) {
 
     private fun startVibration() {
         try {
-            val pattern = longArrayOf(0, 600, 200)
-            val vibrationEffect = VibrationEffect.createWaveform(pattern, 0)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                manager.defaultVibrator.vibrate(vibrationEffect)
+                manager.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")
-                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                vibrator.vibrate(vibrationEffect)
+                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             }
+
+            if (!vibrator.hasVibrator()) {
+                Log.w(tag, "Device does not have a vibrator")
+                return
+            }
+
+            val pattern = longArrayOf(0, 500, 500)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(pattern, 0)
+            }
+            Log.d(tag, "Vibration started")
         } catch (e: Exception) {
             Log.e(tag, "Failed to start vibration: ${e.message}")
         }
@@ -187,13 +197,15 @@ class FindPhoneManager(private val context: Context) {
 
     private fun stopVibration() {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val manager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                manager.defaultVibrator.cancel()
+                manager.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")
-                (context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator).cancel()
+                context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
             }
+            vibrator.cancel()
+            Log.d(tag, "Vibration stopped")
         } catch (e: Exception) {
             Log.e(tag, "Failed to stop vibration: ${e.message}")
         }
