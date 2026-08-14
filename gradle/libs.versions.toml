@@ -16,6 +16,7 @@ viewpager2 = "1.1.0"
 coroutines = "1.8.1"
 sdp = "1.1.1"
 ssp = "1.1.1"
+lottie = "6.6.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +37,7 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 sdp-android = { group = "com.intuit.sdp", name = "sdp-android", version.ref = "sdp" }
 ssp-android = { group = "com.intuit.ssp", name = "ssp-android", version.ref = "ssp" }
+lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

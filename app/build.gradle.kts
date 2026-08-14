@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
+    implementation(libs.lottie)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.core)
     androidTestImplementation(libs.androidx.junit)

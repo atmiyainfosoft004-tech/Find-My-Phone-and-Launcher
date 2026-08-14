@@ -75,6 +75,9 @@
     <string name="alert_title">Your Phone Was Found!</string>
     <string name="alert_subtitle">Tap STOP to silence the alert</string>
     <string name="stop_alert">STOP</string>
+    <string name="yeahTitle">Yeah!</string>
+    <string name="youveFoundYourPhone">You’ve Found Your Phone</string>
+    <string name="btnDismiss">Dismiss</string>
     <string name="alert_notification_title">Find My Phone — Active</string>
     <string name="alert_notification_text">Tap to stop the phone alert.</string>
 

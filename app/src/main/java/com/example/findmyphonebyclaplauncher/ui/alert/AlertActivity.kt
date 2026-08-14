@@ -45,6 +45,9 @@ class AlertActivity : AppCompatActivity() {
             stopAlert()
         }
 
+        // Start Lottie Bell animation
+        binding.lottieBell.playAnimation()
+
         // Handle Back press (Requirement 7)
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -70,7 +73,7 @@ class AlertActivity : AppCompatActivity() {
     }
 
     private fun setupWindowInsets() {
-        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = false
+        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.root.setPadding(
