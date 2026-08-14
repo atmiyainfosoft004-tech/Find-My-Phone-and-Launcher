@@ -4,6 +4,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.SeekBar
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -62,7 +63,7 @@ class AlertSoundActivity : AppCompatActivity() {
         binding.seekBarVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.txtVolumePercent.text = "${progress}%"
-                prefs.alertSoundVolume = progress
+                // Transient preview volume update (do NOT save to prefs here)
                 val volFloat = progress / 100.0f
                 previewPlayer?.setVolume(volFloat, volFloat)
             }
@@ -88,7 +89,7 @@ class AlertSoundActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         val adapter = SoundPickerAdapter(getSoundList(), selectedSoundId) { item ->
             selectedSoundId = item.id
-            saveSettings()
+            // Transient selection update (do NOT save to prefs here)
             playPreview()
         }
         binding.rvSounds.layoutManager = GridLayoutManager(this, 3)
@@ -97,16 +98,25 @@ class AlertSoundActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            saveSettings()
+            // Cancel / Back: do NOT save settings
             stopPreview()
             finish()
         }
 
         binding.btnSave.setOnClickListener {
+            // Save settings only when btnSave is clicked
             saveSettings()
             stopPreview()
             finish()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Cancel / Back: do NOT save settings
+                stopPreview()
+                finish()
+            }
+        })
     }
 
     private fun saveSettings() {
