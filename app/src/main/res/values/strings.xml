@@ -181,4 +181,27 @@
     <string name="add_to_favorites">Add to favorites</string>
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="uninstall">Uninstall</string>
+    <string name="uninstall_confirm_message">Do you want to uninstall this app?</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="search_apps_hint">Search apps…</string>
+    <string name="clear_search">Clear search</string>
+    <string name="no_apps_found_subtitle">Try searching with a different keyword</string>
+    <string name="phone">Phone</string>
+    <string name="home">Home</string>
+    <string name="apps">Apps</string>
+    <string name="usage_permission_required">Grant usage access to see recently used apps.</string>
+    <string name="suggested_for_now">Suggested Apps</string>
+    <string name="recent_apps">Recent Apps</string>
+    <string name="app_usage_stats">App Usage</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="tab_all">All</string>
+    <string name="tab_favorites">Favorites</string>
+    <string name="tab_audio">Audio</string>
+    <string name="tab_games">Games</string>
+    <string name="tab_photography">Photography</string>
+    <string name="tab_productivity">Productivity</string>
+    <string name="tab_social">Social</string>
+    <string name="tab_video">Video</string>
+    <string name="tab_others">Others</string>
 </resources>

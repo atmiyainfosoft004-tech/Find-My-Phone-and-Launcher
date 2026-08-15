@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootHome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <!-- Glass search — top -->
+    <eightbitlab.com.blurview.BlurView
+        android:id="@+id/glassSearchBlur"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/search_bar_height"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="48dp"
+        android:clickable="false"
+        android:elevation="2dp"
+        android:focusable="false"
+        app:blurOverlayColor="@color/glass_dark"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/glassSearchBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_search_glass"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="18dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_search"
+                app:tint="@color/white" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:text="@string/search_apps_hint"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </eightbitlab.com.blurview.BlurView>
+
+    <!-- Clock Widget -->
+    <TextView
+        android:id="@+id/tvClock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-light"
+        android:includeFontPadding="false"
+        android:letterSpacing="-0.02"
+        android:shadowColor="#66000000"
+        android:shadowDx="0"
+        android:shadowDy="2"
+        android:shadowRadius="6"
+        android:textColor="@color/white"
+        android:textSize="52sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/glassSearchBlur"
+        tools:text="02:04 PM" />
+
+    <TextView
+        android:id="@+id/tvHomeDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="2dp"
+        android:includeFontPadding="false"
+        android:shadowColor="#66000000"
+        android:shadowDx="0"
+        android:shadowDy="1"
+        android:shadowRadius="4"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvClock"
+        tools:text="Wed 05 August" />
+
+    <!-- Google Search — above dock -->
+    <LinearLayout
+        android:id="@+id/googleSearchBar"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="@dimen/home_search_margin_above_dock"
+        android:background="@drawable/bg_google_search"
+        android:clickable="true"
+        android:elevation="4dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        app:layout_constraintBottom_toTopOf="@id/dockContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_search"
+            app:tint="#0078E9" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:fontFamily="@font/inter_regular"
+            android:text="@string/label_search_apps"
+            android:textColor="@color/color_text_subtitle"
+            android:textSize="@dimen/_11ssp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/btnMic"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_mic" />
+    </LinearLayout>
+
+    <!-- Dock container for bottom apps -->
+    <LinearLayout
+        android:id="@+id/dockContainer"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dock_height"
+        android:layout_marginHorizontal="14dp"
+        android:layout_marginBottom="@dimen/dock_margin_bottom"
+        android:elevation="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDock"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"
+            tools:itemCount="5"
+            tools:listitem="@layout/item_dock_icon" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/swipeUpZone"
+        android:layout_width="0dp"
+        android:layout_height="72dp"
+        android:background="@android:color/transparent"
+        android:clickable="false"
+        android:focusable="false"
+        app:layout_constraintBottom_toTopOf="@id/dockContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Workspace RecyclerView for favorite icons -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvWorkspace"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
+        android:clickable="true"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:elevation="12dp"
+        android:focusable="true"
+        android:nestedScrollingEnabled="false"
+        android:overScrollMode="never"
+        android:paddingVertical="8dp"
+        app:layout_constraintBottom_toTopOf="@id/googleSearchBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:itemCount="1"
+        tools:listitem="@layout/item_workspace_icon" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

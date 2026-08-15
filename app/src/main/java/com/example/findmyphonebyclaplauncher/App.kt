@@ -18,6 +18,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         Log.d(Constants.TAG, "Application created")
+        com.example.findmyphonebyclaplauncher.data.repository.AppRepository.init(this)
         createNotificationChannels()
     }
 

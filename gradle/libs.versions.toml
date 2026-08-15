@@ -18,6 +18,8 @@ sdp = "1.1.1"
 ssp = "1.1.1"
 lottie = "6.6.2"
 
+blurview = "version-2.0.6"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -38,6 +40,7 @@ kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-cor
 sdp-android = { group = "com.intuit.sdp", name = "sdp-android", version.ref = "sdp" }
 ssp-android = { group = "com.intuit.ssp", name = "ssp-android", version.ref = "ssp" }
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
+blurview = { group = "com.github.Dimezis", name = "BlurView", version.ref = "blurview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
     implementation(libs.lottie)
+    implementation(libs.blurview)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.core)
     androidTestImplementation(libs.androidx.junit)
