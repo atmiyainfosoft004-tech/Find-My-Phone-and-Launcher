@@ -19,6 +19,7 @@ class App : Application() {
         super.onCreate()
         Log.d(Constants.TAG, "Application created")
         com.example.findmyphonebyclaplauncher.data.repository.AppRepository.init(this)
+        com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.initialize(this)
         createNotificationChannels()
     }
 

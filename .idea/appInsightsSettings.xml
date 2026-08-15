@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.findmyphonebyclaplauncher" />
+                  <option name="mobileSdkAppId" value="1:647995263932:android:a960582d3db0c6e49939b9" />
+                  <option name="projectId" value="find-my-phone-by-clap-launcher" />
+                  <option name="projectNumber" value="647995263932" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

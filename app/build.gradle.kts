@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -36,6 +37,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -58,6 +60,12 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.blurview)
     implementation(libs.androidx.browser)
+    implementation(libs.gson)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.config)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.core)
     androidTestImplementation(libs.androidx.junit)

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "647995263932",
+    "project_id": "find-my-phone-by-clap-launcher",
+    "storage_bucket": "find-my-phone-by-clap-launcher.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647995263932:android:a960582d3db0c6e49939b9",
+        "android_client_info": {
+          "package_name": "com.example.findmyphonebyclaplauncher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeLn7bLyYmhBn2LQclJAwE6bFRmibp0QQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
