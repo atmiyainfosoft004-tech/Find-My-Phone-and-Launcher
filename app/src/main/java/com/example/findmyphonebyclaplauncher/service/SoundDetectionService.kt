@@ -8,8 +8,11 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.media.audiofx.AutomaticGainControl
+import android.media.audiofx.NoiseSuppressor
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.findmyphonebyclaplauncher.App
@@ -28,8 +31,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Foreground service that reads low-latency 23ms PCM audio frames from microphone
- * and feeds them to [ClapDetector] and [WhistleDetector].
+ * Persistent Foreground Service that reads low-latency 23ms PCM audio frames from microphone.
+ * Feeds audio frames to [ClapDetector] and [WhistleDetector].
+ * Holds CPU PARTIAL_WAKE_LOCK to guarantee screen-off continuous detection.
  */
 class SoundDetectionService : Service() {
 
@@ -40,6 +44,9 @@ class SoundDetectionService : Service() {
     private var recordingJob: Job? = null
 
     private var audioRecord: AudioRecord? = null
+    private var noiseSuppressor: NoiseSuppressor? = null
+    private var automaticGainControl: AutomaticGainControl? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     private lateinit var clapDetector: ClapDetector
     private lateinit var whistleDetector: WhistleDetector
@@ -87,6 +94,7 @@ class SoundDetectionService : Service() {
     override fun onDestroy() {
         Log.d(tag, "Service destroyed")
         stopRecording()
+        releaseWakeLock()
         serviceJob.cancel()
         super.onDestroy()
     }
@@ -110,14 +118,24 @@ class SoundDetectionService : Service() {
                 (application as App).findPhoneManager.triggerFindPhone(flashEnabled)
             }
         )
+
+        updateDetectorSensitivity()
+    }
+
+    private fun updateDetectorSensitivity() {
+        val currentSensitivity = userPrefs.alertSensitivity
+        clapDetector.setSensitivity(currentSensitivity)
+        whistleDetector.setSensitivity(currentSensitivity)
+        Log.d(tag, "Sensitivity updated to: $currentSensitivity")
     }
 
     private fun applyDetectorSettings(clapEnabled: Boolean, whistleEnabled: Boolean) {
-        Log.d(tag, "applyDetectorSettings — clap=$clapEnabled, whistle=$whistleEnabled")
+        Log.d(tag, "applyDetectorSettings — clap=$clapEnabled, whistle=$whistleEnabled, sensitivity=${userPrefs.alertSensitivity}")
 
         if (!clapEnabled && !whistleEnabled) {
             Log.d(tag, "Both detectors disabled — stopping service")
             stopRecording()
+            releaseWakeLock()
             stopSelf()
             return
         }
@@ -129,6 +147,8 @@ class SoundDetectionService : Service() {
         }
 
         startForegroundNotification()
+        acquireWakeLock()
+        updateDetectorSensitivity()
 
         val wasRunning   = recordingJob?.isActive == true
         isClapEnabled    = clapEnabled
@@ -142,8 +162,42 @@ class SoundDetectionService : Service() {
         }
     }
 
+    private fun acquireWakeLock() {
+        try {
+            if (wakeLock == null || wakeLock?.isHeld != true) {
+                val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+                wakeLock = powerManager.newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK,
+                    "FindMyPhoneByClapLauncher::AudioDetectionWakeLock"
+                ).apply {
+                    setReferenceCounted(false)
+                    acquire()
+                }
+                Log.d(tag, "PowerManager PARTIAL_WAKE_LOCK acquired for screen-off detection")
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to acquire PARTIAL_WAKE_LOCK: ${e.message}")
+        }
+    }
+
+    private fun releaseWakeLock() {
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+                Log.d(tag, "PowerManager PARTIAL_WAKE_LOCK released")
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to release PARTIAL_WAKE_LOCK: ${e.message}")
+        } finally {
+            wakeLock = null
+        }
+    }
+
     private fun startRecording() {
-        if (recordingJob?.isActive == true) return
+        if (recordingJob?.isActive == true) {
+            Log.d(tag, "startRecording ignored — recordingJob already active")
+            return
+        }
 
         try {
             val minBufferSize = AudioRecord.getMinBufferSize(
@@ -152,57 +206,101 @@ class SoundDetectionService : Service() {
                 Constants.AUDIO_FORMAT
             )
 
-            // Low-latency read buffer size: 1024 short samples = ~23.2 ms per audio chunk
             val chunkStepSize = 1024
             val hwBufferSize = (minBufferSize * 2).coerceAtLeast(chunkStepSize * 4)
 
+            Log.d(tag, "Initializing AudioRecord — SampleRate=${Constants.SAMPLE_RATE}, ChannelConfig=${Constants.CHANNEL_CONFIG}, AudioFormat=${Constants.AUDIO_FORMAT}, MinBuffer=$minBufferSize, HwBuffer=$hwBufferSize")
+
             audioRecord = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
+                MediaRecorder.AudioSource.VOICE_RECOGNITION,
                 Constants.SAMPLE_RATE,
                 Constants.CHANNEL_CONFIG,
                 Constants.AUDIO_FORMAT,
                 hwBufferSize
             )
 
-            if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
-                Log.e(tag, "AudioRecord failed to initialise")
+            val state = audioRecord?.state
+            if (state != AudioRecord.STATE_INITIALIZED) {
+                Log.e(tag, "AudioRecord failed to initialize! State=$state, SampleRate=${Constants.SAMPLE_RATE}, HwBuffer=$hwBufferSize")
                 audioRecord?.release()
                 audioRecord = null
                 return
             }
 
+            initAudioEffects(audioRecord?.audioSessionId ?: 0)
+
             audioRecord?.startRecording()
             warmupUntilTime = System.currentTimeMillis() + 600L
-            Log.d(tag, "AudioRecord started (chunkSize=$chunkStepSize, hwBuffer=$hwBufferSize)")
+            Log.d(tag, "AudioRecord successfully started (chunkSize=$chunkStepSize, hwBuffer=$hwBufferSize) | ClapEnabled=$isClapEnabled, WhistleEnabled=$isWhistleEnabled")
 
             recordingJob = serviceScope.launch {
                 val buffer = ShortArray(chunkStepSize)
+                var loopCount = 0L
                 while (isActive) {
                     val read = audioRecord?.read(buffer, 0, chunkStepSize) ?: break
-                    if (read < 0) break
+                    if (read < 0) {
+                        Log.e(tag, "AudioRecord.read returned error code: $read")
+                        break
+                    }
 
-                    // Ignore hardware mic startup pop for first 600ms
                     if (System.currentTimeMillis() < warmupUntilTime) {
                         continue
+                    }
+
+                    loopCount++
+                    if (loopCount % 200L == 0L) {
+                        Log.d(tag, "Audio recording loop active — processed $loopCount frames | ClapEnabled=$isClapEnabled, WhistleEnabled=$isWhistleEnabled, Sensitivity=${userPrefs.alertSensitivity}")
                     }
 
                     if (isClapEnabled)    clapDetector.analyze(buffer, read)
                     if (isWhistleEnabled) whistleDetector.analyze(buffer, read)
                 }
-                Log.d(tag, "Recording loop exited")
+                Log.d(tag, "Recording loop exited after $loopCount frames")
             }
         } catch (e: SecurityException) {
-            Log.e(tag, "Microphone permission denied at AudioRecord init: ${e.message}")
+            Log.e(tag, "Microphone permission denied at AudioRecord init: ${e.message}", e)
             stopSelf()
         } catch (e: Exception) {
-            Log.e(tag, "Error starting AudioRecord: ${e.message}")
+            Log.e(tag, "Error starting AudioRecord: ${e.message}", e)
             stopSelf()
+        }
+    }
+
+    private fun initAudioEffects(sessionId: Int) {
+        if (sessionId <= 0) return
+        try {
+            if (NoiseSuppressor.isAvailable()) {
+                noiseSuppressor = NoiseSuppressor.create(sessionId)?.apply {
+                    enabled = true
+                }
+                Log.d(tag, "Hardware NoiseSuppressor enabled for session $sessionId")
+            }
+            if (AutomaticGainControl.isAvailable()) {
+                automaticGainControl = AutomaticGainControl.create(sessionId)?.apply {
+                    enabled = true
+                }
+                Log.d(tag, "Hardware AutomaticGainControl enabled for session $sessionId")
+            }
+        } catch (e: Exception) {
+            Log.e(tag, "Failed to initialize hardware audio effects: ${e.message}")
+        }
+    }
+
+    private fun releaseAudioEffects() {
+        try {
+            noiseSuppressor?.release()
+            noiseSuppressor = null
+            automaticGainControl?.release()
+            automaticGainControl = null
+        } catch (e: Exception) {
+            Log.e(tag, "Error releasing audio effects: ${e.message}")
         }
     }
 
     private fun stopRecording() {
         recordingJob?.cancel()
         recordingJob = null
+        releaseAudioEffects()
         try {
             audioRecord?.stop()
             audioRecord?.release()

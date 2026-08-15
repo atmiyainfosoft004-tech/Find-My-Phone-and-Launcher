@@ -145,7 +145,7 @@ class OnboardingScreen5Fragment : Fragment() {
 
         try {
             audioRecord = AudioRecord(
-                android.media.MediaRecorder.AudioSource.MIC,
+                android.media.MediaRecorder.AudioSource.VOICE_RECOGNITION,
                 Constants.SAMPLE_RATE,
                 Constants.CHANNEL_CONFIG,
                 Constants.AUDIO_FORMAT,

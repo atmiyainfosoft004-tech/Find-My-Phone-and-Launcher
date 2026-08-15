@@ -76,6 +76,14 @@ class AlertSensitivityActivity : AppCompatActivity() {
 
         binding.btnSave.setOnClickListener {
             prefs.alertSensitivity = selectedSensitivity
+            if (prefs.isClapDetectionEnabled || prefs.isWhistleDetectionEnabled) {
+                val intent = com.example.findmyphonebyclaplauncher.service.SoundDetectionService.updateIntent(
+                    this,
+                    prefs.isClapDetectionEnabled,
+                    prefs.isWhistleDetectionEnabled
+                )
+                startService(intent)
+            }
             finishWithSlideAnimation()
         }
     }

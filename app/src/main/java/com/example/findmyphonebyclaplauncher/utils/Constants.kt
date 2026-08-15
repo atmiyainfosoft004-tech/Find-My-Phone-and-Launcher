@@ -47,19 +47,13 @@ object Constants {
 
     /** How many claps are required to trigger Find Phone. */
     const val CLAP_COUNT_REQUIRED = 3
-
-    /**
-     * RMS amplitude threshold to consider a sound as a potential clap.
-     * Increase this value in noisy environments; decrease in quiet rooms.
-     * Typical range: 1500–4000 for 16-bit PCM audio.
-     */
-    const val CLAP_DETECTION_THRESHOLD = 3200.0
-    const val CLAP_SILENCE_THRESHOLD = 1600.0
-    const val MIN_CLAP_INTERVAL_MS = 120L
+    const val CLAP_DETECTION_THRESHOLD = 2500.0
+    const val CLAP_SILENCE_THRESHOLD = 1200.0
+    const val MIN_CLAP_INTERVAL_MS = 180L
     const val MAX_CLAP_INTERVAL_MS = 1500L
     const val MAX_CLAP_SEQUENCE_DURATION_MS = 4500L
     const val CLAP_MIN_DURATION_MS = 15L
-    const val CLAP_MAX_DURATION_MS = 320L
+    const val CLAP_MAX_DURATION_MS = 180L
 
     // ─────────────────────────────────────────────────────────────────────────
     // Whistle Detection Thresholds
@@ -67,8 +61,9 @@ object Constants {
 
     const val WHISTLE_MIN_FREQUENCY_HZ = 1000.0
     const val WHISTLE_MAX_FREQUENCY_HZ = 3500.0
-    const val WHISTLE_AMPLITUDE_THRESHOLD = 1200.0
-    const val WHISTLE_MIN_DURATION_MS = 400L
+    const val WHISTLE_AMPLITUDE_THRESHOLD = 1000.0
+    const val WHISTLE_SUSTAINED_MS = 280L
+    const val WHISTLE_MIN_DURATION_MS = 280L
     const val WHISTLE_MAX_DURATION_MS = 3000L
 
     // ─────────────────────────────────────────────────────────────────────────
