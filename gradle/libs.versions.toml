@@ -18,9 +18,12 @@ sdp = "1.1.1"
 ssp = "1.1.1"
 lottie = "6.6.2"
 
+browser = "1.8.0"
+
 blurview = "version-2.0.6"
 
 [libraries]
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

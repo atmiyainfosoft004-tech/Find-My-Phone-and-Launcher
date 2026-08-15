@@ -23,7 +23,7 @@
             app:cardCornerRadius="@dimen/_19sdp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0"
+            app:strokeColor="@color/color_card_stroke_light"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -59,7 +59,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/_16sdp"
         android:paddingTop="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
@@ -73,7 +72,7 @@
             app:cardCornerRadius="@dimen/_16sdp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0">
+            app:strokeColor="@color/color_card_stroke_light">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -120,7 +119,7 @@
                     android:layout_width="@dimen/_14sdp"
                     android:layout_height="@dimen/_14sdp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#94A3B8"
+                    app:tint="@color/color_text_muted"
                     android:contentDescription="@string/app_name"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -140,7 +139,7 @@
             app:cardCornerRadius="@dimen/_16sdp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0">
+            app:strokeColor="@color/color_card_stroke_light">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -187,7 +186,7 @@
                     android:layout_width="@dimen/_14sdp"
                     android:layout_height="@dimen/_14sdp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#94A3B8"
+                    app:tint="@color/color_text_muted"
                     android:contentDescription="@string/app_name"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -207,7 +206,7 @@
             app:cardCornerRadius="@dimen/_16sdp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0">
+            app:strokeColor="@color/color_card_stroke_light">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -254,7 +253,7 @@
                     android:layout_width="@dimen/_14sdp"
                     android:layout_height="@dimen/_14sdp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#94A3B8"
+                    app:tint="@color/color_text_muted"
                     android:contentDescription="@string/app_name"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -274,7 +273,7 @@
             app:cardCornerRadius="@dimen/_16sdp"
             app:cardElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#E2E8F0">
+            app:strokeColor="@color/color_card_stroke_light">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -321,7 +320,7 @@
                     android:layout_width="@dimen/_14sdp"
                     android:layout_height="@dimen/_14sdp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#94A3B8"
+                    app:tint="@color/color_text_muted"
                     android:contentDescription="@string/app_name"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
