@@ -36,9 +36,12 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
-    <!-- ── Alert theme — clean white window background (no red flash) ── -->
+    <!-- ── Alert theme — clean white window background without window title or action bar ── -->
     <style name="Theme.FindMyPhoneByClapLauncher.Alert"
         parent="Theme.Material3.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/white</item>
         <item name="android:colorBackground">@color/white</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

@@ -29,10 +29,18 @@ class AlertActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAlertBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Show over lock screen BEFORE super.onCreate / setContentView
+        // 1. Set window features FIRST before super.onCreate
+        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
+
+        // Show over lock screen BEFORE super.onCreate
         enableShowOverLockScreen()
+
         super.onCreate(savedInstanceState)
 
+        // 2. Hide Support Action Bar if present
+        supportActionBar?.hide()
+
+        // 3. Inflate binding and set content view
         binding = ActivityAlertBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
