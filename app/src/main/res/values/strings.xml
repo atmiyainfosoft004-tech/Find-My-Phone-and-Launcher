@@ -214,4 +214,9 @@
     <string name="fill_search">Fill search</string>
     <string name="open_voice_search">Voice search</string>
     <string name="loading_ad_message">Loading ad…</string>
+
+    <!-- ── App Install Success Strings ────────────────────────────────── -->
+    <string name="app_install_success_title">App Install Successfully</string>
+    <string name="app_updated_success_title">App Updated Successfully</string>
+    <string name="app_uninstalled_success_title">App Uninstalled Successfully</string>
 </resources>

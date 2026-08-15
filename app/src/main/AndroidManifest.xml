@@ -169,6 +169,26 @@
             android:exported="false"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
 
+        <!-- App Install Success Activity -->
+        <activity
+            android:name=".ui.install.AppInstallSuccessActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher"
+            android:launchMode="singleTask" />
+
+        <!-- ===================== RECEIVERS ===================== -->
+        <receiver
+            android:name=".receiver.AppInstallReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
         <!-- ===================== SERVICE ===================== -->
         <service
             android:name=".service.SoundDetectionService"

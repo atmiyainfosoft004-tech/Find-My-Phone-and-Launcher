@@ -53,17 +53,12 @@ class AppRepositoryImpl(private val context: Context) {
         val mapped = resolveInfos
             .asSequence()
             .mapNotNull { info ->
-                val activityInfo = info.activityInfo ?: return@mapNotNull null
-                val label = info.loadLabel(pm)?.toString().orEmpty()
-                if (label.isBlank()) return@mapNotNull null
-                AppInfo(
-                    packageName = activityInfo.packageName,
-                    activityName = activityInfo.name,
-                    label = label,
-                    icon = info.loadIcon(pm),
-                    category = categorize(pm, activityInfo.packageName, label),
-                    isFavorite = activityInfo.packageName in favorites,
-                    canUninstall = canUninstall(pm, activityInfo.packageName)
+                com.example.findmyphonebyclaplauncher.data.cache.AppIconCacheManager.getAppInfo(
+                    pm = pm,
+                    info = info,
+                    favorites = favorites,
+                    canUninstallFunc = { pkg -> canUninstall(pm, pkg) },
+                    categorizeFunc = { pkg, label -> categorize(pm, pkg, label) }
                 )
             }
             .distinctBy { it.packageName + it.activityName }
@@ -71,6 +66,10 @@ class AppRepositoryImpl(private val context: Context) {
             .toList()
         _apps.value = mapped
         pruneMissingFavorites(mapped.map { it.packageName }.toSet())
+    }
+
+    fun invalidatePackageCache(packageName: String) {
+        com.example.findmyphonebyclaplauncher.data.cache.AppIconCacheManager.invalidatePackage(packageName)
     }
 
     fun searchApps(query: String): Flow<List<AppInfo>> =

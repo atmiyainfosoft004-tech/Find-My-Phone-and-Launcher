@@ -14,6 +14,13 @@ import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.initialization.InitializationStatus
 
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageInstaller
+import androidx.core.content.ContextCompat
+import com.example.findmyphonebyclaplauncher.receiver.AppInstallReceiver
+import com.example.findmyphonebyclaplauncher.ui.install.AppInstallSuccessActivity
+
 class App : Application() {
 
     /**
@@ -33,6 +40,63 @@ class App : Application() {
 
         AdsConfigManager.initialize(this)
         initMobileAds()
+        registerAppInstallReceiver()
+        registerPackageInstallerCallback()
+    }
+
+    private fun registerAppInstallReceiver() {
+        try {
+            val filter = IntentFilter().apply {
+                addAction(Intent.ACTION_PACKAGE_ADDED)
+                addAction(Intent.ACTION_PACKAGE_REMOVED)
+                addAction(Intent.ACTION_PACKAGE_REPLACED)
+                addDataScheme("package")
+            }
+            val receiver = AppInstallReceiver()
+            ContextCompat.registerReceiver(
+                this,
+                receiver,
+                filter,
+                ContextCompat.RECEIVER_EXPORTED
+            )
+            Log.d(Constants.TAG, "AppInstallReceiver dynamically registered")
+        } catch (e: Exception) {
+            Log.e(Constants.TAG, "Failed to register AppInstallReceiver dynamically", e)
+        }
+    }
+
+    private fun registerPackageInstallerCallback() {
+        try {
+            val packageInstaller = packageManager.packageInstaller
+            packageInstaller.registerSessionCallback(object : PackageInstaller.SessionCallback() {
+                override fun onCreated(sessionId: Int) {}
+                override fun onBadgingChanged(sessionId: Int) {}
+                override fun onActiveChanged(sessionId: Int, active: Boolean) {}
+                override fun onProgressChanged(sessionId: Int, progress: Float) {}
+                override fun onFinished(sessionId: Int, success: Boolean) {
+                    if (success) {
+                        try {
+                            val sessionInfo = packageManager.packageInstaller.getSessionInfo(sessionId)
+                            val appPackageName = sessionInfo?.appPackageName
+                            if (!appPackageName.isNullOrBlank() && appPackageName != packageName) {
+                                Log.d(Constants.TAG, "PackageInstaller session finished: pkg=$appPackageName")
+                                com.example.findmyphonebyclaplauncher.data.repository.AppRepository.get().invalidatePackageCache(appPackageName)
+                                AppInstallSuccessActivity.start(
+                                    this@App,
+                                    appPackageName,
+                                    AppInstallSuccessActivity.ACTION_TYPE_INSTALLED
+                                )
+                            }
+                        } catch (e: Exception) {
+                            Log.e(Constants.TAG, "Error handling PackageInstaller session finish", e)
+                        }
+                    }
+                }
+            })
+            Log.d(Constants.TAG, "PackageInstaller SessionCallback registered")
+        } catch (e: Exception) {
+            Log.e(Constants.TAG, "Failed to register PackageInstaller SessionCallback", e)
+        }
     }
 
     private fun initMobileAds() {
