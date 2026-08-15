@@ -99,17 +99,35 @@ class InterAdLoader {
                 presentInterstitial(activity, isFromBack, listener)
                 return@runWhenMobileAdsReady
             }
-            Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad not ready, attempting load before show")
+
+            Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad not ready -> showing loading overlay")
+            val loadingDialog = AdLoadingDialog(activity)
+            var actionExecuted = false
+
+            fun safeDismissAndContinue() {
+                if (actionExecuted) return
+                actionExecuted = true
+                loadingDialog.dismiss()
+                listener.onDismiss()
+            }
+
+            loadingDialog.show(timeoutMs = 2500L) {
+                Log.d("InterstitialDebug", "showOrLoadInterstitial: Loading dialog TIMEOUT (2.5s) -> proceeding")
+                safeDismissAndContinue()
+            }
+
             loadInterstitialAd(activity) {
+                if (actionExecuted) return@loadInterstitialAd
                 if (activity.isFinishing || activity.isDestroyed || !ads.canShowInter) {
-                    listener.onDismiss()
+                    safeDismissAndContinue()
                     return@loadInterstitialAd
                 }
                 if (interstitialAd != null) {
+                    loadingDialog.dismiss()
                     presentInterstitial(activity, isFromBack, listener)
                 } else {
-                    Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad load failed/unavailable, falling back to onDismiss")
-                    listener.onDismiss()
+                    Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad load failed -> proceeding")
+                    safeDismissAndContinue()
                 }
             }
         }

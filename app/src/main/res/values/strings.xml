@@ -213,4 +213,5 @@
     <string name="back">Back</string>
     <string name="fill_search">Fill search</string>
     <string name="open_voice_search">Voice search</string>
+    <string name="loading_ad_message">Loading ad…</string>
 </resources>
