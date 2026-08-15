@@ -4,7 +4,10 @@ import android.content.Context
 import android.util.Log
 import com.example.findmyphonebyclaplauncher.BuildConfig
 import com.google.firebase.FirebaseApp
+import com.google.firebase.remoteconfig.ConfigUpdate
+import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 
 /**
@@ -13,14 +16,14 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
  */
 object FirebaseConfigManager {
 
-    private const val TAG = "FirebaseConfigManager"
+    private const val TAG = "RemoteConfig"
 
     @Volatile
     var isInitialized: Boolean = false
         private set
 
     /**
-     * Initializes FirebaseApp (if needed) and configures Remote Config fetch settings and defaults.
+     * Initializes FirebaseApp (if needed) and configures Remote Config fetch settings, real-time listener, and defaults.
      */
     fun initialize(context: Context, onComplete: ((success: Boolean) -> Unit)? = null) {
         try {
@@ -30,8 +33,9 @@ object FirebaseConfigManager {
             }
 
             val remoteConfig = FirebaseRemoteConfig.getInstance()
+            val minimumFetchInterval = if (BuildConfig.DEBUG) 0L else 3600L
             val settings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(if (BuildConfig.DEBUG) 0L else 3600L)
+                .setMinimumFetchIntervalInSeconds(minimumFetchInterval)
                 .build()
 
             remoteConfig.setConfigSettingsAsync(settings)
@@ -46,12 +50,31 @@ object FirebaseConfigManager {
             remoteConfig.setDefaultsAsync(defaultParams)
 
             isInitialized = true
+            Log.d(TAG, "FirebaseConfigManager initialized (minimumFetchInterval=$minimumFetchInterval s)")
+
+            // Listen for real-time Remote Config updates
+            remoteConfig.addOnConfigUpdateListener(object : ConfigUpdateListener {
+                override fun onUpdate(configUpdate: ConfigUpdate) {
+                    Log.d(TAG, "Real-time Remote Config updated for keys: ${configUpdate.updatedKeys}")
+                    remoteConfig.activate().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(TAG, "Real-time Remote Config activated successfully")
+                        } else {
+                            Log.e(TAG, "Real-time Remote Config activation failed", task.exception)
+                        }
+                    }
+                }
+
+                override fun onError(error: FirebaseRemoteConfigException) {
+                    Log.e(TAG, "Real-time Remote Config update error: ${error.message}", error)
+                }
+            })
 
             remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.d(TAG, "Remote config fetched and activated successfully")
+                    Log.d(TAG, "Remote Config fetchAndActivate SUCCESS")
                 } else {
-                    Log.e(TAG, "Remote config fetch failed", task.exception)
+                    Log.e(TAG, "Remote Config fetchAndActivate FAILURE. Exception: ${task.exception?.message}", task.exception)
                 }
                 onComplete?.invoke(task.isSuccessful)
             }

@@ -99,12 +99,22 @@
         android:overScrollMode="never"
         android:paddingHorizontal="10dp"
         android:paddingTop="4dp"
-        android:paddingBottom="32dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/drawerBanner"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tabCategories"
         tools:listitem="@layout/item_app_icon" />
+
+    <!-- Drawer Banner Ad -->
+    <include
+        android:id="@+id/drawerBanner"
+        layout="@layout/ads_contact_banner_shimmer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Empty Search State -->
     <LinearLayout

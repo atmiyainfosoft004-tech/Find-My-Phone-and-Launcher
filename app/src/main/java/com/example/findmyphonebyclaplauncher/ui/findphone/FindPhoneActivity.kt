@@ -55,6 +55,7 @@ class FindPhoneActivity : AppCompatActivity() {
         configureTransparentSystemBars()
         val host = supportFragmentManager.findFragmentById(R.id.launcherHostContainer) as? LauncherHostFragment
         host?.reapplyPageSystemBars()
+        com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.fetchAndActivate()
     }
 
     private fun showSystemWallpaperBehindWindow() {

@@ -31,6 +31,8 @@ import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.WorkspaceIconAd
 import com.example.findmyphonebyclaplauncher.ui.launcher.drawer.AppContextPopup
 import kotlinx.coroutines.launch
 
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -74,7 +76,9 @@ class HomeFragment : Fragment() {
         )
 
         workspaceAdapter = WorkspaceIconAdapter(
-            onClick = { app -> viewModel.openApp(app) },
+            onClick = { app ->
+                LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+            },
             onLongClick = { app, anchor -> contextPopup?.show(anchor, app) }
         )
         binding.rvWorkspace.layoutManager = GridLayoutManager(requireContext(), 4)
@@ -85,7 +89,9 @@ class HomeFragment : Fragment() {
         binding.rvWorkspace.elevation = 12f
 
         dockAdapter = DockAdapter(
-            onClick = { app -> viewModel.openApp(app) },
+            onClick = { app ->
+                LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+            },
             onLongClick = { app, anchor -> contextPopup?.show(anchor, app) }
         )
         binding.rvDock.layoutManager = GridLayoutManager(requireContext(), 5)

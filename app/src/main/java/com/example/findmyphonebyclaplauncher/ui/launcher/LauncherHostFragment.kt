@@ -26,6 +26,9 @@ import com.example.findmyphonebyclaplauncher.util.SystemWallpaperHelper
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ui.launcher.dashboard.DashboardFragment
+
 class LauncherHostFragment : Fragment() {
 
     private var _binding: FragmentLauncherHostBinding? = null
@@ -34,6 +37,8 @@ class LauncherHostFragment : Fragment() {
     private val viewModel: LauncherViewModel by activityViewModels()
     private lateinit var pagerAdapter: LauncherPagerAdapter
     private lateinit var drawerMotion: AppDrawerMotionController
+    private var skipNextPageSelectedAd = true
+    private var pageChangeFromUserSwipe = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,6 +59,7 @@ class LauncherHostFragment : Fragment() {
         setupDrawerGestures()
         observe()
         setupBlur()
+        LauncherAdsHelper.preloadInterstitial(requireActivity())
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
@@ -108,12 +114,35 @@ class LauncherHostFragment : Fragment() {
             page.scaleY = scale
         }
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageScrollStateChanged(state: Int) {
+                when (state) {
+                    ViewPager2.SCROLL_STATE_DRAGGING -> pageChangeFromUserSwipe = true
+                    ViewPager2.SCROLL_STATE_IDLE -> pageChangeFromUserSwipe = false
+                }
+            }
+
             override fun onPageSelected(position: Int) {
                 viewModel.setPage(position)
                 updateChrome(position)
                 updateSwipeEnabled()
+                if (position == LauncherPagerAdapter.PAGE_DASHBOARD) {
+                    (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_DASHBOARD}") as? DashboardFragment)?.refreshNativeAd()
+                }
+                maybeShowSwipeInterstitial()
             }
         })
+    }
+
+    private fun maybeShowSwipeInterstitial() {
+        if (skipNextPageSelectedAd) {
+            skipNextPageSelectedAd = false
+            pageChangeFromUserSwipe = false
+            return
+        }
+        if (!pageChangeFromUserSwipe) return
+        pageChangeFromUserSwipe = false
+        val activity = activity ?: return
+        LauncherAdsHelper.showSwipeInter(activity)
     }
 
     private fun setupPageIndicator() {
@@ -208,6 +237,7 @@ class LauncherHostFragment : Fragment() {
         drawerMotion.openAppDrawer {
             viewModel.setDrawerOpenState(true)
             updateSwipeEnabled()
+            (childFragmentManager.findFragmentByTag(DRAWER_TAG) as? AppDrawerFragment)?.loadBannerAd()
         }
     }
 

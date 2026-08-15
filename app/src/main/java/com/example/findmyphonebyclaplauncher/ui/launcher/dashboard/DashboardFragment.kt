@@ -13,6 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.FragmentDashboardBinding
 import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.CompactAppIconAdapter
 import com.example.findmyphonebyclaplauncher.util.BlurHelper
@@ -28,6 +30,10 @@ class DashboardFragment : Fragment() {
     private lateinit var suggestedAdapter: CompactAppIconAdapter
     private lateinit var recentAdapter: CompactAppIconAdapter
 
+    private val configChangeListener = AdsConfigManager.OnConfigChangeListener {
+        refreshNativeAd()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -42,8 +48,12 @@ class DashboardFragment : Fragment() {
         binding.tvGreeting.text = GreetingHelper.greeting()
         binding.tvDate.text = GreetingHelper.formattedDate()
 
-        suggestedAdapter = CompactAppIconAdapter { app -> viewModel.openApp(app) }
-        recentAdapter = CompactAppIconAdapter { app -> viewModel.openApp(app) }
+        suggestedAdapter = CompactAppIconAdapter { app ->
+            LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+        }
+        recentAdapter = CompactAppIconAdapter { app ->
+            LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+        }
 
         binding.rvSuggested.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.rvSuggested.adapter = suggestedAdapter
@@ -71,6 +81,8 @@ class DashboardFragment : Fragment() {
             }
         }
 
+        AdsConfigManager.addConfigChangeListener(configChangeListener)
+
         binding.root.alpha = 0f
         binding.root.animate().alpha(1f).setDuration(280).start()
     }
@@ -78,6 +90,28 @@ class DashboardFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         viewModel.refreshUsageCard(requireContext())
+        refreshNativeAd()
+    }
+
+    fun refreshNativeAd() {
+        val binding = _binding ?: return
+        if (!isAdded) return
+        if (!AdsConfigManager.config.canShowNative) {
+            binding.nativeAdFrameLayout.removeAllViews()
+            binding.nativeAdFrameLayout.visibility = View.GONE
+            binding.nativeAdShimmerFrameLayout.root.visibility = View.GONE
+            binding.nativeAdCardView.visibility = View.GONE
+            return
+        }
+        binding.nativeAdCardView.visibility = View.VISIBLE
+        if (binding.nativeAdFrameLayout.childCount == 0) {
+            LauncherAdsHelper.showDashboardNative(
+                requireActivity(),
+                binding.nativeAdFrameLayout,
+                binding.nativeAdShimmerFrameLayout.root,
+                binding.nativeAdCardView
+            )
+        }
     }
 
     private fun bindUsageCard(state: UsageCardState) {
@@ -98,6 +132,7 @@ class DashboardFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        AdsConfigManager.removeConfigChangeListener(configChangeListener)
         super.onDestroyView()
         _binding = null
     }

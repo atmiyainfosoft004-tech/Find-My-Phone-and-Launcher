@@ -80,4 +80,15 @@
     <color name="edge_tab_bg">#CCE8E8E8</color>
     <color name="app_context_popup_bg">#FFF2F2F2</color>
     <color name="accent_red">#FFFF3B30</color>
+
+    <!-- ── Ad Colors ─────────────────────────────────────────────────────── -->
+    <color name="colorPrimary">#2563EB</color>
+    <color name="colorBlackCommon">#000000</color>
+    <color name="colorWhiteCommon">#FFFFFF</color>
+    <color name="colorTextBlack">#FFFFFF</color>
+    <color name="colorCardBgWhite">#1A2438</color>
+    <color name="colorAdsGreyColor">#8E8E93</color>
+    <color name="colorAdsShimmerLoading">#2A3348</color>
+    <color name="colorAdsShimmerBg">#1A2234</color>
+    <color name="colorNativeAdsTitle">#FFFFFF</color>
 </resources>

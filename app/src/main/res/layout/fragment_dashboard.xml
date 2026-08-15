@@ -172,5 +172,28 @@
             </FrameLayout>
         </eightbitlab.com.blurview.BlurView>
 
+        <!-- Dashboard Native Ad -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/nativeAdCardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp">
+
+            <include
+                android:id="@+id/nativeAdShimmerFrameLayout"
+                layout="@layout/ads_contact_native_big_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:id="@+id/nativeAdFrameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+        </androidx.cardview.widget.CardView>
+
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

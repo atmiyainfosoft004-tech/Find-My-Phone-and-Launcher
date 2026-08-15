@@ -28,6 +28,10 @@ import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.AppIconAdapter
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
+
 class AppDrawerFragment : Fragment() {
 
     private var _binding: FragmentAppDrawerBinding? = null
@@ -41,6 +45,10 @@ class AppDrawerFragment : Fragment() {
     private var pendingUninstallPackage: String? = null
     private var uninstallInProgress = false
     private var favoritesTabVisible = false
+
+    private val configChangeListener = AdsConfigManager.OnConfigChangeListener {
+        loadBannerAd()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,8 +68,10 @@ class AppDrawerFragment : Fragment() {
         )
         adapter = AppIconAdapter(
             onClick = { app ->
-                viewModel.openApp(app)
-                launcherViewModel.requestCloseDrawer()
+                LauncherAdsHelper.showAppClickInterThen(requireActivity()) {
+                    viewModel.openApp(app)
+                    launcherViewModel.requestCloseDrawer()
+                }
             },
             onLongClick = { app, anchor ->
                 contextPopup?.show(anchor, app)
@@ -76,12 +86,31 @@ class AppDrawerFragment : Fragment() {
         setupTabs(showFavorites = false)
         setupSearch()
         observe()
+        AdsConfigManager.addConfigChangeListener(configChangeListener)
+    }
+
+    fun loadBannerAd() {
+        val binding = _binding ?: return
+        if (!isAdded) return
+        if (!AdsConfigManager.config.canShowBanner) {
+            binding.drawerBanner.bannerAdFrameLayout.removeAllViews()
+            binding.drawerBanner.bannerAdFrameLayout.visibility = View.GONE
+            binding.drawerBanner.bannerAdShimmerFrameLayout.visibility = View.GONE
+            return
+        }
+        if (binding.drawerBanner.bannerAdFrameLayout.childCount > 0) return
+        LauncherAdsHelper.showDrawerBanner(
+            requireActivity(),
+            binding.drawerBanner.bannerAdFrameLayout,
+            binding.drawerBanner.bannerAdShimmerFrameLayout
+        )
     }
 
     override fun onResume() {
         super.onResume()
         uninstallInProgress = false
         viewModel.refreshApps()
+        loadBannerAd()
     }
 
     private fun setupTabs(showFavorites: Boolean) {
@@ -299,6 +328,7 @@ class AppDrawerFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        AdsConfigManager.removeConfigChangeListener(configChangeListener)
         unregisterPackageRemovedReceiver()
         contextPopup?.dismiss()
         contextPopup = null
