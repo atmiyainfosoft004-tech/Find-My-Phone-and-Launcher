@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
@@ -24,7 +25,7 @@ class InterAdLoader {
     private val pendingLoadCallbacks = mutableListOf<() -> Unit>()
 
     fun loadInterstitialAds(activity: Activity) {
-        if (ads.canShowInter && ads.interAdPreload) {
+        if (ads.canShowInter) {
             App.runWhenMobileAdsReady {
                 if (!activity.isFinishing && !activity.isDestroyed) {
                     loadInterstitialAd(activity)
@@ -38,14 +39,19 @@ class InterAdLoader {
         onComplete: (() -> Unit)? = null
     ) {
         if (interstitialAd != null) {
+            Log.d("InterstitialDebug", "loadInterstitialAd: Ad already cached and ready")
             onComplete?.invoke()
             return
         }
         if (onComplete != null) pendingLoadCallbacks.add(onComplete)
-        if (isInterstitialLoading) return
+        if (isInterstitialLoading) {
+            Log.d("InterstitialDebug", "loadInterstitialAd: Ad is currently loading, callback attached")
+            return
+        }
         isInterstitialLoading = true
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "inter_req")
+        Log.d("InterstitialDebug", "loadInterstitialAd: Requesting ad with ID '${ads.interAdId}'")
         InterstitialAd.load(
             activity.applicationContext,
             ads.interAdId,
@@ -55,6 +61,7 @@ class InterAdLoader {
                     this@InterAdLoader.interstitialAd = interstitialAd
                     isInterstitialLoading = false
                     logAds(activity, "inter_loaded")
+                    Log.d("InterstitialDebug", "loadInterstitialAd: SUCCESS -> Ad loaded")
                     resetFailedCountInterstitial()
                     flushLoadCallbacks()
                 }
@@ -62,6 +69,7 @@ class InterAdLoader {
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     increaseFailedCountInterstitial()
                     logAds(activity, "inter_failed_to_load_" + loadAdError.code)
+                    Log.e("InterstitialDebug", "loadInterstitialAd: FAILED -> ${loadAdError.message} (code ${loadAdError.code})")
                     this@InterAdLoader.interstitialAd = null
                     isInterstitialLoading = false
                     flushLoadCallbacks()
@@ -82,13 +90,16 @@ class InterAdLoader {
     ) {
         App.runWhenMobileAdsReady {
             if (activity.isFinishing || activity.isDestroyed || !ads.canShowInter) {
+                Log.d("InterstitialDebug", "showOrLoadInterstitial: Activity finishing/destroyed or canShowInter is false")
                 listener.onDismiss()
                 return@runWhenMobileAdsReady
             }
             if (interstitialAd != null) {
+                Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad ready, presenting now")
                 presentInterstitial(activity, isFromBack, listener)
                 return@runWhenMobileAdsReady
             }
+            Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad not ready, attempting load before show")
             loadInterstitialAd(activity) {
                 if (activity.isFinishing || activity.isDestroyed || !ads.canShowInter) {
                     listener.onDismiss()
@@ -97,6 +108,7 @@ class InterAdLoader {
                 if (interstitialAd != null) {
                     presentInterstitial(activity, isFromBack, listener)
                 } else {
+                    Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad load failed/unavailable, falling back to onDismiss")
                     listener.onDismiss()
                 }
             }
@@ -109,15 +121,18 @@ class InterAdLoader {
         listener: FullScreenDismissListener
     ) {
         if (!ads.canShowInter) {
+            Log.d("InterstitialDebug", "presentInterstitial: skipped, canShowInter is false")
             listener.onDismiss()
             return
         }
         val ad = interstitialAd ?: run {
+            Log.d("InterstitialDebug", "presentInterstitial: interstitialAd is null")
             listener.onDismiss()
             return
         }
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
+                Log.d("InterstitialDebug", "onAdDismissedFullScreenContent -> resetting counter and reloading")
                 if (isFromBack) {
                     resetInterstitialBackwardCount()
                 } else {
@@ -126,7 +141,7 @@ class InterAdLoader {
                 interstitialAd = null
                 isInterstitialLoading = false
                 isInterstitialShowing = false
-                if (ads.interAdPreload) {
+                if (ads.canShowInter) {
                     loadInterstitialAd(activity)
                 }
                 logAds(activity, "inter_dismissed")
@@ -134,17 +149,19 @@ class InterAdLoader {
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                Log.e("InterstitialDebug", "onAdFailedToShowFullScreenContent: ${adError.message} (code ${adError.code})")
                 interstitialAd = null
                 isInterstitialLoading = false
                 isInterstitialShowing = false
                 logAds(activity, "inter_failed_to_show_" + adError.code)
-                if (ads.interAdPreload) {
+                if (ads.canShowInter) {
                     loadInterstitialAd(activity)
                 }
                 listener.onDismiss()
             }
 
             override fun onAdShowedFullScreenContent() {
+                Log.d("InterstitialDebug", "onAdShowedFullScreenContent: Ad displayed on screen")
                 interstitialAd = null
                 isInterstitialShowing = true
                 logAds(activity, "inter_showed")
@@ -160,6 +177,7 @@ class InterAdLoader {
 
     fun showAppClickInterstitial(activity: Activity, listener: FullScreenDismissListener) {
         if (!canShowAppClickInter()) {
+            Log.d("InterstitialDebug", "showAppClickInterstitial: skipped, canShowAppClickInter is false")
             listener.onDismiss()
             return
         }
@@ -168,6 +186,7 @@ class InterAdLoader {
 
     fun showSwipeInterstitial(activity: Activity, listener: FullScreenDismissListener) {
         if (!canShowSwipeInter()) {
+            Log.d("InterstitialDebug", "showSwipeInterstitial: skipped, canShowSwipeInter is false")
             listener.onDismiss()
             return
         }
@@ -190,7 +209,12 @@ class InterAdLoader {
                 if (isFromBack) ads.interBackCount.coerceAtLeast(1)
                 else ads.interCount.coerceAtLeast(1)
 
-            if (currentInterval == regularInterval) {
+            Log.d(
+                "InterstitialDebug",
+                "showInterstitialAd: isFromBack=$isFromBack, currentInterval=$currentInterval, regularInterval=$regularInterval, isAdReady=${interstitialAd != null}"
+            )
+
+            if (currentInterval >= regularInterval) {
                 showOrLoadInterstitial(activity, isFromBack, listener)
             } else {
                 if (isFromBack) {
@@ -198,9 +222,14 @@ class InterAdLoader {
                 } else {
                     increaseInterstitialForwardCount()
                 }
+                Log.d(
+                    "InterstitialDebug",
+                    "Frequency cap skipped ad: currentInterval=$currentInterval, regularInterval=$regularInterval"
+                )
                 listener.onDismiss()
             }
         } else {
+            Log.d("InterstitialDebug", "showInterstitialAd: skipped, ads.canShowInter is false")
             listener.onDismiss()
         }
     }
