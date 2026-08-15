@@ -133,9 +133,13 @@ class OnboardingScreen4Fragment : Fragment() {
     private fun applySystemVolume(context: Context, volumePercent: Int) {
         try {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-            val newVol = (maxVol * (volumePercent / 100.0f)).toInt()
-            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVol, 0)
+            val maxAlarm = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            val newAlarmVol = (maxAlarm * (volumePercent / 100.0f)).toInt().coerceIn(1, maxAlarm)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, newAlarmVol, 0)
+
+            val maxMusic = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            val newMusicVol = (maxMusic * (volumePercent / 100.0f)).toInt().coerceIn(1, maxMusic)
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newMusicVol, 0)
         } catch (e: Exception) {
             e.printStackTrace()
         }

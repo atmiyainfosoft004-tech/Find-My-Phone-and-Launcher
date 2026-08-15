@@ -128,29 +128,42 @@ class FindPhoneManager(private val context: Context) {
             val rawResId = getSoundRawResId(selectedSound)
 
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
-            val targetStreamVol = (maxVol * (volumePercent / 100.0f)).toInt().coerceAtLeast(1)
-            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetStreamVol, 0)
+
+            // Set system STREAM_ALARM volume to match user preference
+            val maxAlarmVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            val targetAlarmVol = (maxAlarmVol * (volumePercent / 100.0f)).toInt().coerceIn(1, maxAlarmVol)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetAlarmVol, 0)
+
+            // Also set STREAM_MUSIC volume for device playback compatibility
+            val maxMusicVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            val targetMusicVol = (maxMusicVol * (volumePercent / 100.0f)).toInt().coerceIn(1, maxMusicVol)
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetMusicVol, 0)
+
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
 
             mediaPlayer = if (rawResId != null) {
-                MediaPlayer.create(context, rawResId)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    MediaPlayer.create(context, rawResId, audioAttributes, audioManager.generateAudioSessionId())
+                } else {
+                    MediaPlayer.create(context, rawResId).apply {
+                        setAudioAttributes(audioAttributes)
+                    }
+                }
             } else {
                 val ringtoneUri = android.provider.Settings.System.DEFAULT_RINGTONE_URI
                     ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                     ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
                 MediaPlayer().apply {
                     setDataSource(context, ringtoneUri)
-                    setAudioAttributes(
-                        AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_ALARM)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .build()
-                    )
+                    setAudioAttributes(audioAttributes)
                     prepare()
                 }
             }
 
-            val volFloat = volumePercent / 100.0f
+            val volFloat = (volumePercent / 100.0f).coerceIn(0.01f, 1.0f)
             mediaPlayer?.apply {
                 setVolume(volFloat, volFloat)
                 isLooping = true

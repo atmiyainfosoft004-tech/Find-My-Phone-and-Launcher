@@ -1,5 +1,7 @@
 package com.example.findmyphonebyclaplauncher.ui.settings
 
+import android.content.Context
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.Settings
@@ -14,7 +16,6 @@ import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSourc
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertSoundBinding
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundItem
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundPickerAdapter
-
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
 class AlertSoundActivity : AppCompatActivity() {
@@ -38,7 +39,6 @@ class AlertSoundActivity : AppCompatActivity() {
         setupRecyclerView()
         setupListeners()
 
-        // Auto-play preview of selected sound on screen load (matches OnboardingScreen4Fragment)
         playPreview()
     }
 
@@ -65,9 +65,17 @@ class AlertSoundActivity : AppCompatActivity() {
         binding.seekBarVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.txtVolumePercent.text = "${progress}%"
-                // Transient preview volume update (do NOT save to prefs here)
-                val volFloat = progress / 100.0f
+
+                // Save volume setting immediately
+                prefs.alertSoundVolume = progress
+
+                // Adjust preview player volume in real-time
+                val volFloat = (progress / 100.0f).coerceIn(0.01f, 1.0f)
                 previewPlayer?.setVolume(volFloat, volFloat)
+
+                if (fromUser) {
+                    applySystemVolume(this@AlertSoundActivity, progress)
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -91,7 +99,7 @@ class AlertSoundActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         val adapter = SoundPickerAdapter(getSoundList(), selectedSoundId) { item ->
             selectedSoundId = item.id
-            // Transient selection update (do NOT save to prefs here)
+            prefs.selectedAlertSound = item.id
             playPreview()
         }
         binding.rvSounds.layoutManager = GridLayoutManager(this, 3)
@@ -100,13 +108,12 @@ class AlertSoundActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            // Cancel / Back: do NOT save settings
+            saveSettings()
             stopPreview()
             finishWithSlideAnimation()
         }
 
         binding.btnSave.setOnClickListener {
-            // Save settings only when btnSave is clicked
             saveSettings()
             stopPreview()
             finishWithSlideAnimation()
@@ -114,7 +121,7 @@ class AlertSoundActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Cancel / Back: do NOT save settings
+                saveSettings()
                 stopPreview()
                 finishWithSlideAnimation()
             }
@@ -124,6 +131,21 @@ class AlertSoundActivity : AppCompatActivity() {
     private fun saveSettings() {
         prefs.selectedAlertSound = selectedSoundId
         prefs.alertSoundVolume = binding.seekBarVolume.progress
+    }
+
+    private fun applySystemVolume(context: Context, volumePercent: Int) {
+        try {
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val maxAlarm = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            val newAlarmVol = (maxAlarm * (volumePercent / 100.0f)).toInt().coerceIn(1, maxAlarm)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, newAlarmVol, 0)
+
+            val maxMusic = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+            val newMusicVol = (maxMusic * (volumePercent / 100.0f)).toInt().coerceIn(1, maxMusic)
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newMusicVol, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun getSoundRawResId(soundId: String): Int? {
@@ -150,7 +172,7 @@ class AlertSoundActivity : AppCompatActivity() {
                 MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
             }
 
-            val volFloat = binding.seekBarVolume.progress / 100.0f
+            val volFloat = (binding.seekBarVolume.progress / 100.0f).coerceIn(0.01f, 1.0f)
             previewPlayer?.apply {
                 setVolume(volFloat, volFloat)
                 isLooping = true
