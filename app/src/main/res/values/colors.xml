@@ -47,7 +47,7 @@
     <color name="color_error">#F85149</color>
 
     <!-- ── Alert Screen ──────────────────────────────────────────────────── -->
-    <color name="color_alert_background">#8B0000</color>
+    <color name="color_alert_background">#FFFFFF</color>
     <color name="color_warning_surface">#2D2200</color>
 
     <!-- ── Dashboard / Cards / Badges Colors ────────────────────────────── -->

@@ -33,6 +33,9 @@ class AlertActivity : AppCompatActivity() {
         enableShowOverLockScreen()
         super.onCreate(savedInstanceState)
 
+        binding = ActivityAlertBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         // Handle explicit stop action from notification button
         if (intent?.action == Constants.ACTION_STOP_ALERT) {
             stopAlert()
@@ -44,9 +47,6 @@ class AlertActivity : AppCompatActivity() {
             finish()
             return
         }
-
-        binding = ActivityAlertBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         setupWindowInsets()
 

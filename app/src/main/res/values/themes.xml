@@ -36,14 +36,15 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
-    <!-- ── Alert theme — full red background ────────────────────────── -->
+    <!-- ── Alert theme — clean white window background (no red flash) ── -->
     <style name="Theme.FindMyPhoneByClapLauncher.Alert"
-        parent="Theme.Material3.Dark.NoActionBar">
-        <item name="android:windowBackground">@color/color_alert_background</item>
-        <item name="android:colorBackground">@color/color_alert_background</item>
-        <item name="android:statusBarColor">@color/color_alert_background</item>
-        <item name="android:navigationBarColor">@color/color_alert_background</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+        parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
     <!-- ── Slide animation for activity transitions ───────────────────── -->
