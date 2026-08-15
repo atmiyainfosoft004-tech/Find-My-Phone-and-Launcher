@@ -55,5 +55,6 @@
     <dimen name="home_search_margin_above_dock">120dp</dimen>
     <dimen name="search_bar_height">52dp</dimen>
     <dimen name="corner_pill">26dp</dimen>
+    <dimen name="corner_lg">16dp</dimen>
     <dimen name="adaptive_banner_caller_ad_height">320dp</dimen>
 </resources>

@@ -156,6 +156,19 @@
             android:turnScreenOn="true"
             android:screenOrientation="portrait" />
 
+        <!-- Google Search Activity -->
+        <activity
+            android:name=".ui.search.GoogleSearchActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- WebView Activity -->
+        <activity
+            android:name=".ui.search.WebViewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
+
         <!-- ===================== SERVICE ===================== -->
         <service
             android:name=".service.SoundDetectionService"

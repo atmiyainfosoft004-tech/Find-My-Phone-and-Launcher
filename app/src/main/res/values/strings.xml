@@ -204,4 +204,13 @@
     <string name="tab_social">Social</string>
     <string name="tab_video">Video</string>
     <string name="tab_others">Others</string>
+
+    <!-- ── Google Search Strings ────────────────────────────────────────── -->
+    <string name="recent_searches">Recent Searches</string>
+    <string name="clear_all">Clear All</string>
+    <string name="search_suggestions">Search Suggestions</string>
+    <string name="google_search_hint">Search</string>
+    <string name="back">Back</string>
+    <string name="fill_search">Fill search</string>
+    <string name="open_voice_search">Voice search</string>
 </resources>

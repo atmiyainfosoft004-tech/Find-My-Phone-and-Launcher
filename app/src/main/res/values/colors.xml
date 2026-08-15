@@ -91,4 +91,16 @@
     <color name="colorAdsShimmerLoading">#2A3348</color>
     <color name="colorAdsShimmerBg">#1A2234</color>
     <color name="colorNativeAdsTitle">#FFFFFF</color>
+
+    <!-- ── Google Search Colors ─────────────────────────────────────────── -->
+    <color name="google_search_screen_bg">@color/drawer_panel_bg</color>
+    <color name="google_search_bar_bg">#FF2A2A2A</color>
+    <color name="google_search_card_bg">#FF1C1C1E</color>
+    <color name="google_search_ad_bg">#FF2A2A2A</color>
+    <color name="google_search_image_placeholder">#FF3A3A3C</color>
+    <color name="google_search_icon_blue">#FF4285F4</color>
+    <color name="google_search_clear_all">#FF8AB4F8</color>
+    <color name="google_search_divider">#33FFFFFF</color>
+    <color name="color_web_chrome">#FF0B1220</color>
+    <color name="text_tertiary">#80FFFFFF</color>
 </resources>

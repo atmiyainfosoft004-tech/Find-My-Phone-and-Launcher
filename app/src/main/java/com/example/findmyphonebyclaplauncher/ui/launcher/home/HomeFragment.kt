@@ -32,6 +32,7 @@ import com.example.findmyphonebyclaplauncher.ui.launcher.drawer.AppContextPopup
 import kotlinx.coroutines.launch
 
 import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ui.search.GoogleSearchActivity
 
 class HomeFragment : Fragment() {
 
@@ -122,7 +123,7 @@ class HomeFragment : Fragment() {
 
     private fun setupClicks() {
         binding.googleSearchBar.setOnClickListener {
-            launcherViewModel.requestOpenDrawerWithSearch()
+            GoogleSearchActivity.start(requireActivity())
         }
         binding.btnMic.setOnClickListener { openGoogleVoice() }
         binding.glassSearchBar.setOnClickListener {
