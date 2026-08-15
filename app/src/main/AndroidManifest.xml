@@ -135,6 +135,7 @@
             android:name=".ui.alert.AlertActivity"
             android:exported="false"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Alert"
+            android:showWhenLocked="true"
             android:showOnLockScreen="true"
             android:launchMode="singleInstance"
             android:turnScreenOn="true"

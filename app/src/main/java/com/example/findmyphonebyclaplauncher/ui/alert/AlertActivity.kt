@@ -1,5 +1,8 @@
 package com.example.findmyphonebyclaplauncher.ui.alert
 
+import android.app.KeyguardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -30,6 +33,12 @@ class AlertActivity : AppCompatActivity() {
         enableShowOverLockScreen()
         super.onCreate(savedInstanceState)
 
+        // Handle explicit stop action from notification button
+        if (intent?.action == Constants.ACTION_STOP_ALERT) {
+            stopAlert()
+            return
+        }
+
         val findPhoneManager = (application as App).findPhoneManager
         if (!findPhoneManager.isAlertActive()) {
             finish()
@@ -48,7 +57,7 @@ class AlertActivity : AppCompatActivity() {
         // Start Lottie Bell animation
         binding.lottieBell.playAnimation()
 
-        // Handle Back press (Requirement 7)
+        // Handle Back press
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 stopAlert()
@@ -64,11 +73,6 @@ class AlertActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
-
-        // If this activity is opened via the notification action, also stop there
-        if (intent?.action == Constants.ACTION_STOP_ALERT) {
-            stopAlert()
         }
     }
 
@@ -86,7 +90,7 @@ class AlertActivity : AppCompatActivity() {
         }
     }
 
-    override fun onNewIntent(intent: android.content.Intent) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.action == Constants.ACTION_STOP_ALERT) {
             stopAlert()
@@ -95,8 +99,8 @@ class AlertActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Safety net: stop alert if activity is finished or destroyed, but NOT during orientation change
-        if (!isChangingConfigurations) {
+        // Stop alert only if the activity is explicitly finishing (user stop / duration timeout)
+        if (isFinishing && !isChangingConfigurations) {
             stopAlert()
         }
     }
@@ -121,15 +125,17 @@ class AlertActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
+            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            keyguardManager.requestDismissKeyguard(this, null)
         } else {
             @Suppress("DEPRECATION")
             window.addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
             )
         }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 }
-

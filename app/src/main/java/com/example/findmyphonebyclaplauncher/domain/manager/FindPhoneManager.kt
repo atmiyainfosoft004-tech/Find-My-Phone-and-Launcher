@@ -228,16 +228,20 @@ class FindPhoneManager(private val context: Context) {
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun showAlertNotification() {
-        val alertIntent = Intent(context, AlertActivity::class.java).apply {
-            action = Constants.ACTION_STOP_ALERT
-            flags  = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        val openIntent = Intent(context, AlertActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
         val fullScreenPi = PendingIntent.getActivity(
-            context, 0, alertIntent,
+            context, 0, openIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        val stopIntent = Intent(context, AlertActivity::class.java).apply {
+            action = Constants.ACTION_STOP_ALERT
+            flags  = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
         val stopPi = PendingIntent.getActivity(
-            context, 1, alertIntent,
+            context, 1, stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
