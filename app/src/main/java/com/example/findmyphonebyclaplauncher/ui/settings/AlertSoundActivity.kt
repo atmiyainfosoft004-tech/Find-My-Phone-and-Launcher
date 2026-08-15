@@ -6,6 +6,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -18,13 +19,20 @@ import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundItem
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundPickerAdapter
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
+/**
+ * Activity to select and preview alert sound ringtones and volume.
+ * Items only preview audio upon selection; changes are committed ONLY when tapping "Save".
+ */
 class AlertSoundActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAlertSoundBinding
     private lateinit var prefs: UserPreferencesDataSource
 
     private var previewPlayer: MediaPlayer? = null
-    private var selectedSoundId = "whistle"
+
+    // Temporary in-memory selection state (not saved until user taps Save)
+    private var tempSelectedSoundId = "whistle"
+    private var tempVolume = 100
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +40,8 @@ class AlertSoundActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         prefs = UserPreferencesDataSource(this)
-        selectedSoundId = prefs.selectedAlertSound
+        tempSelectedSoundId = prefs.selectedAlertSound
+        tempVolume = prefs.alertSoundVolume
 
         setupWindowInsets()
         setupVolumeSlider()
@@ -57,25 +66,18 @@ class AlertSoundActivity : AppCompatActivity() {
     }
 
     private fun setupVolumeSlider() {
-        val savedVolume = prefs.alertSoundVolume
         binding.seekBarVolume.max = 100
-        binding.seekBarVolume.progress = savedVolume
-        binding.txtVolumePercent.text = "${savedVolume}%"
+        binding.seekBarVolume.progress = tempVolume
+        binding.txtVolumePercent.text = "${tempVolume}%"
 
         binding.seekBarVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                tempVolume = progress
                 binding.txtVolumePercent.text = "${progress}%"
 
-                // Save volume setting immediately
-                prefs.alertSoundVolume = progress
-
-                // Adjust preview player volume in real-time
+                // Adjust preview player volume live for previewing
                 val volFloat = (progress / 100.0f).coerceIn(0.01f, 1.0f)
                 previewPlayer?.setVolume(volFloat, volFloat)
-
-                if (fromUser) {
-                    applySystemVolume(this@AlertSoundActivity, progress)
-                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -97,9 +99,9 @@ class AlertSoundActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = SoundPickerAdapter(getSoundList(), selectedSoundId) { item ->
-            selectedSoundId = item.id
-            prefs.selectedAlertSound = item.id
+        val adapter = SoundPickerAdapter(getSoundList(), tempSelectedSoundId) { item ->
+            // Store selected item into temporary variable ONLY; do NOT write to SharedPreferences
+            tempSelectedSoundId = item.id
             playPreview()
         }
         binding.rvSounds.layoutManager = GridLayoutManager(this, 3)
@@ -108,29 +110,32 @@ class AlertSoundActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            saveSettings()
+            // Cancel action: Stop preview and discard uncommitted changes
             stopPreview()
             finishWithSlideAnimation()
         }
 
         binding.btnSave.setOnClickListener {
-            saveSettings()
+            // Save action: Commit temporary selection state to persistent storage
+            commitSettings()
             stopPreview()
+            Toast.makeText(this, getString(R.string.alert_sound) + " saved", Toast.LENGTH_SHORT).show()
             finishWithSlideAnimation()
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                saveSettings()
+                // Cancel action: Stop preview and discard uncommitted changes
                 stopPreview()
                 finishWithSlideAnimation()
             }
         })
     }
 
-    private fun saveSettings() {
-        prefs.selectedAlertSound = selectedSoundId
-        prefs.alertSoundVolume = binding.seekBarVolume.progress
+    private fun commitSettings() {
+        prefs.selectedAlertSound = tempSelectedSoundId
+        prefs.alertSoundVolume = tempVolume
+        applySystemVolume(this, tempVolume)
     }
 
     private fun applySystemVolume(context: Context, volumePercent: Int) {
@@ -165,14 +170,14 @@ class AlertSoundActivity : AppCompatActivity() {
     private fun playPreview() {
         try {
             stopPreview()
-            val rawResId = getSoundRawResId(selectedSoundId)
+            val rawResId = getSoundRawResId(tempSelectedSoundId)
             previewPlayer = if (rawResId != null) {
                 MediaPlayer.create(this, rawResId)
             } else {
                 MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
             }
 
-            val volFloat = (binding.seekBarVolume.progress / 100.0f).coerceIn(0.01f, 1.0f)
+            val volFloat = (tempVolume / 100.0f).coerceIn(0.01f, 1.0f)
             previewPlayer?.apply {
                 setVolume(volFloat, volFloat)
                 isLooping = true
@@ -194,8 +199,18 @@ class AlertSoundActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        stopPreview()
+    }
+
     override fun onStop() {
         super.onStop()
+        stopPreview()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         stopPreview()
     }
 }
