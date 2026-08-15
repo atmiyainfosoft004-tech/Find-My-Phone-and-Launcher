@@ -15,6 +15,8 @@ import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertSoundBindi
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundItem
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundPickerAdapter
 
+import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
+
 class AlertSoundActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAlertSoundBinding
@@ -100,21 +102,21 @@ class AlertSoundActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener {
             // Cancel / Back: do NOT save settings
             stopPreview()
-            finish()
+            finishWithSlideAnimation()
         }
 
         binding.btnSave.setOnClickListener {
             // Save settings only when btnSave is clicked
             saveSettings()
             stopPreview()
-            finish()
+            finishWithSlideAnimation()
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // Cancel / Back: do NOT save settings
                 stopPreview()
-                finish()
+                finishWithSlideAnimation()
             }
         })
     }

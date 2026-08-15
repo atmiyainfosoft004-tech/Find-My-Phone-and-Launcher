@@ -27,6 +27,10 @@ import com.example.findmyphonebyclaplauncher.ui.settings.AlertSoundActivity
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
 import com.google.android.material.snackbar.Snackbar
 
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.example.findmyphonebyclaplauncher.util.startActivityWithSlideAnimation
+
 class FindPhoneFragment : Fragment() {
 
     private var _binding: ActivityFindPhoneBinding? = null
@@ -54,8 +58,22 @@ class FindPhoneFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prefs = UserPreferencesDataSource(requireContext())
 
+        setupWindowInsets()
         setupListeners()
         observeViewModel()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.layoutHeader.setPadding(
+                binding.layoutHeader.paddingLeft,
+                systemBars.top + resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._12sdp),
+                binding.layoutHeader.paddingRight,
+                binding.layoutHeader.paddingBottom
+            )
+            insets
+        }
     }
 
     override fun onResume() {
@@ -101,7 +119,7 @@ class FindPhoneFragment : Fragment() {
 
     private fun setupListeners() {
         binding.btnMenu.setOnClickListener {
-            startActivity(Intent(requireContext(), MenuActivity::class.java))
+            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), MenuActivity::class.java))
         }
 
         binding.switchMasterDetection.setOnClickListener {
@@ -145,11 +163,11 @@ class FindPhoneFragment : Fragment() {
         }
 
         binding.cardAlertSound.setOnClickListener {
-            startActivity(Intent(requireContext(), AlertSoundActivity::class.java))
+            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSoundActivity::class.java))
         }
 
         binding.cardAlertSensitivity.setOnClickListener {
-            startActivity(Intent(requireContext(), AlertSensitivityActivity::class.java))
+            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSensitivityActivity::class.java))
         }
 
         binding.cardAlertDuration.setOnClickListener {

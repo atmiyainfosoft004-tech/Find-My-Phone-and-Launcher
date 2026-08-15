@@ -4,12 +4,14 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.databinding.ActivityMenuBinding
+import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
 class MenuActivity : AppCompatActivity() {
 
@@ -43,8 +45,14 @@ class MenuActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            finish()
+            finishWithSlideAnimation()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishWithSlideAnimation()
+            }
+        })
 
         binding.cardAbout.setOnClickListener {
             openPlayStorePage()

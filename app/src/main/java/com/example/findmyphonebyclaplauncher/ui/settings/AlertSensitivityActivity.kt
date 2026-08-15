@@ -1,6 +1,7 @@
 package com.example.findmyphonebyclaplauncher.ui.settings
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -8,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertSensitivityBinding
+import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
 class AlertSensitivityActivity : AppCompatActivity() {
 
@@ -48,8 +50,14 @@ class AlertSensitivityActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            finish()
+            finishWithSlideAnimation()
         }
+
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishWithSlideAnimation()
+            }
+        })
 
         binding.cardLowSensitivity.setOnClickListener {
             selectedSensitivity = "Low"
@@ -68,7 +76,7 @@ class AlertSensitivityActivity : AppCompatActivity() {
 
         binding.btnSave.setOnClickListener {
             prefs.alertSensitivity = selectedSensitivity
-            finish()
+            finishWithSlideAnimation()
         }
     }
 

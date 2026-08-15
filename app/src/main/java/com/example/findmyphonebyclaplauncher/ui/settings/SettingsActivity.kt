@@ -12,6 +12,9 @@ import com.example.findmyphonebyclaplauncher.utils.BatteryOptimizationManager
 import com.example.findmyphonebyclaplauncher.utils.OemCompatibilityManager
 import com.google.android.material.snackbar.Snackbar
 
+import androidx.activity.OnBackPressedCallback
+import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
+
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
@@ -54,7 +57,12 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        binding.toolbar.setNavigationOnClickListener { finishWithSlideAnimation() }
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishWithSlideAnimation()
+            }
+        })
     }
 
     private fun setupBatteryOptimization() {
