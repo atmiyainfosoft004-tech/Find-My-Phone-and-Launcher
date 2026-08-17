@@ -52,7 +52,7 @@ class OnboardingScreen1Fragment : Fragment() {
         setupVideoPlayer()
 
         binding.btnContinue.setOnClickListener {
-            (activity as? OnboardingActivity)?.goToNextPage()
+            (activity as? OnboardingActivity)?.navigateToPage(com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter.PAGE_SCREEN_3)
         }
     }
 

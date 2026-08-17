@@ -9,8 +9,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.databinding.ActivityOnboardingBinding
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter
-import com.example.findmyphonebyclaplauncher.utils.LauncherHelper
-import com.example.findmyphonebyclaplauncher.utils.PermissionManager
 
 class OnboardingActivity : AppCompatActivity() {
 
@@ -46,16 +44,8 @@ class OnboardingActivity : AppCompatActivity() {
         binding.vpOnboarding.adapter = adapter
         binding.vpOnboarding.isUserInputEnabled = false
 
-        val isDefault = LauncherHelper.isDefaultLauncher(this)
-        val hasAudio = PermissionManager.hasRecordAudioPermission(this)
-
-        if (isDefault && !hasAudio) {
-            binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_3, false)
-        } else if (!isDefault && hasAudio) {
-            binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_2, false)
-        } else {
-            binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_1, false)
-        }
+        // Always begin strictly on OnboardingScreen2Fragment (Page 0) without skipping
+        binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_2, false)
     }
 
     private fun observeViewModel() {

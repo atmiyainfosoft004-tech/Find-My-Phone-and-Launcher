@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,16 +24,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
 import com.example.findmyphonebyclaplauncher.data.model.AppInfo
 import com.example.findmyphonebyclaplauncher.databinding.FragmentHomeBinding
 import com.example.findmyphonebyclaplauncher.ui.launcher.LauncherViewModel
 import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.DockAdapter
 import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.WorkspaceIconAdapter
 import com.example.findmyphonebyclaplauncher.ui.launcher.drawer.AppContextPopup
-import kotlinx.coroutines.launch
-
-import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
 import com.example.findmyphonebyclaplauncher.ui.search.GoogleSearchActivity
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -69,6 +69,13 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Disable app exit / back navigation on HomeFragment
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Keep the user on HomeFragment without exiting or navigating backward
+            }
+        })
 
         contextPopup = AppContextPopup(
             onAppInfo = viewModel::onOpenAppInfo,
