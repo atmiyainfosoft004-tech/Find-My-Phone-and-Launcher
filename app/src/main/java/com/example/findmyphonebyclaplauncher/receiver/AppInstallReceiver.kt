@@ -23,6 +23,7 @@ class AppInstallReceiver : BroadcastReceiver() {
         val cachedSize = com.example.findmyphonebyclaplauncher.data.cache.AppIconCacheManager.getCachedAppSize(packageName)
 
         com.example.findmyphonebyclaplauncher.data.repository.AppRepository.get().invalidatePackageCache(packageName)
+        com.example.findmyphonebyclaplauncher.data.repository.AppRepository.get().refreshAppsAsync()
 
         when (action) {
             Intent.ACTION_PACKAGE_ADDED -> {

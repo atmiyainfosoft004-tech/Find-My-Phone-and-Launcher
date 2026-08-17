@@ -241,23 +241,31 @@ class AppDrawerFragment : Fragment() {
     }
 
     private fun startUninstall(app: AppInfo) {
+        val packageName = app.packageName.trim().substringBefore('/')
         if (!app.canUninstall || uninstallInProgress) return
         uninstallInProgress = true
         contextPopup?.dismiss()
 
-        pendingUninstallPackage = app.packageName
+        pendingUninstallPackage = packageName
         pendingUninstallLabel = app.label
         registerPackageRemovedReceiver()
 
-        val uri = Uri.parse("package:${app.packageName}")
+        android.util.Log.d("UninstallDebug", "Triggering uninstall for package: $packageName")
+        val uri = Uri.parse("package:$packageName")
         val intent = Intent(Intent.ACTION_DELETE, uri)
         try {
             startActivity(intent)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            android.util.Log.e("UninstallDebug", "Failed to launch uninstaller for package: $packageName", e)
             uninstallInProgress = false
             pendingUninstallPackage = null
             pendingUninstallLabel = null
             unregisterPackageRemovedReceiver()
+            android.widget.Toast.makeText(
+                requireContext(),
+                getString(R.string.uninstall_failed, app.label),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -269,6 +277,12 @@ class AppDrawerFragment : Fragment() {
                 if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) return
                 val removedPackage = intent.data?.schemeSpecificPart ?: return
                 if (removedPackage != pendingUninstallPackage) return
+                val label = pendingUninstallLabel.orEmpty().ifBlank { removedPackage }
+                android.widget.Toast.makeText(
+                    context.applicationContext,
+                    getString(R.string.uninstalled_app, label),
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
                 pendingUninstallPackage = null
                 pendingUninstallLabel = null
                 uninstallInProgress = false

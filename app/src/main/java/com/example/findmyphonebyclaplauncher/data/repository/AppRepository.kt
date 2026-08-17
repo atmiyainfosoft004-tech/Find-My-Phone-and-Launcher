@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import com.example.findmyphonebyclaplauncher.data.model.AppCategory
 import com.example.findmyphonebyclaplauncher.data.model.AppInfo
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -68,6 +70,14 @@ class AppRepositoryImpl(private val context: Context) {
         pruneMissingFavorites(mapped.map { it.packageName }.toSet())
     }
 
+    private val repositoryScope = kotlinx.coroutines.CoroutineScope(Dispatchers.IO + kotlinx.coroutines.SupervisorJob())
+
+    fun refreshAppsAsync() {
+        repositoryScope.launch {
+            refreshApps()
+        }
+    }
+
     fun invalidatePackageCache(packageName: String) {
         com.example.findmyphonebyclaplauncher.data.cache.AppIconCacheManager.invalidatePackage(packageName)
     }
@@ -103,15 +113,38 @@ class AppRepositoryImpl(private val context: Context) {
     }
 
     fun uninstallApp(app: AppInfo): Boolean {
+        return uninstallApp(context, app.packageName)
+    }
+
+    fun uninstallApp(ctx: Context, packageName: String): Boolean {
         return try {
+            Log.d("LauncherUninstall", "Attempting uninstall for: $packageName")
             val intent = Intent(Intent.ACTION_DELETE).apply {
-                data = Uri.parse("package:${app.packageName}")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                data = Uri.fromParts("package", packageName, null)
+                putExtra(Intent.EXTRA_RETURN_RESULT, true)
+                if (ctx !is android.app.Activity) {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
             }
-            context.startActivity(intent)
+            ctx.startActivity(intent)
             true
-        } catch (_: Exception) {
-            false
+        } catch (e: Exception) {
+            Log.e("LauncherUninstall", "Failed to launch uninstaller for package: $packageName", e)
+            try {
+                @Suppress("DEPRECATION")
+                val fallbackIntent = Intent(Intent.ACTION_UNINSTALL_PACKAGE).apply {
+                    data = Uri.fromParts("package", packageName, null)
+                    putExtra(Intent.EXTRA_RETURN_RESULT, true)
+                    if (ctx !is android.app.Activity) {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                }
+                ctx.startActivity(fallbackIntent)
+                true
+            } catch (fallbackError: Exception) {
+                Log.e("LauncherUninstall", "Fallback uninstaller also failed for: $packageName", fallbackError)
+                false
+            }
         }
     }
 

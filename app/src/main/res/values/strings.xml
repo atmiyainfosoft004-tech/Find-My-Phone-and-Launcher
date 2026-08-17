@@ -182,6 +182,8 @@
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_confirm_message">Do you want to uninstall this app?</string>
+    <string name="uninstalled_app">Uninstalled %1$s</string>
+    <string name="uninstall_failed">Unable to uninstall %1$s</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="search_apps_hint">Search apps…</string>
