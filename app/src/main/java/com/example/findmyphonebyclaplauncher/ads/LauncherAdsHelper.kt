@@ -6,12 +6,19 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.cardview.widget.CardView
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
+import com.example.findmyphonebyclaplauncher.ads.config.RemoteConfigRepository
 import com.example.findmyphonebyclaplauncher.util.SystemUiHelper
 import com.google.android.gms.ads.nativead.NativeAd
 
 object LauncherAdsHelper {
 
     private const val TAG = "LauncherAdsHelper"
+
+    enum class AdPlacement {
+        APP_CLICK,
+        SWAP,
+        BACK_PRESS
+    }
 
     enum class ActionType {
         CLICK,
@@ -20,43 +27,284 @@ object LauncherAdsHelper {
     }
 
     fun preloadInterstitial(activity: Activity) {
-        if (AdsConfigManager.config.preloadAdInterstitial && AdsConfigManager.config.canShowInter) {
+        if (RemoteConfigRepository.isInterAdEnabled && RemoteConfigRepository.interAdId.isNotBlank()) {
             InterAdLoader.instance?.loadInterstitialAds(activity)
         }
     }
 
     fun preloadAppOpen(activity: Activity) {
-        if (AdsConfigManager.config.preloadAdAppOpen && AdsConfigManager.config.canShowAppOpen) {
+        if (RemoteConfigRepository.isAppOpenAdEnabled && RemoteConfigRepository.appOpenAdId.isNotBlank()) {
             AppOpenAdLoader.instance?.preloadAppOpenAd(activity)
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Dynamic Action Type Dispatcher (Guarded by Action-Level & Master Switches)
-    // ─────────────────────────────────────────────────────────────────────────
+    fun showAdForPlacement(
+        activity: Activity,
+        placement: AdPlacement,
+        onAdClosed: () -> Unit
+    ) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            onAdClosed()
+            return
+        }
 
-    fun showAppClickInterThen(activity: Activity, onContinue: () -> Unit) {
-        showAdForAction(activity, ActionType.CLICK, onContinue)
+        val config = AdsConfigManager.config
+        val isAdEnabled = when (placement) {
+            AdPlacement.APP_CLICK -> config.isClickAdEnabled && (if (config.isClickAdInterstitial) config.canShowInter else config.canShowAppOpen)
+            AdPlacement.SWAP -> config.isSwipeAdEnabled && (if (config.isSwipeAdInterstitial) config.canShowInter else config.canShowAppOpen)
+            AdPlacement.BACK_PRESS -> config.isBackAdEnabled && config.canShowInter
+        }
+
+        Log.d("AdPlacementDebug", "Placement: $placement | Enabled: $isAdEnabled")
+
+        if (!isAdEnabled) {
+            // Flag is false for this specific placement: Skip ad completely
+            onAdClosed()
+            return
+        }
+
+        val (counter, trigger) = when (placement) {
+            AdPlacement.APP_CLICK -> {
+                val count = InterAdLoader.increaseClickCount()
+                val trig = config.clickAdCounterTrigger.coerceAtLeast(1)
+                Pair(count, trig)
+            }
+            AdPlacement.SWAP -> {
+                val count = InterAdLoader.increaseForwardCount()
+                val trig = config.interAdCounterTrigger.coerceAtLeast(1)
+                Pair(count, trig)
+            }
+            AdPlacement.BACK_PRESS -> {
+                val count = InterAdLoader.increaseBackwardCount()
+                val trig = config.interAdBackCounterTrigger.coerceAtLeast(1)
+                Pair(count, trig)
+            }
+        }
+
+        Log.d("AdPlacementDebug", "Placement: $placement | Counter: $counter / $trigger")
+
+        if (counter >= trigger) {
+            when (placement) {
+                AdPlacement.APP_CLICK -> InterAdLoader.resetClickCount()
+                AdPlacement.SWAP -> InterAdLoader.resetForwardCount()
+                AdPlacement.BACK_PRESS -> InterAdLoader.resetBackwardCount()
+            }
+
+            when (placement) {
+                AdPlacement.APP_CLICK -> {
+                    if (config.isClickAdInterstitial) {
+                        showClickInterstitialAd(activity, onAdClosed)
+                    } else {
+                        showAppOpenAd(activity, onAdClosed)
+                    }
+                }
+                AdPlacement.SWAP -> {
+                    if (config.isSwipeAdInterstitial) {
+                        showClickInterstitialAd(activity, onAdClosed)
+                    } else {
+                        showAppOpenAd(activity, onAdClosed)
+                    }
+                }
+                AdPlacement.BACK_PRESS -> {
+                    showBackInterstitialAd(activity, onAdClosed)
+                }
+            }
+        } else {
+            onAdClosed()
+        }
     }
 
-    fun showAppClickAdThen(activity: Activity, onContinue: () -> Unit) {
-        showAdForAction(activity, ActionType.CLICK, onContinue)
+    fun showClickInterstitialAd(activity: Activity, onDone: () -> Unit) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            onDone()
+            return
+        }
+        val config = AdsConfigManager.config
+        if (!config.canShowInter) {
+            Log.d(TAG, "showClickInterstitialAd: canShowInter is false -> proceeding")
+            onDone()
+            return
+        }
+        InterAdLoader.instance?.showOrLoadInterstitial(activity, isFromBack = false) {
+            SystemUiHelper.applyStickyImmersiveMode(activity)
+            if (!activity.isFinishing && !activity.isDestroyed) {
+                onDone()
+            }
+        } ?: onDone()
     }
 
-    fun showSwipeInter(activity: Activity, onDone: () -> Unit = {}) {
-        showAdForAction(activity, ActionType.SWIPE, onDone)
+    fun showInterstitialAd(activity: Activity, onDone: () -> Unit) {
+        showClickInterstitialAd(activity, onDone)
+    }
+
+    fun showAppOpenAd(activity: Activity, onDone: () -> Unit) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            onDone()
+            return
+        }
+        val config = AdsConfigManager.config
+        if (!config.canShowAppOpen) {
+            Log.d(TAG, "showAppOpenAd: canShowAppOpen is false -> proceeding")
+            onDone()
+            return
+        }
+        AppOpenAdLoader.instance?.showAppOpenAd(activity) {
+            SystemUiHelper.applyStickyImmersiveMode(activity)
+            if (!activity.isFinishing && !activity.isDestroyed) {
+                onDone()
+            }
+        } ?: onDone()
+    }
+
+    fun showAppClickAd(activity: Activity, packageName: String, onContinue: () -> Unit) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            onContinue()
+            return
+        }
+
+        val config = AdsConfigManager.config
+        val isClickAdEnabled = config.isClickAdEnabled
+        val isClickAdInterstitial = config.isClickAdInterstitial
+        val triggerThreshold = config.clickAdCounterTrigger.coerceAtLeast(1)
+
+        Log.d("AdRouting", "is_click_ad_enabled: $isClickAdEnabled | is_click_ad_interstitial: $isClickAdInterstitial")
+
+        if (!isClickAdEnabled) {
+            onContinue()
+            return
+        }
+
+        val clickCount = InterAdLoader.increaseClickCount()
+        Log.d("AdRouting", "App clicked: $packageName | Counter: $clickCount / $triggerThreshold")
+
+        if (clickCount >= triggerThreshold) {
+            InterAdLoader.resetClickCount()
+
+            if (isClickAdInterstitial) {
+                // Flag is TRUE -> Display Interstitial Ad using inter_ad_id
+                Log.d("AdRouting", "Threshold reached. Showing Interstitial Ad (inter_ad_id)...")
+                showClickInterstitialAd(activity) {
+                    onContinue()
+                }
+            } else {
+                // Flag is FALSE -> Display App Open Ad using app_open_ad_id
+                Log.d("AdRouting", "Threshold reached. Showing App Open Ad (app_open_ad_id)...")
+                showAppOpenAd(activity) {
+                    onContinue()
+                }
+            }
+        } else {
+            // Counter threshold not reached yet -> open app directly
+            onContinue()
+        }
     }
 
     fun showSwipeAd(activity: Activity, onDone: () -> Unit = {}) {
-        showAdForAction(activity, ActionType.SWIPE, onDone)
+        if (activity.isFinishing || activity.isDestroyed) {
+            onDone()
+            return
+        }
+
+        val config = AdsConfigManager.config
+        val isSwipeEnabled = config.isSwipeAdEnabled
+        val isSwipeInter = config.isSwipeAdInterstitial
+        val trigger = config.interAdCounterTrigger.coerceAtLeast(1)
+        Log.d("AdRouting", "Swipe ad requested: is_swipe_ad_enabled=$isSwipeEnabled | is_swipe_ad_interstitial=$isSwipeInter")
+
+        if (!isSwipeEnabled) {
+            onDone()
+            return
+        }
+
+        val count = InterAdLoader.increaseForwardCount()
+        Log.d("AdRouting", "Swipe counter: $count / $trigger")
+
+        if (count >= trigger) {
+            InterAdLoader.resetForwardCount()
+            if (isSwipeInter) {
+                // Flag is TRUE -> Display Interstitial Ad using inter_ad_id
+                Log.d("AdRouting", "Threshold reached. Showing Interstitial Ad (inter_ad_id)...")
+                showClickInterstitialAd(activity) {
+                    onDone()
+                }
+            } else {
+                // Flag is FALSE -> Display App Open Ad using app_open_ad_id
+                Log.d("AdRouting", "Threshold reached. Showing App Open Ad (app_open_ad_id)...")
+                showAppOpenAd(activity) {
+                    onDone()
+                }
+            }
+        } else {
+            onDone()
+        }
+    }
+
+    fun showSwapInterstitialAd(activity: Activity, onDone: () -> Unit = {}) {
+        showSwipeAd(activity, onDone)
+    }
+
+    fun getBackAdTriggerCount(): Int {
+        val value = AdsConfigManager.config.interAdBackCounterTrigger
+        Log.d("RemoteConfigDebug", "inter_ad_back_counter_trigger value: $value")
+        return value
+    }
+
+    fun onFeatureBackRequested(activity: Activity, onComplete: () -> Unit) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            onComplete()
+            return
+        }
+
+        val config = AdsConfigManager.config
+        val isBackAdEnabled = config.isBackAdEnabled && config.isInterAdEnabled
+        val triggerCount = getBackAdTriggerCount().coerceAtLeast(1)
+
+        Log.d("BackAdDebug", "Back pressed inside Screen. Counter: ${InterAdLoader.interstitialBackwardCount} / $triggerCount, Enabled: $isBackAdEnabled")
+
+        if (!isBackAdEnabled) {
+            Log.d("BackAdDebug", "Back ad disabled by Remote Config -> proceeding immediately")
+            onComplete()
+            return
+        }
+
+        val backPressCount = InterAdLoader.increaseBackwardCount()
+        Log.d("BackAdDebug", "Feature screen back pressed: count = $backPressCount / $triggerCount")
+
+        if (backPressCount >= triggerCount) {
+            InterAdLoader.resetBackwardCount()
+            InterAdLoader.instance?.showOrLoadInterstitial(activity, isFromBack = true) {
+                SystemUiHelper.applyStickyImmersiveMode(activity)
+                if (!activity.isFinishing && !activity.isDestroyed) {
+                    onComplete()
+                }
+            } ?: onComplete()
+        } else {
+            onComplete()
+        }
+    }
+
+    fun showBackInterstitialAd(activity: Activity, onDone: () -> Unit) {
+        onFeatureBackRequested(activity, onDone)
+    }
+
+    fun showSwipeInter(activity: Activity, onDone: () -> Unit = {}) {
+        showSwipeAd(activity, onDone)
     }
 
     fun showBackAd(activity: Activity, onDone: () -> Unit) {
-        showAdForAction(activity, ActionType.BACK, onDone)
+        showBackInterstitialAd(activity, onDone)
+    }
+
+    fun showAppClickInterThen(activity: Activity, onContinue: () -> Unit) {
+        showAppClickAd(activity, "", onContinue)
+    }
+
+    fun showAppClickAdThen(activity: Activity, onContinue: () -> Unit) {
+        showAppClickAd(activity, "", onContinue)
     }
 
     fun showInterThen(activity: Activity, onContinue: () -> Unit) {
-        showAdForAction(activity, ActionType.CLICK, onContinue)
+        showAppClickAd(activity, "", onContinue)
     }
 
     fun showBlogReturnInter(activity: Activity) {
@@ -64,87 +312,22 @@ object LauncherAdsHelper {
         InterAdLoader.instance?.showInterstitialImmediate(activity) {}
     }
 
-    /**
-     * Dispatches ads strictly based on the triggering action context.
-     * Evaluates independent counter registers and dynamically evaluates Boolean flags:
-     * - ActionType.CLICK -> isClickAdEnabled & isClickAdInterstitial
-     * - ActionType.SWIPE -> isSwipeAdEnabled & isSwipeAdInterstitial
-     * - ActionType.BACK  -> isBackAdEnabled & isClickAdInterstitial
-     */
     fun showAdForAction(
         activity: Activity,
         actionType: ActionType,
         onProceed: () -> Unit
     ) {
-        if (activity.isFinishing || activity.isDestroyed) {
-            onProceed()
-            return
-        }
-
-        val config = AdsConfigManager.config
-        val isActionEnabled = when (actionType) {
-            ActionType.CLICK -> config.isClickAdEnabled
-            ActionType.SWIPE -> config.isSwipeAdEnabled
-            ActionType.BACK  -> config.isBackAdEnabled
-        }
-
-        if (!isActionEnabled) {
-            // Strict Rule: Skip ad display and counter increment completely
-            Log.d(TAG, "showAdForAction: action=$actionType is disabled by Remote Config -> proceeding directly")
-            onProceed()
-            return
-        }
-
-        val (counter, trigger, showInterstitial) = when (actionType) {
-            ActionType.CLICK -> {
-                val count = InterAdLoader.increaseClickCount()
-                val trig = config.clickAdCounterTrigger.coerceAtLeast(1)
-                val showInter = config.isClickAdInterstitial
-                Triple(count, trig, showInter)
-            }
-            ActionType.SWIPE -> {
-                val count = InterAdLoader.increaseForwardCount()
-                val trig = config.interAdCounterTrigger.coerceAtLeast(1)
-                val showInter = config.isSwipeAdInterstitial
-                Triple(count, trig, showInter)
-            }
-            ActionType.BACK -> {
-                val count = InterAdLoader.increaseBackwardCount()
-                val trig = config.interAdBackCounterTrigger.coerceAtLeast(1)
-                val showInter = config.isClickAdInterstitial
-                Triple(count, trig, showInter)
-            }
-        }
-
-        Log.d(TAG, "showAdForAction: action=$actionType, count=$counter, trigger=$trigger, showInterstitial=$showInterstitial")
-
-        if (counter >= trigger) {
-            // Reset ONLY this specific counter register back to zero
-            when (actionType) {
-                ActionType.CLICK -> InterAdLoader.resetClickCount()
-                ActionType.SWIPE -> InterAdLoader.resetForwardCount()
-                ActionType.BACK  -> InterAdLoader.resetBackwardCount()
-            }
-
-            showRoutedFullScreenAd(
-                activity = activity,
-                showInterstitial = showInterstitial,
-                onDismiss = {
-                    SystemUiHelper.applyStickyImmersiveMode(activity)
-                    if (!activity.isFinishing && !activity.isDestroyed) {
-                        onProceed()
-                    }
-                }
-            )
-        } else {
-            onProceed()
+        when (actionType) {
+            ActionType.CLICK -> showAdForPlacement(activity, AdPlacement.APP_CLICK, onProceed)
+            ActionType.SWIPE -> showAdForPlacement(activity, AdPlacement.SWAP, onProceed)
+            ActionType.BACK  -> showAdForPlacement(activity, AdPlacement.BACK_PRESS, onProceed)
         }
     }
 
     /**
-     * Dynamic routing with graceful fallback and strict network guards:
-     * - showInterstitial == true: Present Interstitial if ready. If not ready, fallback to cached App Open. Else loads & presents Interstitial.
-     * - showInterstitial == false: Present App Open if ready. If not ready, fallback to cached Interstitial. Else loads & presents App Open.
+     * Dedicated isolated routing:
+     * - showInterstitial == true: Displays Interstitial Ad (inter_ad_id)
+     * - showInterstitial == false: Displays App Open Ad (app_open_ad_id)
      */
     fun showRoutedFullScreenAd(
         activity: Activity,
@@ -156,69 +339,10 @@ object LauncherAdsHelper {
             return
         }
 
-        val config = AdsConfigManager.config
-        val canShowInter = config.canShowInter
-        val canShowAppOpen = config.canShowAppOpen
-
-        if (!canShowInter && !canShowAppOpen) {
-            Log.d(TAG, "showRoutedFullScreenAd: Both Interstitial and App Open are disabled -> proceeding")
-            onDismiss()
-            return
-        }
-
-        val interLoader = InterAdLoader.instance
-        val openLoader = AppOpenAdLoader.instance
-
-        val isInterReady = canShowInter && interLoader?.isInterstitialReady == true
-        val isOpenReady = canShowAppOpen && openLoader?.isAvailableAppOpenAd == true
-
-        Log.d(TAG, "showRoutedFullScreenAd: showInterstitial=$showInterstitial, isInterReady=$isInterReady, isOpenReady=$isOpenReady, canShowInter=$canShowInter, canShowAppOpen=$canShowAppOpen")
-
-        fun safeDismiss() {
-            SystemUiHelper.applyStickyImmersiveMode(activity)
-            onDismiss()
-        }
-
         if (showInterstitial) {
-            when {
-                isInterReady -> {
-                    Log.d(TAG, "Presenting preferred Interstitial Ad (cached)")
-                    interLoader?.showInterstitialDirect(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                isOpenReady -> {
-                    Log.d(TAG, "Preferred Interstitial not cached -> Fallback to cached App Open Ad")
-                    openLoader?.showAppOpenAd(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                canShowInter -> {
-                    Log.d(TAG, "Neither cached -> Loading and presenting Interstitial")
-                    interLoader?.showInterstitialDirect(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                canShowAppOpen -> {
-                    Log.d(TAG, "Interstitial disabled -> Loading and presenting App Open fallback")
-                    openLoader?.showAppOpenAd(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                else -> safeDismiss()
-            }
+            showClickInterstitialAd(activity, onDismiss)
         } else {
-            when {
-                isOpenReady -> {
-                    Log.d(TAG, "Presenting preferred App Open Ad (cached)")
-                    openLoader?.showAppOpenAd(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                isInterReady -> {
-                    Log.d(TAG, "Preferred App Open not cached -> Fallback to cached Interstitial Ad")
-                    interLoader?.showInterstitialDirect(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                canShowAppOpen -> {
-                    Log.d(TAG, "Neither cached -> Loading and presenting App Open")
-                    openLoader?.showAppOpenAd(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                canShowInter -> {
-                    Log.d(TAG, "App Open disabled -> Loading and presenting Interstitial fallback")
-                    interLoader?.showInterstitialDirect(activity) { safeDismiss() } ?: safeDismiss()
-                }
-                else -> safeDismiss()
-            }
+            showAppOpenAd(activity, onDismiss)
         }
     }
 

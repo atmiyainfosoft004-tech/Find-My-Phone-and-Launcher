@@ -280,9 +280,11 @@ class GoogleSearchActivity : AppCompatActivity() {
 
     private fun closeScreen() {
         hideKeyboard()
-        finish()
-        @Suppress("DEPRECATION")
-        overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        LauncherAdsHelper.showBackAd(this) {
+            finish()
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+        }
     }
 
     override fun onPause() {

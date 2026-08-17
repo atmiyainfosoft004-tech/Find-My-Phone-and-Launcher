@@ -128,12 +128,12 @@ class LauncherHostFragment : Fragment() {
                 if (position == LauncherPagerAdapter.PAGE_DASHBOARD) {
                     (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_DASHBOARD}") as? DashboardFragment)?.refreshNativeAd()
                 }
-                maybeShowSwipeInterstitial()
+                maybeShowSwipeAd()
             }
         })
     }
 
-    private fun maybeShowSwipeInterstitial() {
+    private fun maybeShowSwipeAd() {
         if (skipNextPageSelectedAd) {
             skipNextPageSelectedAd = false
             pageChangeFromUserSwipe = false
@@ -142,7 +142,7 @@ class LauncherHostFragment : Fragment() {
         if (!pageChangeFromUserSwipe) return
         pageChangeFromUserSwipe = false
         val activity = activity ?: return
-        LauncherAdsHelper.showSwipeInter(activity)
+        LauncherAdsHelper.showSwipeAd(activity)
     }
 
     private fun setupPageIndicator() {

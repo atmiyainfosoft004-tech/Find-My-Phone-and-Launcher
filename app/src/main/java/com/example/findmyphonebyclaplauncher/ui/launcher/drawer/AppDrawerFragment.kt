@@ -68,7 +68,7 @@ class AppDrawerFragment : Fragment() {
         )
         adapter = AppIconAdapter(
             onClick = { app ->
-                LauncherAdsHelper.showAppClickInterThen(requireActivity()) {
+                LauncherAdsHelper.showAppClickAd(requireActivity(), app.packageName) {
                     viewModel.openApp(app)
                     launcherViewModel.requestCloseDrawer()
                 }
@@ -87,6 +87,8 @@ class AppDrawerFragment : Fragment() {
         setupSearch()
         observe()
         AdsConfigManager.addConfigChangeListener(configChangeListener)
+        LauncherAdsHelper.preloadInterstitial(requireActivity())
+        LauncherAdsHelper.preloadAppOpen(requireActivity())
     }
 
     fun loadBannerAd() {
@@ -111,6 +113,8 @@ class AppDrawerFragment : Fragment() {
         uninstallInProgress = false
         viewModel.refreshApps()
         loadBannerAd()
+        LauncherAdsHelper.preloadInterstitial(requireActivity())
+        LauncherAdsHelper.preloadAppOpen(requireActivity())
     }
 
     private fun setupTabs(showFavorites: Boolean) {

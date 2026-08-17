@@ -116,6 +116,36 @@ class AdManagerGuardAndRoutingTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
+    fun clickAdInterstitialFalse_selectsAppOpenAdExclusively() {
+        val config = AdsConfig.DEFAULT.copy(
+            isClickAdEnabled = true,
+            isClickAdInterstitial = false
+        )
+
+        assertFalse("is_click_ad_interstitial must be false", config.isClickAdInterstitial)
+        assertFalse("isClickInter must be false", config.isClickInter)
+        assertTrue("isClickAppOpen must be true", config.isClickAppOpen)
+        assertFalse("canShowAppClickInter must be false", config.canShowAppClickInter)
+        assertTrue("canShowAppClickOpen must be true", config.canShowAppClickOpen)
+        assertEquals("Open", config.clickAdTypeSelection)
+    }
+
+    @Test
+    fun swipeAdInterstitialFalse_selectsAppOpenAdExclusively() {
+        val config = AdsConfig.DEFAULT.copy(
+            isSwipeAdEnabled = true,
+            isSwipeAdInterstitial = false
+        )
+
+        assertFalse("is_swipe_ad_interstitial must be false", config.isSwipeAdInterstitial)
+        assertFalse("isSwipeInter must be false", config.isSwipeInter)
+        assertTrue("isSwipeAppOpen must be true", config.isSwipeAppOpen)
+        assertFalse("canShowSwipeInter must be false", config.canShowSwipeInter)
+        assertTrue("canShowSwipeOpen must be true", config.canShowSwipeOpen)
+        assertEquals("Open", config.swipeAdTypeSelection)
+    }
+
+    @Test
     fun clickActions_doNotContaminateSwipeActionRouting() {
         val config = AdsConfig.DEFAULT.copy(
             isClickAdEnabled = true,
@@ -173,5 +203,71 @@ class AdManagerGuardAndRoutingTest {
         }
         assertTrue("Ad must trigger on click 3", adTriggered)
         assertEquals("Counter must reset to 0 upon trigger", 0, currentClickCount)
+    }
+
+    @Test
+    fun backPressCounter_triggersOnlyAtThresholdAndResetsIndependently() {
+        val backTrigger = 3
+        var currentBackCount = 0
+        var adTriggered = false
+
+        // Back 1
+        currentBackCount++
+        if (currentBackCount >= backTrigger) {
+            adTriggered = true
+            currentBackCount = 0
+        }
+        assertFalse("Ad should not trigger on back 1", adTriggered)
+        assertEquals(1, currentBackCount)
+
+        // Back 2
+        currentBackCount++
+        if (currentBackCount >= backTrigger) {
+            adTriggered = true
+            currentBackCount = 0
+        }
+        assertFalse("Ad should not trigger on back 2", adTriggered)
+        assertEquals(2, currentBackCount)
+
+        // Back 3
+        currentBackCount++
+        if (currentBackCount >= backTrigger) {
+            adTriggered = true
+            currentBackCount = 0
+        }
+        assertTrue("Ad must trigger on back 3", adTriggered)
+        assertEquals("Counter must reset to 0 upon trigger", 0, currentBackCount)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 5. Screen-Level Placement Flag Resolution
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun screenLevelBannerFlags_correctlyControlScreenVisibility() {
+        val defaultConfig = AdsConfig.DEFAULT
+        assertTrue(defaultConfig.canShowBannerSplash)
+        assertFalse("banner_ad_enable_home_screen defaults to false", defaultConfig.canShowBannerHome)
+        assertTrue(defaultConfig.canShowBannerAppDrawer)
+        assertTrue(defaultConfig.canShowBannerFindPhone)
+        assertTrue(defaultConfig.canShowBannerAlertScreen)
+
+        // Enable home banner dynamically
+        val homeEnabledConfig = defaultConfig.copy(bannerAdEnableHome = true)
+        assertTrue(homeEnabledConfig.canShowBannerHome)
+    }
+
+    @Test
+    fun screenLevelNativeFlags_correctlyControlScreenVisibility() {
+        val defaultConfig = AdsConfig.DEFAULT
+        assertTrue(defaultConfig.canShowNativeDashboard)
+        assertTrue(defaultConfig.canShowNativeGoogleSearch)
+        assertTrue(defaultConfig.canShowNativeLanguage)
+        assertTrue(defaultConfig.canShowNativeAfterCall)
+
+        // Disable dashboard native dynamically
+        val dashboardDisabledConfig = defaultConfig.copy(nativeAdEnableDashboard = false)
+        assertFalse(dashboardDisabledConfig.canShowNativeDashboard)
+        assertTrue(dashboardDisabledConfig.canShowNativeGoogleSearch)
     }
 }

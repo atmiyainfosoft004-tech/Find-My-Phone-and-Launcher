@@ -86,7 +86,9 @@ class HomeFragment : Fragment() {
 
         workspaceAdapter = WorkspaceIconAdapter(
             onClick = { app ->
-                LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+                LauncherAdsHelper.showAppClickAd(requireActivity(), app.packageName) {
+                    viewModel.openApp(app)
+                }
             },
             onLongClick = { app, anchor -> contextPopup?.show(anchor, app) }
         )
@@ -99,7 +101,9 @@ class HomeFragment : Fragment() {
 
         dockAdapter = DockAdapter(
             onClick = { app ->
-                LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+                LauncherAdsHelper.showAppClickAd(requireActivity(), app.packageName) {
+                    viewModel.openApp(app)
+                }
             },
             onLongClick = { app, anchor -> contextPopup?.show(anchor, app) }
         )
@@ -234,6 +238,8 @@ class HomeFragment : Fragment() {
         super.onResume()
         uninstallInProgress = false
         clockHandler.post(clockTick)
+        LauncherAdsHelper.preloadInterstitial(requireActivity())
+        LauncherAdsHelper.preloadAppOpen(requireActivity())
     }
 
     override fun onPause() {

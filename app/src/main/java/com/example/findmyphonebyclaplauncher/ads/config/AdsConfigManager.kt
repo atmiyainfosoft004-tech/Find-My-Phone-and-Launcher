@@ -156,19 +156,19 @@ object AdsConfigManager {
             KEY_IS_INTER_AD_ENABLED to true,
             KEY_IS_APP_OPEN_AD_ENABLED to true,
 
-            KEY_IS_CLICK_AD_ENABLED to false,
-            KEY_IS_SWIPE_AD_ENABLED to false,
+            KEY_IS_CLICK_AD_ENABLED to true,
+            KEY_IS_SWIPE_AD_ENABLED to true,
             KEY_IS_BACK_AD_ENABLED to true,
 
             KEY_IS_CLICK_AD_INTERSTITIAL to true,
-            KEY_IS_SWIPE_AD_INTERSTITIAL to false,
+            KEY_IS_SWIPE_AD_INTERSTITIAL to true,
 
             KEY_INTER_COUNTER_TRIGGER to 3,
-            KEY_INTER_BACK_COUNTER_TRIGGER to 1,
+            KEY_INTER_BACK_COUNTER_TRIGGER to 3,
             KEY_CLICK_AD_COUNTER_TRIGGER to 3,
 
             KEY_BANNER_ENABLE_SPLASH to true,
-            KEY_BANNER_ENABLE_HOME_SCREEN to true,
+            KEY_BANNER_ENABLE_HOME_SCREEN to false,
             KEY_BANNER_ENABLE_APP_DRAWER to true,
             KEY_BANNER_ENABLE_FIND_PHONE to true,
             KEY_BANNER_ENABLE_ALERT_SCREEN to true,
@@ -207,11 +207,11 @@ object AdsConfigManager {
         // Real-time listener for dynamic Remote Config updates
         remoteConfig.addOnConfigUpdateListener(object : ConfigUpdateListener {
             override fun onUpdate(configUpdate: ConfigUpdate) {
-                Log.d(TAG, "Real-time config update received for keys: ${configUpdate.updatedKeys}")
+                Log.d(TAG, "Real-time Remote Config update received for keys: ${configUpdate.updatedKeys}")
                 remoteConfig.activate().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         applyFrom(remoteConfig)
-                        Log.d(TAG, "Real-time Remote Config activated successfully. Active config: $config")
+                        Log.d(TAG, "Real-time Remote Config activated. Updated is_click_ad_interstitial=${config.isClickAdInterstitial}, is_swipe_ad_interstitial=${config.isSwipeAdInterstitial}")
                     } else {
                         Log.e(TAG, "Failed to activate real-time Remote Config", task.exception)
                     }
@@ -230,21 +230,20 @@ object AdsConfigManager {
     fun fetchAndActivate(onComplete: ((success: Boolean) -> Unit)? = null) {
         val remoteConfig = FirebaseRemoteConfig.getInstance()
         val minimumFetchInterval = if (BuildConfig.DEBUG) 0L else 3600L
-        remoteConfig.fetch(minimumFetchInterval).addOnCompleteListener { fetchTask ->
-            if (fetchTask.isSuccessful) {
-                remoteConfig.activate().addOnCompleteListener { activateTask ->
-                    if (activateTask.isSuccessful) {
-                        applyFrom(remoteConfig)
-                        Log.d(TAG, "fetchAndActivate SUCCESS. Active config: $config")
-                    } else {
-                        Log.e(TAG, "fetchAndActivate -> activate FAILED", activateTask.exception)
-                    }
-                    onComplete?.invoke(activateTask.isSuccessful)
-                }
+        val settings = FirebaseRemoteConfigSettings.Builder()
+            .setMinimumFetchIntervalInSeconds(minimumFetchInterval)
+            .build()
+        remoteConfig.setConfigSettingsAsync(settings)
+
+        remoteConfig.fetchAndActivate().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                applyFrom(remoteConfig)
+                Log.d(TAG, "fetchAndActivate SUCCESS. Active is_click_ad_interstitial=${config.isClickAdInterstitial}, is_swipe_ad_interstitial=${config.isSwipeAdInterstitial}")
+                Log.d(TAG, "Active config: $config")
             } else {
-                Log.e(TAG, "fetchAndActivate -> fetch FAILED", fetchTask.exception)
-                onComplete?.invoke(false)
+                Log.e(TAG, "fetchAndActivate FAILED", task.exception)
             }
+            onComplete?.invoke(task.isSuccessful)
         }
     }
 
@@ -253,143 +252,149 @@ object AdsConfigManager {
     }
 
     private fun applyFrom(remoteConfig: FirebaseRemoteConfig) {
-        config = parse(remoteConfig)
+        val newConfig = getActiveAdsConfig(remoteConfig)
+        config = newConfig
+        Log.d(TAG, "applyFrom: Successfully updated active AdsConfig instance.")
+        Log.d(TAG, "is_click_ad_interstitial=${newConfig.isClickAdInterstitial} (Format: ${if (newConfig.isClickAdInterstitial) "Interstitial" else "App Open"})")
+        Log.d(TAG, "is_swipe_ad_interstitial=${newConfig.isSwipeAdInterstitial} (Format: ${if (newConfig.isSwipeAdInterstitial) "Interstitial" else "App Open"})")
+        Log.d(TAG, "is_click_ad_enabled=${newConfig.isClickAdEnabled}, is_swipe_ad_enabled=${newConfig.isSwipeAdEnabled}")
+        Log.d(TAG, "click_ad_counter_trigger=${newConfig.clickAdCounterTrigger}, inter_ad_counter_trigger=${newConfig.interAdCounterTrigger}, inter_ad_back_counter_trigger=${newConfig.interAdBackCounterTrigger}")
         notifyListeners()
     }
 
-    private fun parse(remoteConfig: FirebaseRemoteConfig): AdsConfig {
+    fun getActiveAdsConfig(remoteConfig: FirebaseRemoteConfig): AdsConfig {
         val json = remoteConfig.getString(KEY_ADS_CONFIG)
-        val fromJson = runCatching {
-            if (json.isBlank()) AdsConfig.DEFAULT
-            else gson.fromJson(json, AdsConfig::class.java) ?: AdsConfig.DEFAULT
-        }.getOrElse { error ->
-            Log.e(TAG, "Invalid $KEY_ADS_CONFIG JSON string: '$json'", error)
-            AdsConfig.DEFAULT
-        }
+        val fromJson = if (json.isNotBlank()) {
+            runCatching { gson.fromJson(json, AdsConfig::class.java) }.getOrNull()
+        } else null
 
-        return fromJson.copy(
-            systemHideNavigationBarAuto = remoteConfig.optionalBoolean(KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO)
-                ?: fromJson.systemHideNavigationBarAuto,
+        val parsed = AdsConfig(
+            systemHideNavigationBarAuto = fromJson?.systemHideNavigationBarAuto
+                ?: remoteConfig.extractBoolean(KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO, default = true),
 
-            isBannerAdEnabled = remoteConfig.optionalBoolean(KEY_IS_BANNER_AD_ENABLED)
-                ?: fromJson.isBannerAdEnabled,
-            isNativeAdEnabled = remoteConfig.optionalBoolean(KEY_IS_NATIVE_AD_ENABLED)
-                ?: fromJson.isNativeAdEnabled,
-            isInterAdEnabled = remoteConfig.optionalBoolean(KEY_IS_INTER_AD_ENABLED)
-                ?: fromJson.isInterAdEnabled,
-            isAppOpenAdEnabled = remoteConfig.optionalBoolean(KEY_IS_APP_OPEN_AD_ENABLED)
-                ?: fromJson.isAppOpenAdEnabled,
+            isBannerAdEnabled = fromJson?.isBannerAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_BANNER_AD_ENABLED, default = true),
+            isNativeAdEnabled = fromJson?.isNativeAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_NATIVE_AD_ENABLED, default = true),
+            isInterAdEnabled = fromJson?.isInterAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_INTER_AD_ENABLED, default = true),
+            isAppOpenAdEnabled = fromJson?.isAppOpenAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_APP_OPEN_AD_ENABLED, default = true),
 
-            isClickAdEnabled = remoteConfig.optionalBoolean(KEY_IS_CLICK_AD_ENABLED)
-                ?: fromJson.isClickAdEnabled,
-            isSwipeAdEnabled = remoteConfig.optionalBoolean(KEY_IS_SWIPE_AD_ENABLED)
-                ?: fromJson.isSwipeAdEnabled,
-            isBackAdEnabled = remoteConfig.optionalBoolean(KEY_IS_BACK_AD_ENABLED)
-                ?: fromJson.isBackAdEnabled,
+            isClickAdEnabled = fromJson?.isClickAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_CLICK_AD_ENABLED, default = true),
+            isSwipeAdEnabled = fromJson?.isSwipeAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_SWIPE_AD_ENABLED, default = true),
+            isBackAdEnabled = fromJson?.isBackAdEnabled
+                ?: remoteConfig.extractBoolean(KEY_IS_BACK_AD_ENABLED, default = true),
 
-            isClickAdInterstitial = remoteConfig.optionalBoolean(KEY_IS_CLICK_AD_INTERSTITIAL)
-                ?: remoteConfig.optionalBoolean(KEY_APP_CLICK_INTER_LEGACY)
-                ?: fromJson.isClickAdInterstitial,
-            isSwipeAdInterstitial = remoteConfig.optionalBoolean(KEY_IS_SWIPE_AD_INTERSTITIAL)
-                ?: remoteConfig.optionalBoolean(KEY_SWIPE_INTER_LEGACY)
-                ?: fromJson.isSwipeAdInterstitial,
+            isClickAdInterstitial = fromJson?.isClickAdInterstitial
+                ?: remoteConfig.extractBoolean(KEY_IS_CLICK_AD_INTERSTITIAL, KEY_APP_CLICK_INTER_LEGACY, default = true),
+            isSwipeAdInterstitial = fromJson?.isSwipeAdInterstitial
+                ?: remoteConfig.extractBoolean(KEY_IS_SWIPE_AD_INTERSTITIAL, KEY_SWIPE_INTER_LEGACY, default = true),
 
-            interAdCounterTrigger = (remoteConfig.optionalInt(KEY_INTER_COUNTER_TRIGGER)
-                ?: remoteConfig.optionalInt(KEY_INTER_COUNT_LEGACY)
-                ?: fromJson.interAdCounterTrigger).coerceAtLeast(1),
+            interAdCounterTrigger = fromJson?.interAdCounterTrigger
+                ?: remoteConfig.extractInt(KEY_INTER_COUNTER_TRIGGER, KEY_INTER_COUNT_LEGACY, default = 3).coerceAtLeast(1),
+            interAdBackCounterTrigger = fromJson?.interAdBackCounterTrigger
+                ?: remoteConfig.extractInt(KEY_INTER_BACK_COUNTER_TRIGGER, KEY_INTER_BACK_COUNT_LEGACY, default = 3).let { if (it > 0) it else 3 },
+            clickAdCounterTrigger = fromJson?.clickAdCounterTrigger
+                ?: remoteConfig.extractInt(KEY_CLICK_AD_COUNTER_TRIGGER, default = 3).let { if (it > 0) it else 3 },
 
-            interAdBackCounterTrigger = (remoteConfig.optionalInt(KEY_INTER_BACK_COUNTER_TRIGGER)
-                ?: remoteConfig.optionalInt(KEY_INTER_BACK_COUNT_LEGACY)
-                ?: fromJson.interAdBackCounterTrigger).coerceAtLeast(1),
+            bannerAdEnableSplash = fromJson?.bannerAdEnableSplash
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_SPLASH, default = true),
+            bannerAdEnableHome = fromJson?.bannerAdEnableHome
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_HOME_SCREEN, KEY_BANNER_ENABLE_HOME, KEY_BANNER_ENABLE_CONTACT_HOME_LEGACY, default = false),
+            bannerAdEnableAppDrawer = fromJson?.bannerAdEnableAppDrawer
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_APP_DRAWER, default = true),
+            bannerAdEnableFindPhone = fromJson?.bannerAdEnableFindPhone
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_FIND_PHONE, default = true),
+            bannerAdEnableAlertScreen = fromJson?.bannerAdEnableAlertScreen
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_ALERT_SCREEN, KEY_BANNER_ENABLE_ALERT_ACTIVITY_LEGACY, default = true),
 
-            clickAdCounterTrigger = (remoteConfig.optionalInt(KEY_CLICK_AD_COUNTER_TRIGGER)
-                ?: fromJson.clickAdCounterTrigger).coerceAtLeast(1),
+            bannerAdIdSplash = fromJson?.bannerAdIdSplash
+                ?: remoteConfig.extractString(KEY_BANNER_ID_SPLASH, default = AdsConfig.DEFAULT_BANNER_ID),
+            bannerAdIdHome = fromJson?.bannerAdIdHome
+                ?: remoteConfig.extractString(KEY_BANNER_ID_HOME_SCREEN, KEY_BANNER_ID_HOME, KEY_BANNER_ID_CONTACT_HOME_LEGACY, default = AdsConfig.DEFAULT_BANNER_ID),
+            bannerAdIdAppDrawer = fromJson?.bannerAdIdAppDrawer
+                ?: remoteConfig.extractString(KEY_BANNER_ID_APP_DRAWER, default = AdsConfig.DEFAULT_BANNER_ID),
+            bannerAdIdFindPhone = fromJson?.bannerAdIdFindPhone
+                ?: remoteConfig.extractString(KEY_BANNER_ID_FIND_PHONE, default = AdsConfig.DEFAULT_BANNER_ID),
+            bannerAdIdAlertScreen = fromJson?.bannerAdIdAlertScreen
+                ?: remoteConfig.extractString(KEY_BANNER_ID_ALERT_SCREEN, KEY_BANNER_ID_ALERT_ACTIVITY_LEGACY, default = AdsConfig.DEFAULT_BANNER_ID),
 
-            bannerAdEnableSplash = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_SPLASH)
-                ?: fromJson.bannerAdEnableSplash,
-            bannerAdEnableHome = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_HOME_SCREEN)
-                ?: remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_HOME)
-                ?: remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_CONTACT_HOME_LEGACY)
-                ?: fromJson.bannerAdEnableHome,
-            bannerAdEnableAppDrawer = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_APP_DRAWER)
-                ?: fromJson.bannerAdEnableAppDrawer,
-            bannerAdEnableFindPhone = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_FIND_PHONE)
-                ?: fromJson.bannerAdEnableFindPhone,
-            bannerAdEnableAlertScreen = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_ALERT_SCREEN)
-                ?: remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_ALERT_ACTIVITY_LEGACY)
-                ?: fromJson.bannerAdEnableAlertScreen,
+            nativeAdEnableDashboard = fromJson?.nativeAdEnableDashboard
+                ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_DASHBOARD, default = true),
+            nativeAdEnableGoogleSearch = fromJson?.nativeAdEnableGoogleSearch
+                ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_GOOGLE_SEARCH, default = true),
+            nativeAdEnableLanguage = fromJson?.nativeAdEnableLanguage
+                ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_LANGUAGE, default = true),
+            nativeAdEnableAfterCall = fromJson?.nativeAdEnableAfterCall
+                ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_AFTER_CALL, default = true),
 
-            bannerAdIdSplash = remoteConfig.optionalString(KEY_BANNER_ID_SPLASH)
-                ?: fromJson.bannerAdIdSplash,
-            bannerAdIdHome = remoteConfig.optionalString(KEY_BANNER_ID_HOME_SCREEN)
-                ?: remoteConfig.optionalString(KEY_BANNER_ID_HOME)
-                ?: remoteConfig.optionalString(KEY_BANNER_ID_CONTACT_HOME_LEGACY)
-                ?: fromJson.bannerAdIdHome,
-            bannerAdIdAppDrawer = remoteConfig.optionalString(KEY_BANNER_ID_APP_DRAWER)
-                ?: fromJson.bannerAdIdAppDrawer,
-            bannerAdIdFindPhone = remoteConfig.optionalString(KEY_BANNER_ID_FIND_PHONE)
-                ?: fromJson.bannerAdIdFindPhone,
-            bannerAdIdAlertScreen = remoteConfig.optionalString(KEY_BANNER_ID_ALERT_SCREEN)
-                ?: remoteConfig.optionalString(KEY_BANNER_ID_ALERT_ACTIVITY_LEGACY)
-                ?: fromJson.bannerAdIdAlertScreen,
+            nativeAdIdDashboard = fromJson?.nativeAdIdDashboard
+                ?: remoteConfig.extractString(KEY_NATIVE_ID_DASHBOARD, default = AdsConfig.DEFAULT_NATIVE_ID),
+            nativeAdIdGoogleSearch = fromJson?.nativeAdIdGoogleSearch
+                ?: remoteConfig.extractString(KEY_NATIVE_ID_GOOGLE_SEARCH, default = AdsConfig.DEFAULT_NATIVE_ID),
+            nativeAdIdLanguage = fromJson?.nativeAdIdLanguage
+                ?: remoteConfig.extractString(KEY_NATIVE_ID_LANGUAGE, default = AdsConfig.DEFAULT_NATIVE_ID),
+            nativeAdIdAfterCall = fromJson?.nativeAdIdAfterCall
+                ?: remoteConfig.extractString(KEY_NATIVE_ID_AFTER_CALL, default = AdsConfig.DEFAULT_NATIVE_ID),
+            nativeAdGoogleSearchItemInterval = fromJson?.nativeAdGoogleSearchItemInterval
+                ?: remoteConfig.extractInt(KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL, default = 2).coerceAtLeast(1),
 
-            nativeAdEnableDashboard = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_DASHBOARD)
-                ?: fromJson.nativeAdEnableDashboard,
-            nativeAdEnableGoogleSearch = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_GOOGLE_SEARCH)
-                ?: fromJson.nativeAdEnableGoogleSearch,
-            nativeAdEnableLanguage = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_LANGUAGE)
-                ?: fromJson.nativeAdEnableLanguage,
-            nativeAdEnableAfterCall = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_AFTER_CALL)
-                ?: fromJson.nativeAdEnableAfterCall,
+            interAdId = fromJson?.interAdId
+                ?: remoteConfig.extractString(KEY_INTER_ID, default = AdsConfig.DEFAULT_INTER_ID),
+            appOpenAdId = fromJson?.appOpenAdId
+                ?: remoteConfig.extractString(KEY_APP_OPEN_ID, default = AdsConfig.DEFAULT_APP_OPEN_ID),
 
-            nativeAdIdDashboard = remoteConfig.optionalString(KEY_NATIVE_ID_DASHBOARD)
-                ?: fromJson.nativeAdIdDashboard,
-            nativeAdIdGoogleSearch = remoteConfig.optionalString(KEY_NATIVE_ID_GOOGLE_SEARCH)
-                ?: fromJson.nativeAdIdGoogleSearch,
-            nativeAdIdLanguage = remoteConfig.optionalString(KEY_NATIVE_ID_LANGUAGE)
-                ?: fromJson.nativeAdIdLanguage,
-            nativeAdIdAfterCall = remoteConfig.optionalString(KEY_NATIVE_ID_AFTER_CALL)
-                ?: fromJson.nativeAdIdAfterCall,
-
-            nativeAdGoogleSearchItemInterval = (remoteConfig.optionalInt(KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL)
-                ?: fromJson.nativeAdGoogleSearchItemInterval).coerceAtLeast(1),
-
-            interAdId = remoteConfig.optionalString(KEY_INTER_ID) ?: fromJson.interAdId,
-            appOpenAdId = remoteConfig.optionalString(KEY_APP_OPEN_ID) ?: fromJson.appOpenAdId,
-
-            preloadAdBanner = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_BANNER)
-                ?: remoteConfig.optionalBoolean(KEY_BANNER_PRELOAD_LEGACY)
-                ?: fromJson.preloadAdBanner,
-
-            preloadAdNative = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_NATIVE)
-                ?: remoteConfig.optionalBoolean(KEY_NATIVE_PRELOAD_LEGACY)
-                ?: fromJson.preloadAdNative,
-
-            preloadAdInterstitial = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_INTERSTITIAL)
-                ?: remoteConfig.optionalBoolean(KEY_INTER_PRELOAD_LEGACY)
-                ?: fromJson.preloadAdInterstitial,
-
-            preloadAdAppOpen = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_APP_OPEN)
-                ?: remoteConfig.optionalBoolean(KEY_APP_OPEN_PRELOAD_LEGACY)
-                ?: fromJson.preloadAdAppOpen,
+            preloadAdBanner = fromJson?.preloadAdBanner
+                ?: remoteConfig.extractBoolean(KEY_PRELOAD_AD_BANNER, KEY_BANNER_PRELOAD_LEGACY, default = false),
+            preloadAdNative = fromJson?.preloadAdNative
+                ?: remoteConfig.extractBoolean(KEY_PRELOAD_AD_NATIVE, KEY_NATIVE_PRELOAD_LEGACY, default = false),
+            preloadAdInterstitial = fromJson?.preloadAdInterstitial
+                ?: remoteConfig.extractBoolean(KEY_PRELOAD_AD_INTERSTITIAL, KEY_INTER_PRELOAD_LEGACY, default = false),
+            preloadAdAppOpen = fromJson?.preloadAdAppOpen
+                ?: remoteConfig.extractBoolean(KEY_PRELOAD_AD_APP_OPEN, KEY_APP_OPEN_PRELOAD_LEGACY, default = false),
         )
+
+        return parsed
     }
 
-    private fun FirebaseRemoteConfig.optionalString(key: String): String? {
-        val value = getValue(key)
-        if (value.source != FirebaseRemoteConfig.VALUE_SOURCE_REMOTE) return null
-        return value.asString().takeIf { it.isNotBlank() }
+    private fun parse(remoteConfig: FirebaseRemoteConfig): AdsConfig {
+        return getActiveAdsConfig(remoteConfig)
     }
 
-    private fun FirebaseRemoteConfig.optionalBoolean(key: String): Boolean? {
-        val value = getValue(key)
-        if (value.source != FirebaseRemoteConfig.VALUE_SOURCE_REMOTE) return null
-        return value.asBoolean()
+    private fun FirebaseRemoteConfig.extractBoolean(vararg keys: String, default: Boolean): Boolean {
+        for (key in keys) {
+            val value = getValue(key)
+            if (value.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC) {
+                val str = value.asString().trim()
+                if (str.equals("true", ignoreCase = true)) return true
+                if (str.equals("false", ignoreCase = true)) return false
+                return value.asBoolean()
+            }
+        }
+        return default
     }
 
-    private fun FirebaseRemoteConfig.optionalInt(key: String): Int? {
-        val value = getValue(key)
-        if (value.source != FirebaseRemoteConfig.VALUE_SOURCE_REMOTE) return null
-        return value.asString().toIntOrNull() ?: value.asLong().toInt()
+    private fun FirebaseRemoteConfig.extractInt(vararg keys: String, default: Int): Int {
+        for (key in keys) {
+            val value = getValue(key)
+            if (value.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC) {
+                return value.asString().trim().toIntOrNull() ?: value.asLong().toInt()
+            }
+        }
+        return default
+    }
+
+    private fun FirebaseRemoteConfig.extractString(vararg keys: String, default: String): String {
+        for (key in keys) {
+            val value = getValue(key)
+            if (value.source != FirebaseRemoteConfig.VALUE_SOURCE_STATIC) {
+                val str = value.asString().trim()
+                if (str.isNotBlank()) return str
+            }
+        }
+        return default
     }
 }

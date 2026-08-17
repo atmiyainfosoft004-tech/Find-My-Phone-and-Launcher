@@ -88,15 +88,21 @@ class SplashActivity : AppCompatActivity() {
 
         // Initialize and synchronize with Firebase Remote Config fetchAndActivate()
         AdsConfigManager.initialize(applicationContext) { success ->
-            // In addition to AdsConfigManager, directly listen to FirebaseRemoteConfig addOnCompleteListener
-            val remoteConfig = FirebaseRemoteConfig.getInstance()
-            remoteConfig.fetchAndActivate().addOnCompleteListener(this) { task ->
-                Log.d("SplashActivity", "RemoteConfig fetchAndActivate complete: isSuccessful=${task.isSuccessful}")
-                lifecycleScope.launch {
-                    // Small delay (minimum splash duration for smooth UX)
-                    delay(1200L)
-                    proceedToNextScreen("RemoteConfigComplete")
-                }
+            Log.d("SplashActivity", "RemoteConfig fetchAndActivate complete: isSuccessful=$success")
+            val backTrigger = AdsConfigManager.config.interAdBackCounterTrigger
+            Log.d("RemoteConfigDebug", "Active inter_ad_back_counter_trigger=$backTrigger")
+
+            if (AdsConfigManager.config.canShowAppOpen || AdsConfigManager.config.preloadAdAppOpen) {
+                com.example.findmyphonebyclaplauncher.ads.AppOpenAdLoader.instance?.preloadAppOpenAd(this@SplashActivity)
+            }
+            if (AdsConfigManager.config.canShowInter || AdsConfigManager.config.preloadAdInterstitial) {
+                com.example.findmyphonebyclaplauncher.ads.InterAdLoader.instance?.loadInterstitialAds(this@SplashActivity)
+            }
+
+            lifecycleScope.launch {
+                // Small delay (minimum splash duration for smooth UX)
+                delay(1200L)
+                proceedToNextScreen("RemoteConfigComplete")
             }
         }
     }

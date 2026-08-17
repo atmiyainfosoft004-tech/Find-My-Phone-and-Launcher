@@ -22,10 +22,10 @@ data class AdsConfig(
 
     // Action-Level Ad Switches
     @SerializedName("is_click_ad_enabled")
-    val isClickAdEnabled: Boolean = false,
+    val isClickAdEnabled: Boolean = true,
 
     @SerializedName("is_swipe_ad_enabled")
-    val isSwipeAdEnabled: Boolean = false,
+    val isSwipeAdEnabled: Boolean = true,
 
     @SerializedName("is_back_ad_enabled")
     val isBackAdEnabled: Boolean = true,
@@ -35,14 +35,14 @@ data class AdsConfig(
     val isClickAdInterstitial: Boolean = true,
 
     @SerializedName(value = "is_swipe_ad_interstitial", alternate = ["isRightLeftSwipeInterOn", "swipe_ad_type_selection"])
-    val isSwipeAdInterstitial: Boolean = false,
+    val isSwipeAdInterstitial: Boolean = true,
 
     // Counters & Triggers
     @SerializedName(value = "inter_ad_counter_trigger", alternate = ["inter_count", "interstitialForwardAdCount", "interCount"])
     val interAdCounterTrigger: Int = 3,
 
     @SerializedName(value = "inter_ad_back_counter_trigger", alternate = ["inter_back_count", "interstitialBackwardAdCount"])
-    val interAdBackCounterTrigger: Int = 1,
+    val interAdBackCounterTrigger: Int = 3,
 
     @SerializedName(value = "click_ad_counter_trigger", alternate = ["click_count"])
     val clickAdCounterTrigger: Int = 3,
@@ -52,7 +52,7 @@ data class AdsConfig(
     val bannerAdEnableSplash: Boolean = true,
 
     @SerializedName(value = "banner_ad_enable_home_screen", alternate = ["banner_ad_enable_home", "banner_ad_enable_contact_home", "banner_ad_enable_launcher_home"])
-    val bannerAdEnableHome: Boolean = true,
+    val bannerAdEnableHome: Boolean = false,
 
     @SerializedName("banner_ad_enable_app_drawer")
     val bannerAdEnableAppDrawer: Boolean = true,
@@ -167,15 +167,17 @@ data class AdsConfig(
     val isClickAppOpen: Boolean get() = !isClickAdInterstitial
     val canShowClickAd: Boolean get() = isClickAdEnabled && (if (isClickAdInterstitial) canShowInter else canShowAppOpen)
     val isAppClickInterOn: Boolean get() = isClickAdEnabled && isClickAdInterstitial
+    val canShowAppClickInter: Boolean get() = isClickAdEnabled && isClickAdInterstitial && canShowInter
+    val canShowAppClickOpen: Boolean get() = isClickAdEnabled && !isClickAdInterstitial && canShowAppOpen
 
     val isSwipeInter: Boolean get() = isSwipeAdInterstitial
     val isSwipeAppOpen: Boolean get() = !isSwipeAdInterstitial
     val canShowSwipeAd: Boolean get() = isSwipeAdEnabled && (if (isSwipeAdInterstitial) canShowInter else canShowAppOpen)
     val isRightLeftSwipeInterOn: Boolean get() = isSwipeAdEnabled && isSwipeAdInterstitial
+    val canShowSwipeInter: Boolean get() = isSwipeAdEnabled && isSwipeAdInterstitial && canShowInter
+    val canShowSwipeOpen: Boolean get() = isSwipeAdEnabled && !isSwipeAdInterstitial && canShowAppOpen
 
-    val canShowBackAd: Boolean get() = isBackAdEnabled && (if (isClickAdInterstitial) canShowInter else canShowAppOpen)
-    val canShowAppClickInter: Boolean get() = canShowClickAd
-    val canShowSwipeInter: Boolean get() = canShowSwipeAd
+    val canShowBackAd: Boolean get() = isBackAdEnabled && canShowInter
 
     val clickAdTypeSelection: String get() = if (isClickAdInterstitial) "Inter" else "Open"
     val swipeAdTypeSelection: String get() = if (isSwipeAdInterstitial) "Inter" else "Open"

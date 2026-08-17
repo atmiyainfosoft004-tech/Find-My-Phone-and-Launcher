@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.example.findmyphonebyclaplauncher.BuildConfig
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
@@ -49,19 +50,19 @@ object FirebaseConfigManager {
                 "is_inter_ad_enabled" to true,
                 "is_app_open_ad_enabled" to true,
 
-                "is_click_ad_enabled" to false,
-                "is_swipe_ad_enabled" to false,
+                "is_click_ad_enabled" to true,
+                "is_swipe_ad_enabled" to true,
                 "is_back_ad_enabled" to true,
 
                 "is_click_ad_interstitial" to true,
-                "is_swipe_ad_interstitial" to false,
+                "is_swipe_ad_interstitial" to true,
 
                 "inter_ad_counter_trigger" to 3,
-                "inter_ad_back_counter_trigger" to 1,
+                "inter_ad_back_counter_trigger" to 3,
                 "click_ad_counter_trigger" to 3,
 
                 "banner_ad_enable_splash" to true,
-                "banner_ad_enable_home_screen" to true,
+                "banner_ad_enable_home_screen" to false,
                 "banner_ad_enable_app_drawer" to true,
                 "banner_ad_enable_find_phone" to true,
                 "banner_ad_enable_alert_screen" to true,
@@ -103,6 +104,7 @@ object FirebaseConfigManager {
                     remoteConfig.activate().addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Log.d(TAG, "Real-time Remote Config activated successfully")
+                            AdsConfigManager.refresh()
                         } else {
                             Log.e(TAG, "Real-time Remote Config activation failed", task.exception)
                         }

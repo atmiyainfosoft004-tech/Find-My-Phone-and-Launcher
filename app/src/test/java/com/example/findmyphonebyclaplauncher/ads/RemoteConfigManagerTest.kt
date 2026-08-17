@@ -32,22 +32,22 @@ class RemoteConfigManagerTest {
         assertTrue("is_app_open_ad_enabled should default to true", defaultConfig.isAppOpenAdEnabled)
 
         // Action-level switches
-        assertFalse("is_click_ad_enabled should default to false", defaultConfig.isClickAdEnabled)
-        assertFalse("is_swipe_ad_enabled should default to false", defaultConfig.isSwipeAdEnabled)
+        assertTrue("is_click_ad_enabled should default to true", defaultConfig.isClickAdEnabled)
+        assertTrue("is_swipe_ad_enabled should default to true", defaultConfig.isSwipeAdEnabled)
         assertTrue("is_back_ad_enabled should default to true", defaultConfig.isBackAdEnabled)
 
         // Format selections
         assertTrue("is_click_ad_interstitial should default to true", defaultConfig.isClickAdInterstitial)
-        assertFalse("is_swipe_ad_interstitial should default to false", defaultConfig.isSwipeAdInterstitial)
+        assertTrue("is_swipe_ad_interstitial should default to true", defaultConfig.isSwipeAdInterstitial)
 
         // Counter triggers
         assertEquals(3, defaultConfig.interAdCounterTrigger)
-        assertEquals(1, defaultConfig.interAdBackCounterTrigger)
+        assertEquals(3, defaultConfig.interAdBackCounterTrigger)
         assertEquals(3, defaultConfig.clickAdCounterTrigger)
 
         // Banner screen toggles
         assertTrue(defaultConfig.bannerAdEnableSplash)
-        assertTrue(defaultConfig.bannerAdEnableHome)
+        assertFalse(defaultConfig.bannerAdEnableHome)
         assertTrue(defaultConfig.bannerAdEnableAppDrawer)
         assertTrue(defaultConfig.bannerAdEnableFindPhone)
         assertTrue(defaultConfig.bannerAdEnableAlertScreen)
@@ -219,5 +219,92 @@ class RemoteConfigManagerTest {
         assertFalse(config.canShowBannerFindPhone)
         assertFalse(config.canShowNativeDashboard)
         assertFalse(config.canShowInter)
+    }
+
+    @Test
+    fun fullRemoteConfigJsonSchema_parsesAllFieldsCorrectly() {
+        val fullSchemaJson = """
+        {
+          "system_hide_navigation_bar_auto": true,
+          "is_banner_ad_enabled": true,
+          "is_native_ad_enabled": true,
+          "is_inter_ad_enabled": true,
+          "is_app_open_ad_enabled": true,
+          "is_click_ad_enabled": true,
+          "is_swipe_ad_enabled": true,
+          "is_back_ad_enabled": true,
+          "is_click_ad_interstitial": true,
+          "is_swipe_ad_interstitial": true,
+          "inter_ad_counter_trigger": 3,
+          "inter_ad_back_counter_trigger": 3,
+          "click_ad_counter_trigger": 3,
+          "banner_ad_enable_splash": true,
+          "banner_ad_enable_home_screen": false,
+          "banner_ad_enable_app_drawer": true,
+          "banner_ad_enable_find_phone": true,
+          "banner_ad_enable_alert_screen": true,
+          "banner_ad_id_splash": "ca-app-pub-3940256099942544/9214589741",
+          "banner_ad_id_home_screen": "ca-app-pub-3940256099942544/9214589741",
+          "banner_ad_id_app_drawer": "ca-app-pub-3940256099942544/9214589741",
+          "banner_ad_id_find_phone": "ca-app-pub-3940256099942544/9214589741",
+          "banner_ad_id_alert_screen": "ca-app-pub-3940256099942544/9214589741",
+          "native_ad_enable_dashboard": true,
+          "native_ad_enable_google_search": true,
+          "native_ad_enable_language": true,
+          "native_ad_enable_after_call": true,
+          "native_ad_id_dashboard": "ca-app-pub-3940256099942544/2247696110",
+          "native_ad_id_google_search": "ca-app-pub-3940256099942544/2247696110",
+          "native_ad_id_language": "ca-app-pub-3940256099942544/2247696110",
+          "native_ad_id_after_call": "ca-app-pub-3940256099942544/2247696110",
+          "native_ad_google_search_item_interval": 2,
+          "inter_ad_id": "ca-app-pub-3940256099942544/1033173712",
+          "app_open_ad_id": "ca-app-pub-3940256099942544/9257395921",
+          "preload_ad_banner": false,
+          "preload_ad_native": false,
+          "preload_ad_interstitial": false,
+          "preload_ad_app_open": false
+        }
+        """.trimIndent()
+
+        val parsed = gson.fromJson(fullSchemaJson, AdsConfig::class.java)
+
+        assertTrue(parsed.systemHideNavigationBarAuto)
+        assertTrue(parsed.isBannerAdEnabled)
+        assertTrue(parsed.isNativeAdEnabled)
+        assertTrue(parsed.isInterAdEnabled)
+        assertTrue(parsed.isAppOpenAdEnabled)
+        assertTrue(parsed.isClickAdEnabled)
+        assertTrue(parsed.isSwipeAdEnabled)
+        assertTrue(parsed.isBackAdEnabled)
+        assertTrue(parsed.isClickAdInterstitial)
+        assertTrue(parsed.isSwipeAdInterstitial)
+        assertEquals(3, parsed.interAdCounterTrigger)
+        assertEquals(3, parsed.interAdBackCounterTrigger)
+        assertEquals(3, parsed.clickAdCounterTrigger)
+        assertTrue(parsed.bannerAdEnableSplash)
+        assertFalse(parsed.bannerAdEnableHome)
+        assertTrue(parsed.bannerAdEnableAppDrawer)
+        assertTrue(parsed.bannerAdEnableFindPhone)
+        assertTrue(parsed.bannerAdEnableAlertScreen)
+        assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdSplash)
+        assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdHome)
+        assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAppDrawer)
+        assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdFindPhone)
+        assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAlertScreen)
+        assertTrue(parsed.nativeAdEnableDashboard)
+        assertTrue(parsed.nativeAdEnableGoogleSearch)
+        assertTrue(parsed.nativeAdEnableLanguage)
+        assertTrue(parsed.nativeAdEnableAfterCall)
+        assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdDashboard)
+        assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdGoogleSearch)
+        assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdLanguage)
+        assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdAfterCall)
+        assertEquals(2, parsed.nativeAdGoogleSearchItemInterval)
+        assertEquals("ca-app-pub-3940256099942544/1033173712", parsed.interAdId)
+        assertEquals("ca-app-pub-3940256099942544/9257395921", parsed.appOpenAdId)
+        assertFalse(parsed.preloadAdBanner)
+        assertFalse(parsed.preloadAdNative)
+        assertFalse(parsed.preloadAdInterstitial)
+        assertFalse(parsed.preloadAdAppOpen)
     }
 }

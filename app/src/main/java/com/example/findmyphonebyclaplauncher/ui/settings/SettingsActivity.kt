@@ -57,10 +57,16 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener { finishWithSlideAnimation() }
+        binding.toolbar.setNavigationOnClickListener {
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+                finishWithSlideAnimation()
+            }
+        }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finishWithSlideAnimation()
+                com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this@SettingsActivity) {
+                    finishWithSlideAnimation()
+                }
             }
         })
     }

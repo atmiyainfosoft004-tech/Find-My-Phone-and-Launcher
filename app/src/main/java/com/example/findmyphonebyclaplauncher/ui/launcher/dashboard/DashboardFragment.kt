@@ -49,10 +49,10 @@ class DashboardFragment : Fragment() {
         binding.tvDate.text = GreetingHelper.formattedDate()
 
         suggestedAdapter = CompactAppIconAdapter { app ->
-            LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+            LauncherAdsHelper.showAppClickAd(requireActivity(), app.packageName) { viewModel.openApp(app) }
         }
         recentAdapter = CompactAppIconAdapter { app ->
-            LauncherAdsHelper.showAppClickInterThen(requireActivity()) { viewModel.openApp(app) }
+            LauncherAdsHelper.showAppClickAd(requireActivity(), app.packageName) { viewModel.openApp(app) }
         }
 
         binding.rvSuggested.layoutManager = GridLayoutManager(requireContext(), 2)

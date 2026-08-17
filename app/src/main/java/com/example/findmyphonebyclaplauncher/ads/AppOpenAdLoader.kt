@@ -26,10 +26,11 @@ class AppOpenAdLoader(val app: App) :
     LifecycleObserver, ActivityLifecycleCallbacks, DefaultLifecycleObserver {
 
     var appOpenAd: AppOpenAd? = null
+    var isLoadingAppOpenAd = false
     private var appOpenAdLoadCallback: AppOpenAdLoadCallback? = null
     var currentActivity: Activity? = null
     var loadTimeLong: Long = 0
-    private val TAG = "AppOpenAdsStatus"
+    private val TAG = "AdManagerDebug"
 
     init {
         instance = this
@@ -37,42 +38,41 @@ class AppOpenAdLoader(val app: App) :
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 
-    fun preloadAppOpenAd(activity: Activity? = null) {
-        if (!AdsConfigManager.config.canShowAppOpen) return
-        if (AdsConfigManager.config.appOpenAdPreload) {
-            val act = activity ?: currentActivity
-            if (isAvailableAppOpenAd) {
-                return
-            }
+    fun preloadAppOpenAd(context: Context? = null) {
+        val config = AdsConfigManager.config
+        if (!config.canShowAppOpen) return
+        val adId = config.appOpenAdId
+        if (adId.isBlank()) return
 
-            appOpenAdLoadCallback = object : AppOpenAdLoadCallback() {
-                override fun onAdLoaded(appOpenAd: AppOpenAd) {
-                    act?.let { AnalyticsHelper.logAds(it, "appopen_loaded") }
-                    this@AppOpenAdLoader.appOpenAd = appOpenAd
+        if (isLoadingAppOpenAd || isAvailableAppOpenAd) {
+            Log.d(TAG, "preloadAppOpenAd: Already loading or cached ad is available (appOpenAd!=null: ${appOpenAd != null})")
+            return
+        }
+
+        isLoadingAppOpenAd = true
+        val ctx = context?.applicationContext ?: app.applicationContext
+
+        val requestAds = AdRequest.Builder().build()
+        Log.d(TAG, "preloadAppOpenAd: Loading App Open Ad with ID $adId")
+        AppOpenAd.load(
+            ctx,
+            adId,
+            requestAds,
+            object : AppOpenAdLoadCallback() {
+                override fun onAdLoaded(ad: AppOpenAd) {
+                    this@AppOpenAdLoader.appOpenAd = ad
+                    this@AppOpenAdLoader.isLoadingAppOpenAd = false
                     this@AppOpenAdLoader.loadTimeLong = Date().time
-                    Log.d(TAG, "preload->onAdLoaded")
+                    Log.d(TAG, "App Open Ad successfully loaded.")
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    act?.let {
-                        AnalyticsHelper.logAds(
-                            it,
-                            "appopen_failed_" + loadAdError.code
-                        )
-                    }
-                    Log.e(TAG, "preload->onAdFailedToLoad: ${loadAdError.message}")
+                    this@AppOpenAdLoader.appOpenAd = null
+                    this@AppOpenAdLoader.isLoadingAppOpenAd = false
+                    Log.e(TAG, "App Open Ad failed to load: ${loadAdError.message} (code: ${loadAdError.code})")
                 }
             }
-
-            act?.let { AnalyticsHelper.logAds(it, "appopen_request") }
-            val requestAds = AdRequest.Builder().build()
-            AppOpenAd.load(
-                app,
-                AdsConfigManager.config.appOpenAdId,
-                requestAds,
-                appOpenAdLoadCallback as AppOpenAdLoadCallback
-            )
-        }
+        )
     }
 
     val isAvailableAppOpenAd: Boolean
@@ -91,51 +91,57 @@ class AppOpenAdLoader(val app: App) :
         activity: Activity,
         onDone: () -> Unit
     ) {
-        currentActivity = activity
-
-        if (!AdsConfigManager.config.canShowAppOpen) {
+        if (activity.isFinishing || activity.isDestroyed) {
             onDone()
             return
         }
 
-        if (!appOpenShowingBoolean && isAvailableAppOpenAd) {
-            Log.d(TAG, "showAppOpenAd -> display cached ad")
-            val fullScreenContentCallback: FullScreenContentCallback =
-                object : FullScreenContentCallback() {
-                    override fun onAdDismissedFullScreenContent() {
-                        AnalyticsHelper.logAds(activity, "appopen_dismissed")
-                        this@AppOpenAdLoader.appOpenAd = null
-                        appOpenShowingBoolean = false
-                        com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
-                        preloadAppOpenAd(activity)
-                        onDone()
-                    }
+        currentActivity = activity
+        val config = AdsConfigManager.config
+        if (!config.canShowAppOpen) {
+            Log.d(TAG, "showAppOpenAd: canShowAppOpen is false -> proceeding directly")
+            onDone()
+            return
+        }
 
-                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                        AnalyticsHelper.logAds(
-                            activity,
-                            "appopen_failed_" + adError.code
-                        )
-                        this@AppOpenAdLoader.appOpenAd = null
-                        appOpenShowingBoolean = false
-                        com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
-                        onDone()
-                    }
-
-                    override fun onAdShowedFullScreenContent() {
-                        AnalyticsHelper.logAds(activity, "appopen_showed")
-                        appOpenShowingBoolean = true
-                    }
-
-                    override fun onAdClicked() {
-                        super.onAdClicked()
-                        AnalyticsHelper.logAds(activity, "appopen_clicked")
-                    }
+        val adToShow = appOpenAd
+        if (adToShow != null && isAvailableAppOpenAd) {
+            Log.d(TAG, "Presenting cached App Open Ad to user...")
+            adToShow.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    Log.d(TAG, "App Open Ad dismissed")
+                    AnalyticsHelper.logAds(activity, "appopen_dismissed")
+                    appOpenAd = null
+                    com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                    preloadAppOpenAd(activity) // Preload next instance
+                    onDone()
                 }
-            appOpenAd!!.fullScreenContentCallback = fullScreenContentCallback
-            appOpenAd!!.show(activity)
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    appOpenAd = null
+                    Log.e(TAG, "Failed to show App Open Ad: ${adError.message}")
+                    AnalyticsHelper.logAds(
+                        activity,
+                        "appopen_failed_" + adError.code
+                    )
+                    com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                    preloadAppOpenAd(activity)
+                    onDone()
+                }
+
+                override fun onAdShowedFullScreenContent() {
+                    Log.d(TAG, "App Open Ad is currently showing.")
+                    AnalyticsHelper.logAds(activity, "appopen_showed")
+                }
+
+                override fun onAdClicked() {
+                    super.onAdClicked()
+                    AnalyticsHelper.logAds(activity, "appopen_clicked")
+                }
+            }
+            adToShow.show(activity)
         } else {
-            Log.d(TAG, "showAppOpenAd -> load on demand -> display")
+            Log.d(TAG, "appOpenAd was not cached -> showing loading dialog and loading App Open Ad on demand...")
             val loadingDialog = AdLoadingDialog(activity)
             var actionExecuted = false
 
@@ -143,53 +149,51 @@ class AppOpenAdLoader(val app: App) :
                 if (actionExecuted) return
                 actionExecuted = true
                 loadingDialog.dismiss()
+                com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
                 onDone()
             }
 
             loadingDialog.show(timeoutMs = 2500L) {
-                Log.d(TAG, "showAppOpenAd: Loading dialog TIMEOUT -> proceeding")
+                Log.d(TAG, "App Open loading dialog timeout (2.5s) -> proceeding directly")
                 safeDismissAndContinue()
             }
 
+            val adId = config.appOpenAdId
             val requestAds = AdRequest.Builder().build()
-            AnalyticsHelper.logAds(activity, "appopen_request")
             AppOpenAd.load(
-                app,
-                AdsConfigManager.config.appOpenAdId,
+                activity.applicationContext,
+                adId,
                 requestAds,
                 object : AppOpenAdLoadCallback() {
-                    override fun onAdLoaded(appOpenAd: AppOpenAd) {
-                        AnalyticsHelper.logAds(activity, "appopen_loaded")
-                        this@AppOpenAdLoader.appOpenAd = appOpenAd
-                        this@AppOpenAdLoader.loadTimeLong = Date().time
-
+                    override fun onAdLoaded(ad: AppOpenAd) {
                         if (actionExecuted || activity.isFinishing || activity.isDestroyed) {
-                            loadingDialog.dismiss()
+                            appOpenAd = ad
+                            loadTimeLong = Date().time
                             return
                         }
                         loadingDialog.dismiss()
-
-                        val fullScreenContentCallback = object : FullScreenContentCallback() {
+                        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                             override fun onAdDismissedFullScreenContent() {
+                                Log.d(TAG, "On-demand App Open Ad dismissed")
                                 AnalyticsHelper.logAds(activity, "appopen_dismissed")
-                                this@AppOpenAdLoader.appOpenAd = null
-                                appOpenShowingBoolean = false
+                                appOpenAd = null
                                 com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
                                 preloadAppOpenAd(activity)
                                 safeDismissAndContinue()
                             }
 
                             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                Log.e(TAG, "Failed to show on-demand App Open Ad: ${adError.message}")
                                 AnalyticsHelper.logAds(activity, "appopen_failed_" + adError.code)
-                                this@AppOpenAdLoader.appOpenAd = null
-                                appOpenShowingBoolean = false
+                                appOpenAd = null
                                 com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                                preloadAppOpenAd(activity)
                                 safeDismissAndContinue()
                             }
 
                             override fun onAdShowedFullScreenContent() {
+                                Log.d(TAG, "On-demand App Open Ad showing.")
                                 AnalyticsHelper.logAds(activity, "appopen_showed")
-                                appOpenShowingBoolean = true
                             }
 
                             override fun onAdClicked() {
@@ -197,12 +201,11 @@ class AppOpenAdLoader(val app: App) :
                                 AnalyticsHelper.logAds(activity, "appopen_clicked")
                             }
                         }
-                        appOpenAd.fullScreenContentCallback = fullScreenContentCallback
-                        appOpenAd.show(activity)
+                        ad.show(activity)
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                        AnalyticsHelper.logAds(activity, "appopen_failed_" + loadAdError.code)
+                        Log.e(TAG, "On-demand App Open Ad failed to load: ${loadAdError.message}")
                         safeDismissAndContinue()
                     }
                 }
