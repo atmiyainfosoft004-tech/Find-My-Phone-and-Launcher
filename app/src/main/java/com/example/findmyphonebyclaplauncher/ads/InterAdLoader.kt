@@ -315,18 +315,18 @@ class InterAdLoader {
 
         fun resetInterstitialBackwardCount() {
             preference.edit().putInt(KEY_INTERSTITIAL_BACKWARD_COUNT, 0).apply()
-        }
-
-        fun resetClickCount() {
-            preference.edit().putInt(KEY_CLICK_COUNT, 0).apply()
+            resetInAppBackCount()
         }
 
         fun resetCounter() {
             resetInterstitialForwardCount()
-            resetInterstitialBackwardCount()
-            resetClickCount()
+            resetInAppBackCount()
+            resetLauncherClickCount()
             resetFailedCountInterstitial()
         }
+
+        private const val KEY_LAUNCHER_CLICK_COUNT = "KeyLauncherClickCount"
+        private const val KEY_IN_APP_BACK_COUNT = "KeyInAppBackCount"
 
         fun increaseInterstitialForwardCount(): Int {
             val next = interstitialForwardCount + 1
@@ -335,30 +335,51 @@ class InterAdLoader {
         }
 
         fun increaseInterstitialBackwardCount(): Int {
-            val next = interstitialBackwardCount + 1
-            preference.edit().putInt(KEY_INTERSTITIAL_BACKWARD_COUNT, next).apply()
+            return increaseInAppBackCount()
+        }
+
+        fun increaseInAppBackCount(): Int {
+            val next = inAppBackCount + 1
+            preference.edit().putInt(KEY_IN_APP_BACK_COUNT, next).apply()
             return next
         }
 
-        fun increaseClickCount(): Int {
-            val next = clickCount + 1
-            preference.edit().putInt(KEY_CLICK_COUNT, next).apply()
+        fun resetInAppBackCount() {
+            preference.edit().putInt(KEY_IN_APP_BACK_COUNT, 0).apply()
+        }
+
+        fun increaseLauncherClickCount(): Int {
+            val next = launcherClickCount + 1
+            preference.edit().putInt(KEY_LAUNCHER_CLICK_COUNT, next).apply()
             return next
         }
+
+        fun resetLauncherClickCount() {
+            preference.edit().putInt(KEY_LAUNCHER_CLICK_COUNT, 0).apply()
+        }
+
+        fun increaseClickCount(): Int = increaseLauncherClickCount()
+        fun resetClickCount() = resetLauncherClickCount()
 
         fun resetForwardCount() = resetInterstitialForwardCount()
-        fun resetBackwardCount() = resetInterstitialBackwardCount()
+        fun resetBackwardCount() = resetInAppBackCount()
         fun increaseForwardCount() = increaseInterstitialForwardCount()
-        fun increaseBackwardCount() = increaseInterstitialBackwardCount()
+        fun increaseBackwardCount() = increaseInAppBackCount()
 
         val interstitialForwardCount: Int
             get() = preference.getInt(KEY_INTERSTITIAL_FORWARD_COUNT, 0)
 
+        val inAppBackCount: Int
+            get() = preference.getInt(KEY_IN_APP_BACK_COUNT, 0)
+
         val interstitialBackwardCount: Int
-            get() = preference.getInt(KEY_INTERSTITIAL_BACKWARD_COUNT, 0)
+            get() = inAppBackCount
+
+        val launcherClickCount: Int
+            get() = preference.getInt(KEY_LAUNCHER_CLICK_COUNT, 0)
 
         val clickCount: Int
-            get() = preference.getInt(KEY_CLICK_COUNT, 0)
+            get() = launcherClickCount
 
         private val preference: SharedPreferences
             get() = App.getInstance().getSharedPreferences(

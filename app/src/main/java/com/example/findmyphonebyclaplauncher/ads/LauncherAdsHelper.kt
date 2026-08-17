@@ -65,7 +65,7 @@ object LauncherAdsHelper {
 
         val (counter, trigger) = when (placement) {
             AdPlacement.APP_CLICK -> {
-                val count = InterAdLoader.increaseClickCount()
+                val count = InterAdLoader.increaseLauncherClickCount()
                 val trig = config.clickAdCounterTrigger.coerceAtLeast(1)
                 Pair(count, trig)
             }
@@ -75,7 +75,7 @@ object LauncherAdsHelper {
                 Pair(count, trig)
             }
             AdPlacement.BACK_PRESS -> {
-                val count = InterAdLoader.increaseBackwardCount()
+                val count = InterAdLoader.increaseInAppBackCount()
                 val trig = config.interAdBackCounterTrigger.coerceAtLeast(1)
                 Pair(count, trig)
             }
@@ -85,9 +85,9 @@ object LauncherAdsHelper {
 
         if (counter >= trigger) {
             when (placement) {
-                AdPlacement.APP_CLICK -> InterAdLoader.resetClickCount()
+                AdPlacement.APP_CLICK -> InterAdLoader.resetLauncherClickCount()
                 AdPlacement.SWAP -> InterAdLoader.resetForwardCount()
-                AdPlacement.BACK_PRESS -> InterAdLoader.resetBackwardCount()
+                AdPlacement.BACK_PRESS -> InterAdLoader.resetInAppBackCount()
             }
 
             when (placement) {
@@ -174,11 +174,11 @@ object LauncherAdsHelper {
             return
         }
 
-        val clickCount = InterAdLoader.increaseClickCount()
-        Log.d("AdRouting", "App clicked: $packageName | Counter: $clickCount / $triggerThreshold")
+        val clickCount = InterAdLoader.increaseLauncherClickCount()
+        Log.d("AdRouting", "Launcher item clicked: $packageName | launcherClickCount: $clickCount / $triggerThreshold")
 
         if (clickCount >= triggerThreshold) {
-            InterAdLoader.resetClickCount()
+            InterAdLoader.resetLauncherClickCount()
 
             if (isClickAdInterstitial) {
                 // Flag is TRUE -> Display Interstitial Ad using inter_ad_id
@@ -259,19 +259,17 @@ object LauncherAdsHelper {
         val isBackAdEnabled = config.isBackAdEnabled && config.isInterAdEnabled
         val triggerCount = getBackAdTriggerCount().coerceAtLeast(1)
 
-        Log.d("BackAdDebug", "Back pressed inside Screen. Counter: ${InterAdLoader.interstitialBackwardCount} / $triggerCount, Enabled: $isBackAdEnabled")
-
         if (!isBackAdEnabled) {
             Log.d("BackAdDebug", "Back ad disabled by Remote Config -> proceeding immediately")
             onComplete()
             return
         }
 
-        val backPressCount = InterAdLoader.increaseBackwardCount()
-        Log.d("BackAdDebug", "Feature screen back pressed: count = $backPressCount / $triggerCount")
+        val backPressCount = InterAdLoader.increaseInAppBackCount()
+        Log.d("BackAdDebug", "In-app screen back pressed: inAppBackCount = $backPressCount / $triggerCount, Enabled: $isBackAdEnabled")
 
         if (backPressCount >= triggerCount) {
-            InterAdLoader.resetBackwardCount()
+            InterAdLoader.resetInAppBackCount()
             InterAdLoader.instance?.showOrLoadInterstitial(activity, isFromBack = true) {
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 if (!activity.isFinishing && !activity.isDestroyed) {

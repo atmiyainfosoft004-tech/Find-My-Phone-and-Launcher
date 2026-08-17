@@ -239,6 +239,65 @@ class AdManagerGuardAndRoutingTest {
         assertEquals("Counter must reset to 0 upon trigger", 0, currentBackCount)
     }
 
+    @Test
+    fun launcherClick_and_inAppBack_areCompletelyIsolated_andDoNotContaminateEachOther() {
+        var launcherClickCount = 0
+        var inAppBackCount = 0
+
+        val clickTrigger = 3
+        val backTrigger = 5
+
+        var clickAdTriggered = false
+        var backAdTriggered = false
+
+        // Simulate 2 Launcher Clicks
+        for (i in 1..2) {
+            launcherClickCount++
+            if (launcherClickCount >= clickTrigger) {
+                clickAdTriggered = true
+                launcherClickCount = 0
+            }
+        }
+        assertEquals("Launcher clicks must be 2", 2, launcherClickCount)
+        assertEquals("In-app back count must remain 0", 0, inAppBackCount)
+        assertFalse(clickAdTriggered)
+        assertFalse(backAdTriggered)
+
+        // Simulate 4 In-App Back Navigations
+        for (i in 1..4) {
+            inAppBackCount++
+            if (inAppBackCount >= backTrigger) {
+                backAdTriggered = true
+                inAppBackCount = 0
+            }
+        }
+        assertEquals("Launcher click count must remain untouched at 2", 2, launcherClickCount)
+        assertEquals("In-app back count must be 4", 4, inAppBackCount)
+        assertFalse(clickAdTriggered)
+        assertFalse(backAdTriggered)
+
+        // 3rd Launcher Click triggers Click Ad & resets only launcher counter
+        launcherClickCount++
+        if (launcherClickCount >= clickTrigger) {
+            clickAdTriggered = true
+            launcherClickCount = 0
+        }
+        assertTrue("Click ad must trigger on 3rd click", clickAdTriggered)
+        assertEquals("Launcher click count must reset to 0", 0, launcherClickCount)
+        assertEquals("In-app back count must remain at 4 without resetting or changing", 4, inAppBackCount)
+        assertFalse("Back ad must NOT trigger", backAdTriggered)
+
+        // 5th In-App Back Navigation triggers Back Ad & resets only back counter
+        inAppBackCount++
+        if (inAppBackCount >= backTrigger) {
+            backAdTriggered = true
+            inAppBackCount = 0
+        }
+        assertTrue("Back ad must trigger on 5th back press", backAdTriggered)
+        assertEquals("In-app back count must reset to 0", 0, inAppBackCount)
+        assertEquals("Launcher click count must remain at 0", 0, launcherClickCount)
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // 5. Screen-Level Placement Flag Resolution
     // ─────────────────────────────────────────────────────────────────────────

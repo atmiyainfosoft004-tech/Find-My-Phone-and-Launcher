@@ -59,27 +59,19 @@ class MenuActivity : AppCompatActivity() {
         })
 
         binding.cardAbout.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
-                openPlayStorePage()
-            }
+            openPlayStorePage()
         }
 
         binding.cardHelp.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
-                openPlayStorePage()
-            }
+            openPlayStorePage()
         }
 
         binding.cardPrivacy.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
-                openInAppUrl(PRIVACY_POLICY_URL)
-            }
+            openInAppUrl(PRIVACY_POLICY_URL)
         }
 
         binding.cardTerms.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
-                openInAppUrl(TERMS_OF_SERVICE_URL)
-            }
+            openInAppUrl(TERMS_OF_SERVICE_URL)
         }
     }
 

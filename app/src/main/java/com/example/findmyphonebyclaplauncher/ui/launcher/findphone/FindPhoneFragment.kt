@@ -143,9 +143,7 @@ class FindPhoneFragment : Fragment() {
 
     private fun setupListeners() {
         binding.btnMenu.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                requireContext().startActivityWithSlideAnimation(Intent(requireContext(), MenuActivity::class.java))
-            }
+            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), MenuActivity::class.java))
         }
 
         binding.switchMasterDetection.setOnClickListener {
@@ -155,9 +153,7 @@ class FindPhoneFragment : Fragment() {
                 requestDetectionPermissions()
                 return@setOnClickListener
             }
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                viewModel.setMasterDetection(requireContext(), newState)
-            }
+            viewModel.setMasterDetection(requireContext(), newState)
         }
 
         binding.switchClapDetection.setOnClickListener {
@@ -172,9 +168,7 @@ class FindPhoneFragment : Fragment() {
                 requestDetectionPermissions()
                 return@setOnClickListener
             }
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                viewModel.setClapDetection(requireContext(), newState)
-            }
+            viewModel.setClapDetection(requireContext(), newState)
         }
 
         binding.switchWhistleDetection.setOnClickListener {
@@ -189,27 +183,19 @@ class FindPhoneFragment : Fragment() {
                 requestDetectionPermissions()
                 return@setOnClickListener
             }
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                viewModel.setWhistleDetection(requireContext(), newState)
-            }
+            viewModel.setWhistleDetection(requireContext(), newState)
         }
 
         binding.cardAlertSound.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSoundActivity::class.java))
-            }
+            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSoundActivity::class.java))
         }
 
         binding.cardAlertSensitivity.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSensitivityActivity::class.java))
-            }
+            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSensitivityActivity::class.java))
         }
 
         binding.cardAlertDuration.setOnClickListener {
-            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
-                showAlertDurationDialog()
-            }
+            showAlertDurationDialog()
         }
 
         binding.switchFlashlight.setOnClickListener {
