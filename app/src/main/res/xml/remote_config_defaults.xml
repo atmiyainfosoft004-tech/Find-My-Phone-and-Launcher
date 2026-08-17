@@ -159,4 +159,12 @@
         <key>preload_ad_app_open</key>
         <value>false</value>
     </entry>
+    <entry>
+        <key>privacy_policy_url</key>
+        <value>https://example.com/privacy-policy</value>
+    </entry>
+    <entry>
+        <key>terms_and_conditions_url</key>
+        <value>https://example.com/terms-of-service</value>
+    </entry>
 </defaultsMap>

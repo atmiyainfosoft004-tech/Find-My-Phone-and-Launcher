@@ -307,4 +307,12 @@ class RemoteConfigManagerTest {
         assertFalse(parsed.preloadAdInterstitial)
         assertFalse(parsed.preloadAdAppOpen)
     }
+
+    @Test
+    fun remoteConfigUrlKeys_fallbackAndParseCorrectly() {
+        assertEquals("https://example.com/privacy-policy", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.DEFAULT_PRIVACY_POLICY_URL)
+        assertEquals("https://example.com/terms-of-service", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.DEFAULT_TERMS_AND_CONDITIONS_URL)
+        assertEquals("privacy_policy_url", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.KEY_PRIVACY_POLICY_URL)
+        assertEquals("terms_and_conditions_url", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.KEY_TERMS_AND_CONDITIONS_URL)
+    }
 }

@@ -19,6 +19,11 @@ object FirebaseConfigManager {
 
     private const val TAG = "RemoteConfig"
 
+    const val KEY_PRIVACY_POLICY_URL = "privacy_policy_url"
+    const val KEY_TERMS_AND_CONDITIONS_URL = "terms_and_conditions_url"
+    const val DEFAULT_PRIVACY_POLICY_URL = "https://example.com/privacy-policy"
+    const val DEFAULT_TERMS_AND_CONDITIONS_URL = "https://example.com/terms-of-service"
+
     @Volatile
     var isInitialized: Boolean = false
         private set
@@ -90,7 +95,10 @@ object FirebaseConfigManager {
                 "preload_ad_banner" to false,
                 "preload_ad_native" to false,
                 "preload_ad_interstitial" to false,
-                "preload_ad_app_open" to false
+                "preload_ad_app_open" to false,
+
+                KEY_PRIVACY_POLICY_URL to DEFAULT_PRIVACY_POLICY_URL,
+                KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL
             )
             remoteConfig.setDefaultsAsync(defaultParams)
 
@@ -175,4 +183,8 @@ object FirebaseConfigManager {
             defaultValue
         }
     }
+
+    fun getPrivacyPolicyUrl(): String = getString(KEY_PRIVACY_POLICY_URL, DEFAULT_PRIVACY_POLICY_URL)
+
+    fun getTermsAndConditionsUrl(): String = getString(KEY_TERMS_AND_CONDITIONS_URL, DEFAULT_TERMS_AND_CONDITIONS_URL)
 }

@@ -70,6 +70,12 @@ object RemoteConfigRepository {
     const val KEY_PRELOAD_AD_INTERSTITIAL = "preload_ad_interstitial"
     const val KEY_PRELOAD_AD_APP_OPEN = "preload_ad_app_open"
 
+    // URLs
+    const val KEY_PRIVACY_POLICY_URL = "privacy_policy_url"
+    const val KEY_TERMS_AND_CONDITIONS_URL = "terms_and_conditions_url"
+    const val DEFAULT_PRIVACY_POLICY_URL = "https://example.com/privacy-policy"
+    const val DEFAULT_TERMS_AND_CONDITIONS_URL = "https://example.com/terms-of-service"
+
     private val remoteConfig: FirebaseRemoteConfig?
         get() = runCatching { FirebaseRemoteConfig.getInstance() }.getOrNull()
 
@@ -124,7 +130,9 @@ object RemoteConfigRepository {
                 KEY_PRELOAD_AD_BANNER to false,
                 KEY_PRELOAD_AD_NATIVE to false,
                 KEY_PRELOAD_AD_INTERSTITIAL to false,
-                KEY_PRELOAD_AD_APP_OPEN to false
+                KEY_PRELOAD_AD_APP_OPEN to false,
+                KEY_PRIVACY_POLICY_URL to DEFAULT_PRIVACY_POLICY_URL,
+                KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL
             )
             config.setDefaultsAsync(defaultMap)
 
@@ -269,4 +277,8 @@ object RemoteConfigRepository {
     val preloadAdNative: Boolean get() = getBoolean(KEY_PRELOAD_AD_NATIVE, false)
     val preloadAdInterstitial: Boolean get() = getBoolean(KEY_PRELOAD_AD_INTERSTITIAL, false)
     val preloadAdAppOpen: Boolean get() = getBoolean(KEY_PRELOAD_AD_APP_OPEN, false)
+
+    // Dynamic Policy URLs
+    val privacyPolicyUrl: String get() = getString(KEY_PRIVACY_POLICY_URL, DEFAULT_PRIVACY_POLICY_URL)
+    val termsAndConditionsUrl: String get() = getString(KEY_TERMS_AND_CONDITIONS_URL, DEFAULT_TERMS_AND_CONDITIONS_URL)
 }

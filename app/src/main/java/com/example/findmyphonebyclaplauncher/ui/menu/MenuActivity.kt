@@ -4,12 +4,14 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.ActivityMenuBinding
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
@@ -67,11 +69,19 @@ class MenuActivity : AppCompatActivity() {
         }
 
         binding.cardPrivacy.setOnClickListener {
-            openInAppUrl(PRIVACY_POLICY_URL)
+            val privacyUrl = FirebaseConfigManager.getString(
+                FirebaseConfigManager.KEY_PRIVACY_POLICY_URL,
+                DEFAULT_PRIVACY_POLICY_URL
+            )
+            openInAppUrl(privacyUrl, DEFAULT_PRIVACY_POLICY_URL)
         }
 
         binding.cardTerms.setOnClickListener {
-            openInAppUrl(TERMS_OF_SERVICE_URL)
+            val termsUrl = FirebaseConfigManager.getString(
+                FirebaseConfigManager.KEY_TERMS_AND_CONDITIONS_URL,
+                DEFAULT_TERMS_OF_SERVICE_URL
+            )
+            openInAppUrl(termsUrl, DEFAULT_TERMS_OF_SERVICE_URL)
         }
     }
 
@@ -100,21 +110,29 @@ class MenuActivity : AppCompatActivity() {
 
     /**
      * Opens the specified URL using Android Custom Tabs for a seamless in-app browsing experience.
-     * Falls back to a standard ACTION_VIEW intent if Custom Tabs cannot be launched.
+     * Falls back to a standard ACTION_VIEW intent if Custom Tabs cannot be launched,
+     * and uses the fallback default URL if the supplied URL string is null or empty.
      */
-    private fun openInAppUrl(url: String) {
+    private fun openInAppUrl(url: String?, fallbackUrl: String = DEFAULT_PRIVACY_POLICY_URL) {
+        val targetUrl = if (!url.isNullOrBlank()) url.trim() else fallbackUrl
+        val finalUrl = if (targetUrl.isBlank()) fallbackUrl else targetUrl
+
         try {
             val customTabsIntent = CustomTabsIntent.Builder()
                 .setShowTitle(true)
                 .build()
-            customTabsIntent.launchUrl(this, Uri.parse(url))
+            customTabsIntent.launchUrl(this, Uri.parse(finalUrl))
         } catch (e: Exception) {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(finalUrl)))
+            } catch (ex: Exception) {
+                Log.e("MenuActivity", "Failed to launch URL intent for: $finalUrl", ex)
+            }
         }
     }
 
     companion object {
-        private const val PRIVACY_POLICY_URL = "https://example.com/privacy-policy"
-        private const val TERMS_OF_SERVICE_URL = "https://example.com/terms-of-service"
+        private const val DEFAULT_PRIVACY_POLICY_URL = "https://example.com/privacy-policy"
+        private const val DEFAULT_TERMS_OF_SERVICE_URL = "https://example.com/terms-of-service"
     }
 }
