@@ -37,6 +37,12 @@
     <!-- Uninstallation request permission for Launcher -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
+    <!-- Telephony & Call Log permissions for After Call feature -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -49,6 +55,16 @@
         <intent>
             <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
             <data android:scheme="package" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
         </intent>
     </queries>
 
@@ -178,6 +194,15 @@
             android:exported="false"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher"
             android:launchMode="singleTask" />
+
+        <!-- After Call Activity -->
+        <activity
+            android:name=".ui.aftercall.AfterCallActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
 
         <!-- ===================== RECEIVERS ===================== -->
         <receiver

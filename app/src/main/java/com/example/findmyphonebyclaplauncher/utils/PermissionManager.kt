@@ -54,6 +54,29 @@ object PermissionManager {
             context, Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
 
+    fun hasReadPhoneStatePermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context, Manifest.permission.READ_PHONE_STATE
+        ) == PackageManager.PERMISSION_GRANTED
+
+    fun hasReadCallLogPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context, Manifest.permission.READ_CALL_LOG
+        ) == PackageManager.PERMISSION_GRANTED
+
+    fun hasReadContactsPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context, Manifest.permission.READ_CONTACTS
+        ) == PackageManager.PERMISSION_GRANTED
+
+    fun requiredAfterCallPermissions(): Array<String> {
+        return arrayOf(
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.READ_CONTACTS
+        )
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Navigation helpers
     // ─────────────────────────────────────────────────────────────────────────

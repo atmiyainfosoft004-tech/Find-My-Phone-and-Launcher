@@ -42,12 +42,14 @@ class FindPhoneActivity : AppCompatActivity() {
         applyLauncherPageSystemBars(LauncherPagerAdapter.PAGE_HOME)
         setupBackPressedHandler()
         handleHomeIntent(intent)
+        handleLaunchExtras(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         handleHomeIntent(intent)
+        handleLaunchExtras(intent)
     }
 
     override fun onResume() {
@@ -56,6 +58,18 @@ class FindPhoneActivity : AppCompatActivity() {
         val host = supportFragmentManager.findFragmentById(R.id.launcherHostContainer) as? LauncherHostFragment
         host?.reapplyPageSystemBars()
         com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.fetchAndActivate()
+    }
+
+    private fun handleLaunchExtras(intent: Intent?) {
+        if (intent == null) return
+        if (intent.getBooleanExtra("LAUNCH_AFTER_CALL", false)) {
+            intent.removeExtra("LAUNCH_AFTER_CALL")
+            val afterCallIntent = Intent(this, com.example.findmyphonebyclaplauncher.ui.aftercall.AfterCallActivity::class.java).apply {
+                putExtra("EXTRA_NUMBER", intent.getStringExtra("EXTRA_NUMBER"))
+                putExtra("EXTRA_IS_INCOMING", intent.getBooleanExtra("EXTRA_IS_INCOMING", false))
+            }
+            startActivity(afterCallIntent)
+        }
     }
 
     private fun showSystemWallpaperBehindWindow() {

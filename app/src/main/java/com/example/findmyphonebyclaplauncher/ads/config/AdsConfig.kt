@@ -79,6 +79,9 @@ data class AdsConfig(
     @SerializedName(value = "banner_ad_id_alert_screen", alternate = ["banner_ad_id_alert", "banner_ad_id_alert_activity"])
     val bannerAdIdAlertScreen: String = DEFAULT_BANNER_ID,
 
+    @SerializedName(value = "banner_ad_id_after_call", alternate = ["banner_ad_id_aftercall"])
+    val bannerAdIdAfterCall: String = DEFAULT_BANNER_ID,
+
     // Native Ads - Screen Specific Enable/Disable
     @SerializedName("native_ad_enable_dashboard")
     val nativeAdEnableDashboard: Boolean = true,
@@ -150,6 +153,7 @@ data class AdsConfig(
     val canShowBannerFindPhone: Boolean get() = isBannerAdEnabled && bannerAdEnableFindPhone && bannerAdIdFindPhone.isNotBlank()
     val canShowBannerAlertScreen: Boolean get() = isBannerAdEnabled && bannerAdEnableAlertScreen && bannerAdIdAlertScreen.isNotBlank()
     val canShowBannerAlertActivity: Boolean get() = canShowBannerAlertScreen
+    val canShowBannerAfterCall: Boolean get() = isBannerAdEnabled && nativeAdEnableAfterCall && nativeAdIdAfterCall.isNotBlank()
 
     // Native visibility checks (Requires Master Switch AND Screen Switch AND Valid ID)
     val canShowNative: Boolean get() = isNativeAdEnabled
@@ -183,7 +187,7 @@ data class AdsConfig(
     val swipeAdTypeSelection: String get() = if (isSwipeAdInterstitial) "Inter" else "Open"
 
     companion object {
-        const val DEFAULT_BANNER_ID = "ca-app-pub-3940256099942544/9214589741"
+        const val DEFAULT_BANNER_ID = "ca-app-pub-3940256099942544/6300978111"
         const val DEFAULT_NATIVE_ID = "ca-app-pub-3940256099942544/2247696110"
         const val DEFAULT_INTER_ID = "ca-app-pub-3940256099942544/1033173712"
         const val DEFAULT_APP_OPEN_ID = "ca-app-pub-3940256099942544/9257395921"

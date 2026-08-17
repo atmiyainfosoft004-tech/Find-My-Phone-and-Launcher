@@ -10,6 +10,7 @@ import android.view.WindowMetrics
 import android.widget.FrameLayout
 import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper.logAds
 import com.google.android.gms.ads.AdListener
@@ -197,15 +198,18 @@ class BannerAdLoader {
     fun showBannerAfterCall(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: View
     ) {
-        if (ads.canShowBanner) {
-            Log.d(TAG, "Loading banner for After Call screen")
+        if (ads.canShowBannerAfterCall || ads.canShowBanner) {
+            Log.d(TAG, "Loading Medium Rectangle banner for After Call screen")
+            shimmerFrameLayout.visibility = View.VISIBLE
+            frameLayout.visibility = View.GONE
+            val adUnitId = ads.bannerAdIdAfterCall.ifBlank { ads.bannerAdIdHome.ifBlank { AdsConfig.DEFAULT_BANNER_ID } }
             loadAndShowBannerAfterCall(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdHome
+                adUnitId
             )
         } else {
             Log.d(TAG, "After Call banner disabled by Remote Config")
@@ -322,12 +326,17 @@ class BannerAdLoader {
     fun loadAndShowBannerAfterCall(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout,
+        shimmerFrameLayout: View,
         adUnitID: String
     ) {
-        Log.d(TAG, "loadAndShowBannerAfterCall with Unit ID: $adUnitID")
+        val safeAdUnitId = if (adUnitID.contains("2247696110")) {
+            AdsConfig.DEFAULT_BANNER_ID
+        } else {
+            adUnitID.ifBlank { AdsConfig.DEFAULT_BANNER_ID }
+        }
+        Log.d(TAG, "loadAndShowBannerAfterCall with Unit ID: $safeAdUnitId")
         val adView = AdView(activity)
-        adView.adUnitId = adUnitID
+        adView.adUnitId = safeAdUnitId
         adView.setAdSize(AdSize.MEDIUM_RECTANGLE)
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "banner_req")
@@ -352,7 +361,7 @@ class BannerAdLoader {
                 super.onAdClicked()
                 Log.d(TAG, "After Call banner clicked")
                 logAds(activity, "banner_clicked")
-                showBanner(activity, frameLayout, shimmerFrameLayout)
+                showBannerAfterCall(activity, frameLayout, shimmerFrameLayout)
             }
 
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {

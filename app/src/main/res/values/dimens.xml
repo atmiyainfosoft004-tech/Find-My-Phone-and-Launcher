@@ -57,4 +57,5 @@
     <dimen name="corner_pill">26dp</dimen>
     <dimen name="corner_lg">16dp</dimen>
     <dimen name="adaptive_banner_caller_ad_height">320dp</dimen>
+    <dimen name="glass_card_radius">18dp</dimen>
 </resources>

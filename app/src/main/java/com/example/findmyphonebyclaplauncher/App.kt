@@ -48,8 +48,25 @@ class App : Application() {
 
         initMobileAds()
         registerAppInstallReceiver()
+        registerCallStateReceiver()
         registerPackageInstallerCallback()
         registerGlobalSystemUiController()
+    }
+
+    private fun registerCallStateReceiver() {
+        try {
+            val filter = IntentFilter(android.telephony.TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+            val receiver = com.example.findmyphonebyclaplauncher.receiver.CallStateReceiver()
+            ContextCompat.registerReceiver(
+                this,
+                receiver,
+                filter,
+                ContextCompat.RECEIVER_EXPORTED
+            )
+            Log.d(Constants.TAG, "CallStateReceiver dynamically registered")
+        } catch (e: Exception) {
+            Log.e(Constants.TAG, "Failed to register CallStateReceiver dynamically", e)
+        }
     }
 
     private fun registerGlobalSystemUiController() {

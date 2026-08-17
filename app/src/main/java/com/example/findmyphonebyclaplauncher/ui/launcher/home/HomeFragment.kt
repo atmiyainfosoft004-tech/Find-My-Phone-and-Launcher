@@ -1,19 +1,24 @@
 package com.example.findmyphonebyclaplauncher.ui.launcher.home
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -49,6 +54,10 @@ class HomeFragment : Fragment() {
     private var pendingUninstallLabel: String? = null
     private var pendingUninstallPackage: String? = null
     private var uninstallInProgress = false
+
+    private val callPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { _ -> }
 
     private val clockHandler = Handler(Looper.getMainLooper())
     private val clockTick = object : Runnable {
@@ -240,6 +249,23 @@ class HomeFragment : Fragment() {
         clockHandler.post(clockTick)
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
+        checkAfterCallPermissions()
+    }
+
+    private fun checkAfterCallPermissions() {
+        val context = context ?: return
+        val requiredPermissions = arrayOf(
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.READ_CONTACTS
+        )
+        val missingPermissions = requiredPermissions.filter {
+            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missingPermissions.isNotEmpty()) {
+            callPermissionsLauncher.launch(missingPermissions.toTypedArray())
+        }
     }
 
     override fun onPause() {
