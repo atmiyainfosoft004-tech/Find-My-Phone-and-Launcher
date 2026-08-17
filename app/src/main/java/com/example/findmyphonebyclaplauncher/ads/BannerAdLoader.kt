@@ -27,7 +27,7 @@ class BannerAdLoader {
             App.runWhenMobileAdsReady {
                 bannerAdPreload = null
                 val adView = AdView(activity)
-                adView.adUnitId = ads.bannerAdIdContactHome
+                adView.adUnitId = ads.bannerAdIdHome
                 adView.setAdSize(getNormalAdSize(activity))
                 adView.adListener = object : AdListener() {
                     override fun onAdLoaded() {
@@ -69,8 +69,6 @@ class BannerAdLoader {
                 shimmerFrameLayout,
                 ads.bannerAdIdSplash
             )
-            frameLayout.visibility = View.VISIBLE
-            shimmerFrameLayout.visibility = View.VISIBLE
         } else {
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
@@ -78,12 +76,12 @@ class BannerAdLoader {
         }
     }
 
-    fun showBanner(
+    fun showHomeBanner(
         activity: Activity,
         frameLayout: FrameLayout,
         shimmerFrameLayout: FrameLayout
     ) {
-        if (ads.canShowBanner) {
+        if (ads.canShowBannerHome) {
             if (bannerAdPreload != null) {
                 Log.e("LoadBannerAdCheck", "bannerAdPreload!=null")
                 frameLayout.visibility = View.VISIBLE
@@ -103,7 +101,7 @@ class BannerAdLoader {
                     activity,
                     frameLayout,
                     shimmerFrameLayout,
-                    ads.bannerAdIdContactHome
+                    ads.bannerAdIdHome
                 )
             }
         } else {
@@ -113,17 +111,63 @@ class BannerAdLoader {
         }
     }
 
+    fun showBanner(
+        activity: Activity,
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: FrameLayout
+    ) {
+        showHomeBanner(activity, frameLayout, shimmerFrameLayout)
+    }
+
     fun showDrawerBanner(
         activity: Activity,
         frameLayout: FrameLayout,
         shimmerFrameLayout: FrameLayout
     ) {
-        if (ads.canShowBanner) {
+        if (ads.canShowBannerAppDrawer) {
             loadAndShowBanner(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdAppDrawer.ifBlank { ads.bannerAdIdContactHome }
+                ads.bannerAdIdAppDrawer.ifBlank { ads.bannerAdIdHome }
+            )
+        } else {
+            frameLayout.removeAllViews()
+            frameLayout.visibility = View.GONE
+            shimmerFrameLayout.visibility = View.GONE
+        }
+    }
+
+    fun showFindPhoneBanner(
+        activity: Activity,
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: FrameLayout
+    ) {
+        if (ads.canShowBannerFindPhone) {
+            loadAndShowBanner(
+                activity,
+                frameLayout,
+                shimmerFrameLayout,
+                ads.bannerAdIdFindPhone.ifBlank { ads.bannerAdIdHome }
+            )
+        } else {
+            frameLayout.removeAllViews()
+            frameLayout.visibility = View.GONE
+            shimmerFrameLayout.visibility = View.GONE
+        }
+    }
+
+    fun showAlertBanner(
+        activity: Activity,
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: FrameLayout
+    ) {
+        if (ads.canShowBannerAlertScreen) {
+            loadAndShowBanner(
+                activity,
+                frameLayout,
+                shimmerFrameLayout,
+                ads.bannerAdIdAlertScreen.ifBlank { ads.bannerAdIdHome }
             )
         } else {
             frameLayout.removeAllViews()
@@ -142,7 +186,7 @@ class BannerAdLoader {
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdContactHome
+                ads.bannerAdIdHome
             )
         } else {
             frameLayout.removeAllViews()
@@ -172,6 +216,12 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout,
         adUnitID: String
     ) {
+        if (!ads.isBannerAdEnabled || adUnitID.isBlank()) {
+            frameLayout.removeAllViews()
+            frameLayout.visibility = View.GONE
+            shimmerFrameLayout.visibility = View.GONE
+            return
+        }
         Log.e("LoadBannerAdCheck", "load banner unit=$adUnitID")
         frameLayout.visibility = View.VISIBLE
         shimmerFrameLayout.visibility = View.VISIBLE

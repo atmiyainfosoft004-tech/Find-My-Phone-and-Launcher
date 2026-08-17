@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.findmyphonebyclaplauncher.App
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertBinding
 import com.example.findmyphonebyclaplauncher.utils.Constants
 import kotlinx.coroutines.launch
@@ -57,6 +60,7 @@ class AlertActivity : AppCompatActivity() {
         }
 
         setupWindowInsets()
+        loadBannerAd()
 
         binding.btnStopAlert.setOnClickListener {
             stopAlert()
@@ -82,6 +86,26 @@ class AlertActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadBannerAd()
+    }
+
+    private fun loadBannerAd() {
+        if (!AdsConfigManager.config.canShowBannerAlertScreen) {
+            binding.alertBanner.bannerAdFrameLayout.removeAllViews()
+            binding.alertBanner.bannerAdFrameLayout.visibility = View.GONE
+            binding.alertBanner.bannerAdShimmerFrameLayout.visibility = View.GONE
+            return
+        }
+        if (binding.alertBanner.bannerAdFrameLayout.childCount > 0) return
+        LauncherAdsHelper.showAlertBanner(
+            this,
+            binding.alertBanner.bannerAdFrameLayout,
+            binding.alertBanner.bannerAdShimmerFrameLayout
+        )
     }
 
     private fun setupWindowInsets() {

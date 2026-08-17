@@ -3,6 +3,7 @@ package com.example.findmyphonebyclaplauncher.config
 import android.content.Context
 import android.util.Log
 import com.example.findmyphonebyclaplauncher.BuildConfig
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
 import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
@@ -12,7 +13,6 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 
 /**
  * Initializes Firebase SDK and manages Firebase Remote Config parameters.
- * Modeled after the Firebase initialization structure used in CallLauncher.
  */
 object FirebaseConfigManager {
 
@@ -40,12 +40,56 @@ object FirebaseConfigManager {
 
             remoteConfig.setConfigSettingsAsync(settings)
 
-            // Define initial default remote config parameters
+            // Define structured default remote config parameters based on updated schema
             val defaultParams = mapOf<String, Any>(
-                "is_ads_enabled" to true,
-                "banner_ad_id" to "",
-                "interstitial_ad_id" to "",
-                "native_ad_id" to ""
+                "system_hide_navigation_bar_auto" to true,
+
+                "is_banner_ad_enabled" to true,
+                "is_native_ad_enabled" to true,
+                "is_inter_ad_enabled" to true,
+                "is_app_open_ad_enabled" to true,
+
+                "is_click_ad_enabled" to false,
+                "is_swipe_ad_enabled" to false,
+                "is_back_ad_enabled" to true,
+
+                "is_click_ad_interstitial" to true,
+                "is_swipe_ad_interstitial" to false,
+
+                "inter_ad_counter_trigger" to 3,
+                "inter_ad_back_counter_trigger" to 1,
+                "click_ad_counter_trigger" to 3,
+
+                "banner_ad_enable_splash" to true,
+                "banner_ad_enable_home_screen" to true,
+                "banner_ad_enable_app_drawer" to true,
+                "banner_ad_enable_find_phone" to true,
+                "banner_ad_enable_alert_screen" to true,
+
+                "banner_ad_id_splash" to AdsConfig.DEFAULT_BANNER_ID,
+                "banner_ad_id_home_screen" to AdsConfig.DEFAULT_BANNER_ID,
+                "banner_ad_id_app_drawer" to AdsConfig.DEFAULT_BANNER_ID,
+                "banner_ad_id_find_phone" to AdsConfig.DEFAULT_BANNER_ID,
+                "banner_ad_id_alert_screen" to AdsConfig.DEFAULT_BANNER_ID,
+
+                "native_ad_enable_dashboard" to true,
+                "native_ad_enable_google_search" to true,
+                "native_ad_enable_language" to true,
+                "native_ad_enable_after_call" to true,
+
+                "native_ad_id_dashboard" to AdsConfig.DEFAULT_NATIVE_ID,
+                "native_ad_id_google_search" to AdsConfig.DEFAULT_NATIVE_ID,
+                "native_ad_id_language" to AdsConfig.DEFAULT_NATIVE_ID,
+                "native_ad_id_after_call" to AdsConfig.DEFAULT_NATIVE_ID,
+                "native_ad_google_search_item_interval" to 2,
+
+                "inter_ad_id" to AdsConfig.DEFAULT_INTER_ID,
+                "app_open_ad_id" to AdsConfig.DEFAULT_APP_OPEN_ID,
+
+                "preload_ad_banner" to false,
+                "preload_ad_native" to false,
+                "preload_ad_interstitial" to false,
+                "preload_ad_app_open" to false
             )
             remoteConfig.setDefaultsAsync(defaultParams)
 

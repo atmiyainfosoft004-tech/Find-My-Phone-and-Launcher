@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:paddingHorizontal="@dimen/_15sdp"
-    android:paddingVertical="@dimen/_10sdp">
+    android:paddingTop="@dimen/_10sdp">
 
     <!-- Confetti Party Particles Background -->
     <com.airbnb.lottie.LottieAnimationView
@@ -75,10 +75,20 @@
         style="@style/Widget.Material3.Button"
         app:backgroundTint="@color/color_primary"
         app:cornerRadius="@dimen/_25sdp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/alertBanner"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginHorizontal="@dimen/_24sdp"
         android:layout_marginBottom="@dimen/_10sdp" />
+
+    <!-- Banner Ad Container for AlertActivity -->
+    <include
+        android:id="@+id/alertBanner"
+        layout="@layout/ads_contact_banner_shimmer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

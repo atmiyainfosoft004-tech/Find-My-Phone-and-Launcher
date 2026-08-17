@@ -296,6 +296,12 @@ class NativeAdLoader {
         adUnitID: String,
         type: String = "Default"
     ) {
+        if (!ads.isNativeAdEnabled || adUnitID.isBlank()) {
+            ltUniversal.removeAllViews()
+            ltUniversal.visibility = View.GONE
+            adsNativeBigLoadingBinding.visibility = View.GONE
+            return
+        }
         Log.e("NativeAdLoad", "adUnitID: $adUnitID, type: $type")
         val videoOptions = VideoOptions.Builder().setStartMuted(true).build()
         val adOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()

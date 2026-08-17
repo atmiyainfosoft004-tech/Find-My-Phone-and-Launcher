@@ -96,7 +96,7 @@ class DashboardFragment : Fragment() {
     fun refreshNativeAd() {
         val binding = _binding ?: return
         if (!isAdded) return
-        if (!AdsConfigManager.config.canShowNative) {
+        if (!AdsConfigManager.config.canShowNativeDashboard) {
             binding.nativeAdFrameLayout.removeAllViews()
             binding.nativeAdFrameLayout.visibility = View.GONE
             binding.nativeAdShimmerFrameLayout.root.visibility = View.GONE

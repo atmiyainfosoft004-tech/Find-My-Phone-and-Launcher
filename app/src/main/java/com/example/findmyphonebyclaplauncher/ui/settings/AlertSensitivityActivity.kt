@@ -50,12 +50,16 @@ class AlertSensitivityActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            finishWithSlideAnimation()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+                finishWithSlideAnimation()
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finishWithSlideAnimation()
+                com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this@AlertSensitivityActivity) {
+                    finishWithSlideAnimation()
+                }
             }
         })
 
@@ -84,7 +88,9 @@ class AlertSensitivityActivity : AppCompatActivity() {
                 )
                 startService(intent)
             }
-            finishWithSlideAnimation()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+                finishWithSlideAnimation()
+            }
         }
     }
 

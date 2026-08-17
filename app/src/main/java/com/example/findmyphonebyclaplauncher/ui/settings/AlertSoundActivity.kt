@@ -112,7 +112,9 @@ class AlertSoundActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener {
             // Cancel action: Stop preview and discard uncommitted changes
             stopPreview()
-            finishWithSlideAnimation()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+                finishWithSlideAnimation()
+            }
         }
 
         binding.btnSave.setOnClickListener {
@@ -120,14 +122,18 @@ class AlertSoundActivity : AppCompatActivity() {
             commitSettings()
             stopPreview()
             Toast.makeText(this, getString(R.string.alert_sound) + " saved", Toast.LENGTH_SHORT).show()
-            finishWithSlideAnimation()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+                finishWithSlideAnimation()
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 // Cancel action: Stop preview and discard uncommitted changes
                 stopPreview()
-                finishWithSlideAnimation()
+                com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this@AlertSoundActivity) {
+                    finishWithSlideAnimation()
+                }
             }
         })
     }

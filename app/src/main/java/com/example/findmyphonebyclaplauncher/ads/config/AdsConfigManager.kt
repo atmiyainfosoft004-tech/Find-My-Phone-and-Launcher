@@ -19,26 +19,79 @@ object AdsConfigManager {
     private const val TAG = "RemoteConfig"
     const val KEY_ADS_CONFIG = "ads_config"
 
-    private const val KEY_BANNER_SPLASH = "banner_ad_id_splash"
-    private const val KEY_BANNER_CONTACT_HOME = "banner_ad_id_contact_home"
-    private const val KEY_BANNER_APP_DRAWER = "banner_ad_id_app_drawer"
-    private const val KEY_NATIVE_DASHBOARD = "native_ad_id_dashboard"
-    private const val KEY_NATIVE_GOOGLE_SEARCH = "native_ad_id_google_search"
-    private const val KEY_NATIVE_LANGUAGE = "native_ad_id_language"
-    private const val KEY_NATIVE_AFTER_CALL = "native_ad_id_after_call"
-    private const val KEY_INTER = "inter_ad_id"
-    private const val KEY_APP_OPEN = "app_open_ad_id"
-    private const val KEY_INTER_COUNT = "inter_count"
-    private const val KEY_INTER_BACK_COUNT = "inter_back_count"
-    private const val KEY_APP_CLICK_INTER = "isAppClickInterOn"
-    private const val KEY_SWIPE_INTER = "isRightLeftSwipeInterOn"
-    private const val KEY_BANNER_ON = "isBannerOn"
-    private const val KEY_NATIVE_ON = "isNativeOn"
-    private const val KEY_INTER_ON = "isInterOn"
-    private const val KEY_BANNER_PRELOAD = "bannerAdPreload"
-    private const val KEY_NATIVE_PRELOAD = "nativeAdPreload"
-    private const val KEY_INTER_PRELOAD = "interAdPreload"
-    private const val KEY_APP_OPEN_PRELOAD = "appOpenAdPreload"
+    // System & Feature Flags
+    const val KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO = "system_hide_navigation_bar_auto"
+
+    // Global Ad Type Switches (Master Toggles)
+    const val KEY_IS_BANNER_AD_ENABLED = "is_banner_ad_enabled"
+    const val KEY_IS_NATIVE_AD_ENABLED = "is_native_ad_enabled"
+    const val KEY_IS_INTER_AD_ENABLED = "is_inter_ad_enabled"
+    const val KEY_IS_APP_OPEN_AD_ENABLED = "is_app_open_ad_enabled"
+
+    // Action-Level Ad Switches
+    const val KEY_IS_CLICK_AD_ENABLED = "is_click_ad_enabled"
+    const val KEY_IS_SWIPE_AD_ENABLED = "is_swipe_ad_enabled"
+    const val KEY_IS_BACK_AD_ENABLED = "is_back_ad_enabled"
+
+    // Action Ad Format Selectors (true = Interstitial | false = App Open)
+    const val KEY_IS_CLICK_AD_INTERSTITIAL = "is_click_ad_interstitial"
+    const val KEY_IS_SWIPE_AD_INTERSTITIAL = "is_swipe_ad_interstitial"
+    const val KEY_APP_CLICK_INTER_LEGACY = "isAppClickInterOn"
+    const val KEY_SWIPE_INTER_LEGACY = "isRightLeftSwipeInterOn"
+
+    // Counters & Triggers
+    const val KEY_INTER_COUNTER_TRIGGER = "inter_ad_counter_trigger"
+    const val KEY_INTER_BACK_COUNTER_TRIGGER = "inter_ad_back_counter_trigger"
+    const val KEY_CLICK_AD_COUNTER_TRIGGER = "click_ad_counter_trigger"
+    const val KEY_INTER_COUNT_LEGACY = "inter_count"
+    const val KEY_INTER_BACK_COUNT_LEGACY = "inter_back_count"
+
+    // Banner Ads - Screen Specific Enable/Disable
+    const val KEY_BANNER_ENABLE_SPLASH = "banner_ad_enable_splash"
+    const val KEY_BANNER_ENABLE_HOME_SCREEN = "banner_ad_enable_home_screen"
+    const val KEY_BANNER_ENABLE_HOME = "banner_ad_enable_home"
+    const val KEY_BANNER_ENABLE_CONTACT_HOME_LEGACY = "banner_ad_enable_contact_home"
+    const val KEY_BANNER_ENABLE_APP_DRAWER = "banner_ad_enable_app_drawer"
+    const val KEY_BANNER_ENABLE_FIND_PHONE = "banner_ad_enable_find_phone"
+    const val KEY_BANNER_ENABLE_ALERT_SCREEN = "banner_ad_enable_alert_screen"
+    const val KEY_BANNER_ENABLE_ALERT_ACTIVITY_LEGACY = "banner_ad_enable_alert_activity"
+
+    // Banner Ads - Unit IDs
+    const val KEY_BANNER_ID_SPLASH = "banner_ad_id_splash"
+    const val KEY_BANNER_ID_HOME_SCREEN = "banner_ad_id_home_screen"
+    const val KEY_BANNER_ID_HOME = "banner_ad_id_home"
+    const val KEY_BANNER_ID_CONTACT_HOME_LEGACY = "banner_ad_id_contact_home"
+    const val KEY_BANNER_ID_APP_DRAWER = "banner_ad_id_app_drawer"
+    const val KEY_BANNER_ID_FIND_PHONE = "banner_ad_id_find_phone"
+    const val KEY_BANNER_ID_ALERT_SCREEN = "banner_ad_id_alert_screen"
+    const val KEY_BANNER_ID_ALERT_ACTIVITY_LEGACY = "banner_ad_id_alert_activity"
+
+    // Native Ads - Screen Specific Enable/Disable
+    const val KEY_NATIVE_ENABLE_DASHBOARD = "native_ad_enable_dashboard"
+    const val KEY_NATIVE_ENABLE_GOOGLE_SEARCH = "native_ad_enable_google_search"
+    const val KEY_NATIVE_ENABLE_LANGUAGE = "native_ad_enable_language"
+    const val KEY_NATIVE_ENABLE_AFTER_CALL = "native_ad_enable_after_call"
+
+    // Native Ads - Unit IDs & Configuration
+    const val KEY_NATIVE_ID_DASHBOARD = "native_ad_id_dashboard"
+    const val KEY_NATIVE_ID_GOOGLE_SEARCH = "native_ad_id_google_search"
+    const val KEY_NATIVE_ID_LANGUAGE = "native_ad_id_language"
+    const val KEY_NATIVE_ID_AFTER_CALL = "native_ad_id_after_call"
+    const val KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL = "native_ad_google_search_item_interval"
+
+    // Interstitial & Open Ad Controls
+    const val KEY_INTER_ID = "inter_ad_id"
+    const val KEY_APP_OPEN_ID = "app_open_ad_id"
+
+    // Preload Configurations
+    const val KEY_PRELOAD_AD_BANNER = "preload_ad_banner"
+    const val KEY_PRELOAD_AD_NATIVE = "preload_ad_native"
+    const val KEY_PRELOAD_AD_INTERSTITIAL = "preload_ad_interstitial"
+    const val KEY_PRELOAD_AD_APP_OPEN = "preload_ad_app_open"
+    const val KEY_BANNER_PRELOAD_LEGACY = "bannerAdPreload"
+    const val KEY_NATIVE_PRELOAD_LEGACY = "nativeAdPreload"
+    const val KEY_INTER_PRELOAD_LEGACY = "interAdPreload"
+    const val KEY_APP_OPEN_PRELOAD_LEGACY = "appOpenAdPreload"
 
     private val gson = Gson()
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -71,12 +124,23 @@ object AdsConfigManager {
     var isInitialized: Boolean = false
         private set
 
+    val isBannerAdEnabled: Boolean get() = config.isBannerAdEnabled
+    val isNativeAdEnabled: Boolean get() = config.isNativeAdEnabled
+    val isInterAdEnabled: Boolean get() = config.isInterAdEnabled
+    val isAppOpenAdEnabled: Boolean get() = config.isAppOpenAdEnabled
+
+    val isClickAdEnabled: Boolean get() = config.isClickAdEnabled
+    val isSwipeAdEnabled: Boolean get() = config.isSwipeAdEnabled
+    val isBackAdEnabled: Boolean get() = config.isBackAdEnabled
+
+    val isClickAdInterstitial: Boolean get() = config.isClickAdInterstitial
+    val isSwipeAdInterstitial: Boolean get() = config.isSwipeAdInterstitial
+
     fun initialize(context: Context, onComplete: ((success: Boolean) -> Unit)? = null) {
         if (FirebaseApp.getApps(context).isEmpty()) {
             FirebaseApp.initializeApp(context)
         }
         val remoteConfig = FirebaseRemoteConfig.getInstance()
-        // Zero-cache in Debug builds (0 seconds), 3600 seconds in release builds
         val minimumFetchInterval = if (BuildConfig.DEBUG) 0L else 3600L
         val settings = FirebaseRemoteConfigSettings.Builder()
             .setMinimumFetchIntervalInSeconds(minimumFetchInterval)
@@ -85,26 +149,54 @@ object AdsConfigManager {
 
         val defaultMap: Map<String, Any> = mapOf(
             KEY_ADS_CONFIG to gson.toJson(AdsConfig.DEFAULT),
-            KEY_BANNER_SPLASH to AdsConfig.DEFAULT_BANNER_ID,
-            KEY_BANNER_CONTACT_HOME to AdsConfig.DEFAULT_BANNER_ID,
-            KEY_BANNER_APP_DRAWER to AdsConfig.DEFAULT_BANNER_ID,
-            KEY_NATIVE_DASHBOARD to AdsConfig.DEFAULT_NATIVE_ID,
-            KEY_NATIVE_GOOGLE_SEARCH to AdsConfig.DEFAULT_NATIVE_ID,
-            KEY_NATIVE_LANGUAGE to AdsConfig.DEFAULT_NATIVE_ID,
-            KEY_NATIVE_AFTER_CALL to AdsConfig.DEFAULT_NATIVE_ID,
-            KEY_INTER to AdsConfig.DEFAULT_INTER_ID,
-            KEY_APP_OPEN to AdsConfig.DEFAULT_APP_OPEN_ID,
-            KEY_INTER_COUNT to 1,
-            KEY_INTER_BACK_COUNT to 3,
-            KEY_APP_CLICK_INTER to true,
-            KEY_SWIPE_INTER to true,
-            KEY_BANNER_ON to true,
-            KEY_NATIVE_ON to true,
-            KEY_INTER_ON to true,
-            KEY_BANNER_PRELOAD to false,
-            KEY_NATIVE_PRELOAD to false,
-            KEY_INTER_PRELOAD to true,
-            KEY_APP_OPEN_PRELOAD to false
+            KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO to true,
+
+            KEY_IS_BANNER_AD_ENABLED to true,
+            KEY_IS_NATIVE_AD_ENABLED to true,
+            KEY_IS_INTER_AD_ENABLED to true,
+            KEY_IS_APP_OPEN_AD_ENABLED to true,
+
+            KEY_IS_CLICK_AD_ENABLED to false,
+            KEY_IS_SWIPE_AD_ENABLED to false,
+            KEY_IS_BACK_AD_ENABLED to true,
+
+            KEY_IS_CLICK_AD_INTERSTITIAL to true,
+            KEY_IS_SWIPE_AD_INTERSTITIAL to false,
+
+            KEY_INTER_COUNTER_TRIGGER to 3,
+            KEY_INTER_BACK_COUNTER_TRIGGER to 1,
+            KEY_CLICK_AD_COUNTER_TRIGGER to 3,
+
+            KEY_BANNER_ENABLE_SPLASH to true,
+            KEY_BANNER_ENABLE_HOME_SCREEN to true,
+            KEY_BANNER_ENABLE_APP_DRAWER to true,
+            KEY_BANNER_ENABLE_FIND_PHONE to true,
+            KEY_BANNER_ENABLE_ALERT_SCREEN to true,
+
+            KEY_BANNER_ID_SPLASH to AdsConfig.DEFAULT_BANNER_ID,
+            KEY_BANNER_ID_HOME_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
+            KEY_BANNER_ID_APP_DRAWER to AdsConfig.DEFAULT_BANNER_ID,
+            KEY_BANNER_ID_FIND_PHONE to AdsConfig.DEFAULT_BANNER_ID,
+            KEY_BANNER_ID_ALERT_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
+
+            KEY_NATIVE_ENABLE_DASHBOARD to true,
+            KEY_NATIVE_ENABLE_GOOGLE_SEARCH to true,
+            KEY_NATIVE_ENABLE_LANGUAGE to true,
+            KEY_NATIVE_ENABLE_AFTER_CALL to true,
+
+            KEY_NATIVE_ID_DASHBOARD to AdsConfig.DEFAULT_NATIVE_ID,
+            KEY_NATIVE_ID_GOOGLE_SEARCH to AdsConfig.DEFAULT_NATIVE_ID,
+            KEY_NATIVE_ID_LANGUAGE to AdsConfig.DEFAULT_NATIVE_ID,
+            KEY_NATIVE_ID_AFTER_CALL to AdsConfig.DEFAULT_NATIVE_ID,
+            KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL to 2,
+
+            KEY_INTER_ID to AdsConfig.DEFAULT_INTER_ID,
+            KEY_APP_OPEN_ID to AdsConfig.DEFAULT_APP_OPEN_ID,
+
+            KEY_PRELOAD_AD_BANNER to false,
+            KEY_PRELOAD_AD_NATIVE to false,
+            KEY_PRELOAD_AD_INTERSTITIAL to false,
+            KEY_PRELOAD_AD_APP_OPEN to false
         )
         remoteConfig.setDefaultsAsync(defaultMap)
 
@@ -143,7 +235,7 @@ object AdsConfigManager {
                 remoteConfig.activate().addOnCompleteListener { activateTask ->
                     if (activateTask.isSuccessful) {
                         applyFrom(remoteConfig)
-                        Log.d(TAG, "fetchAndActivate SUCCESS. Source: ${remoteConfig.getValue(KEY_ADS_CONFIG).source}. Active config: $config")
+                        Log.d(TAG, "fetchAndActivate SUCCESS. Active config: $config")
                     } else {
                         Log.e(TAG, "fetchAndActivate -> activate FAILED", activateTask.exception)
                     }
@@ -176,41 +268,110 @@ object AdsConfigManager {
         }
 
         return fromJson.copy(
-            bannerAdIdSplash = remoteConfig.optionalString(KEY_BANNER_SPLASH)
+            systemHideNavigationBarAuto = remoteConfig.optionalBoolean(KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO)
+                ?: fromJson.systemHideNavigationBarAuto,
+
+            isBannerAdEnabled = remoteConfig.optionalBoolean(KEY_IS_BANNER_AD_ENABLED)
+                ?: fromJson.isBannerAdEnabled,
+            isNativeAdEnabled = remoteConfig.optionalBoolean(KEY_IS_NATIVE_AD_ENABLED)
+                ?: fromJson.isNativeAdEnabled,
+            isInterAdEnabled = remoteConfig.optionalBoolean(KEY_IS_INTER_AD_ENABLED)
+                ?: fromJson.isInterAdEnabled,
+            isAppOpenAdEnabled = remoteConfig.optionalBoolean(KEY_IS_APP_OPEN_AD_ENABLED)
+                ?: fromJson.isAppOpenAdEnabled,
+
+            isClickAdEnabled = remoteConfig.optionalBoolean(KEY_IS_CLICK_AD_ENABLED)
+                ?: fromJson.isClickAdEnabled,
+            isSwipeAdEnabled = remoteConfig.optionalBoolean(KEY_IS_SWIPE_AD_ENABLED)
+                ?: fromJson.isSwipeAdEnabled,
+            isBackAdEnabled = remoteConfig.optionalBoolean(KEY_IS_BACK_AD_ENABLED)
+                ?: fromJson.isBackAdEnabled,
+
+            isClickAdInterstitial = remoteConfig.optionalBoolean(KEY_IS_CLICK_AD_INTERSTITIAL)
+                ?: remoteConfig.optionalBoolean(KEY_APP_CLICK_INTER_LEGACY)
+                ?: fromJson.isClickAdInterstitial,
+            isSwipeAdInterstitial = remoteConfig.optionalBoolean(KEY_IS_SWIPE_AD_INTERSTITIAL)
+                ?: remoteConfig.optionalBoolean(KEY_SWIPE_INTER_LEGACY)
+                ?: fromJson.isSwipeAdInterstitial,
+
+            interAdCounterTrigger = (remoteConfig.optionalInt(KEY_INTER_COUNTER_TRIGGER)
+                ?: remoteConfig.optionalInt(KEY_INTER_COUNT_LEGACY)
+                ?: fromJson.interAdCounterTrigger).coerceAtLeast(1),
+
+            interAdBackCounterTrigger = (remoteConfig.optionalInt(KEY_INTER_BACK_COUNTER_TRIGGER)
+                ?: remoteConfig.optionalInt(KEY_INTER_BACK_COUNT_LEGACY)
+                ?: fromJson.interAdBackCounterTrigger).coerceAtLeast(1),
+
+            clickAdCounterTrigger = (remoteConfig.optionalInt(KEY_CLICK_AD_COUNTER_TRIGGER)
+                ?: fromJson.clickAdCounterTrigger).coerceAtLeast(1),
+
+            bannerAdEnableSplash = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_SPLASH)
+                ?: fromJson.bannerAdEnableSplash,
+            bannerAdEnableHome = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_HOME_SCREEN)
+                ?: remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_HOME)
+                ?: remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_CONTACT_HOME_LEGACY)
+                ?: fromJson.bannerAdEnableHome,
+            bannerAdEnableAppDrawer = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_APP_DRAWER)
+                ?: fromJson.bannerAdEnableAppDrawer,
+            bannerAdEnableFindPhone = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_FIND_PHONE)
+                ?: fromJson.bannerAdEnableFindPhone,
+            bannerAdEnableAlertScreen = remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_ALERT_SCREEN)
+                ?: remoteConfig.optionalBoolean(KEY_BANNER_ENABLE_ALERT_ACTIVITY_LEGACY)
+                ?: fromJson.bannerAdEnableAlertScreen,
+
+            bannerAdIdSplash = remoteConfig.optionalString(KEY_BANNER_ID_SPLASH)
                 ?: fromJson.bannerAdIdSplash,
-            bannerAdIdContactHome = remoteConfig.optionalString(KEY_BANNER_CONTACT_HOME)
-                ?: fromJson.bannerAdIdContactHome,
-            bannerAdIdAppDrawer = remoteConfig.optionalString(KEY_BANNER_APP_DRAWER)
+            bannerAdIdHome = remoteConfig.optionalString(KEY_BANNER_ID_HOME_SCREEN)
+                ?: remoteConfig.optionalString(KEY_BANNER_ID_HOME)
+                ?: remoteConfig.optionalString(KEY_BANNER_ID_CONTACT_HOME_LEGACY)
+                ?: fromJson.bannerAdIdHome,
+            bannerAdIdAppDrawer = remoteConfig.optionalString(KEY_BANNER_ID_APP_DRAWER)
                 ?: fromJson.bannerAdIdAppDrawer,
-            nativeAdIdDashboard = remoteConfig.optionalString(KEY_NATIVE_DASHBOARD)
+            bannerAdIdFindPhone = remoteConfig.optionalString(KEY_BANNER_ID_FIND_PHONE)
+                ?: fromJson.bannerAdIdFindPhone,
+            bannerAdIdAlertScreen = remoteConfig.optionalString(KEY_BANNER_ID_ALERT_SCREEN)
+                ?: remoteConfig.optionalString(KEY_BANNER_ID_ALERT_ACTIVITY_LEGACY)
+                ?: fromJson.bannerAdIdAlertScreen,
+
+            nativeAdEnableDashboard = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_DASHBOARD)
+                ?: fromJson.nativeAdEnableDashboard,
+            nativeAdEnableGoogleSearch = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_GOOGLE_SEARCH)
+                ?: fromJson.nativeAdEnableGoogleSearch,
+            nativeAdEnableLanguage = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_LANGUAGE)
+                ?: fromJson.nativeAdEnableLanguage,
+            nativeAdEnableAfterCall = remoteConfig.optionalBoolean(KEY_NATIVE_ENABLE_AFTER_CALL)
+                ?: fromJson.nativeAdEnableAfterCall,
+
+            nativeAdIdDashboard = remoteConfig.optionalString(KEY_NATIVE_ID_DASHBOARD)
                 ?: fromJson.nativeAdIdDashboard,
-            nativeAdIdGoogleSearch = remoteConfig.optionalString(KEY_NATIVE_GOOGLE_SEARCH)
+            nativeAdIdGoogleSearch = remoteConfig.optionalString(KEY_NATIVE_ID_GOOGLE_SEARCH)
                 ?: fromJson.nativeAdIdGoogleSearch,
-            nativeAdIdLanguage = remoteConfig.optionalString(KEY_NATIVE_LANGUAGE)
+            nativeAdIdLanguage = remoteConfig.optionalString(KEY_NATIVE_ID_LANGUAGE)
                 ?: fromJson.nativeAdIdLanguage,
-            nativeAdIdAfterCall = remoteConfig.optionalString(KEY_NATIVE_AFTER_CALL)
+            nativeAdIdAfterCall = remoteConfig.optionalString(KEY_NATIVE_ID_AFTER_CALL)
                 ?: fromJson.nativeAdIdAfterCall,
-            interAdId = remoteConfig.optionalString(KEY_INTER) ?: fromJson.interAdId,
-            appOpenAdId = remoteConfig.optionalString(KEY_APP_OPEN) ?: fromJson.appOpenAdId,
-            interCount = (remoteConfig.optionalInt(KEY_INTER_COUNT) ?: fromJson.interCount)
-                .coerceAtLeast(1),
-            interBackCount = (remoteConfig.optionalInt(KEY_INTER_BACK_COUNT) ?: fromJson.interBackCount)
-                .coerceAtLeast(1),
-            isAppClickInterOn = remoteConfig.optionalBoolean(KEY_APP_CLICK_INTER)
-                ?: fromJson.isAppClickInterOn,
-            isRightLeftSwipeInterOn = remoteConfig.optionalBoolean(KEY_SWIPE_INTER)
-                ?: fromJson.isRightLeftSwipeInterOn,
-            isBannerOn = remoteConfig.optionalBoolean(KEY_BANNER_ON) ?: fromJson.isBannerOn,
-            isNativeOn = remoteConfig.optionalBoolean(KEY_NATIVE_ON) ?: fromJson.isNativeOn,
-            isInterOn = remoteConfig.optionalBoolean(KEY_INTER_ON) ?: fromJson.isInterOn,
-            bannerAdPreload = remoteConfig.optionalBoolean(KEY_BANNER_PRELOAD)
-                ?: fromJson.bannerAdPreload,
-            nativeAdPreload = remoteConfig.optionalBoolean(KEY_NATIVE_PRELOAD)
-                ?: fromJson.nativeAdPreload,
-            interAdPreload = remoteConfig.optionalBoolean(KEY_INTER_PRELOAD)
-                ?: fromJson.interAdPreload,
-            appOpenAdPreload = remoteConfig.optionalBoolean(KEY_APP_OPEN_PRELOAD)
-                ?: fromJson.appOpenAdPreload,
+
+            nativeAdGoogleSearchItemInterval = (remoteConfig.optionalInt(KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL)
+                ?: fromJson.nativeAdGoogleSearchItemInterval).coerceAtLeast(1),
+
+            interAdId = remoteConfig.optionalString(KEY_INTER_ID) ?: fromJson.interAdId,
+            appOpenAdId = remoteConfig.optionalString(KEY_APP_OPEN_ID) ?: fromJson.appOpenAdId,
+
+            preloadAdBanner = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_BANNER)
+                ?: remoteConfig.optionalBoolean(KEY_BANNER_PRELOAD_LEGACY)
+                ?: fromJson.preloadAdBanner,
+
+            preloadAdNative = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_NATIVE)
+                ?: remoteConfig.optionalBoolean(KEY_NATIVE_PRELOAD_LEGACY)
+                ?: fromJson.preloadAdNative,
+
+            preloadAdInterstitial = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_INTERSTITIAL)
+                ?: remoteConfig.optionalBoolean(KEY_INTER_PRELOAD_LEGACY)
+                ?: fromJson.preloadAdInterstitial,
+
+            preloadAdAppOpen = remoteConfig.optionalBoolean(KEY_PRELOAD_AD_APP_OPEN)
+                ?: remoteConfig.optionalBoolean(KEY_APP_OPEN_PRELOAD_LEGACY)
+                ?: fromJson.preloadAdAppOpen,
         )
     }
 

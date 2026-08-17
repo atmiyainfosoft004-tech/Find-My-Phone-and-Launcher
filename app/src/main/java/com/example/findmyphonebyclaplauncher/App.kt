@@ -1,25 +1,28 @@
 package com.example.findmyphonebyclaplauncher
 
+import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageInstaller
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.core.content.ContextCompat
+import com.example.findmyphonebyclaplauncher.ads.AppOpenAdLoader
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper
 import com.example.findmyphonebyclaplauncher.domain.manager.FindPhoneManager
+import com.example.findmyphonebyclaplauncher.receiver.AppInstallReceiver
+import com.example.findmyphonebyclaplauncher.ui.install.AppInstallSuccessActivity
+import com.example.findmyphonebyclaplauncher.util.SystemUiHelper
 import com.example.findmyphonebyclaplauncher.utils.Constants
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.initialization.InitializationStatus
-
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageInstaller
-import androidx.core.content.ContextCompat
-import com.example.findmyphonebyclaplauncher.receiver.AppInstallReceiver
-import com.example.findmyphonebyclaplauncher.ui.install.AppInstallSuccessActivity
 
 class App : Application() {
 
@@ -28,6 +31,7 @@ class App : Application() {
      * AlertActivity can share the same alert state without IPC.
      */
     val findPhoneManager: FindPhoneManager by lazy { FindPhoneManager(this) }
+    val appOpenAdLoader: AppOpenAdLoader by lazy { AppOpenAdLoader(this) }
 
     override fun onCreate() {
         super.onCreate()
@@ -39,9 +43,41 @@ class App : Application() {
         createNotificationChannels()
 
         AdsConfigManager.initialize(this)
+        // Initialize AppOpenAdLoader
+        appOpenAdLoader.preloadAppOpenAd()
+
         initMobileAds()
         registerAppInstallReceiver()
         registerPackageInstallerCallback()
+        registerGlobalSystemUiController()
+    }
+
+    private fun registerGlobalSystemUiController() {
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                activity.window?.decorView?.viewTreeObserver?.addOnWindowFocusChangeListener { hasFocus ->
+                    if (hasFocus) {
+                        SystemUiHelper.applyStickyImmersiveMode(activity)
+                    }
+                }
+            }
+
+            override fun onActivityStarted(activity: Activity) {
+                SystemUiHelper.applyStickyImmersiveMode(activity)
+            }
+
+            override fun onActivityResumed(activity: Activity) {
+                SystemUiHelper.applyStickyImmersiveMode(activity)
+            }
+
+            override fun onActivityPaused(activity: Activity) {}
+
+            override fun onActivityStopped(activity: Activity) {}
+
+            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
+
+            override fun onActivityDestroyed(activity: Activity) {}
+        })
     }
 
     private fun registerAppInstallReceiver() {

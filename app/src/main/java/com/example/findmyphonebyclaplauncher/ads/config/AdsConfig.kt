@@ -3,15 +3,96 @@ package com.example.findmyphonebyclaplauncher.ads.config
 import com.google.gson.annotations.SerializedName
 
 data class AdsConfig(
+    // System & Feature Flags
+    @SerializedName("system_hide_navigation_bar_auto")
+    val systemHideNavigationBarAuto: Boolean = true,
+
+    // Global Ad Type Switches (Master Toggles)
+    @SerializedName("is_banner_ad_enabled")
+    val isBannerAdEnabled: Boolean = true,
+
+    @SerializedName("is_native_ad_enabled")
+    val isNativeAdEnabled: Boolean = true,
+
+    @SerializedName("is_inter_ad_enabled")
+    val isInterAdEnabled: Boolean = true,
+
+    @SerializedName("is_app_open_ad_enabled")
+    val isAppOpenAdEnabled: Boolean = true,
+
+    // Action-Level Ad Switches
+    @SerializedName("is_click_ad_enabled")
+    val isClickAdEnabled: Boolean = false,
+
+    @SerializedName("is_swipe_ad_enabled")
+    val isSwipeAdEnabled: Boolean = false,
+
+    @SerializedName("is_back_ad_enabled")
+    val isBackAdEnabled: Boolean = true,
+
+    // Action Ad Format Selectors (true = Interstitial | false = App Open)
+    @SerializedName(value = "is_click_ad_interstitial", alternate = ["isAppClickInterOn", "click_ad_type_selection"])
+    val isClickAdInterstitial: Boolean = true,
+
+    @SerializedName(value = "is_swipe_ad_interstitial", alternate = ["isRightLeftSwipeInterOn", "swipe_ad_type_selection"])
+    val isSwipeAdInterstitial: Boolean = false,
+
+    // Counters & Triggers
+    @SerializedName(value = "inter_ad_counter_trigger", alternate = ["inter_count", "interstitialForwardAdCount", "interCount"])
+    val interAdCounterTrigger: Int = 3,
+
+    @SerializedName(value = "inter_ad_back_counter_trigger", alternate = ["inter_back_count", "interstitialBackwardAdCount"])
+    val interAdBackCounterTrigger: Int = 1,
+
+    @SerializedName(value = "click_ad_counter_trigger", alternate = ["click_count"])
+    val clickAdCounterTrigger: Int = 3,
+
+    // Banner Ads - Screen Specific Enable/Disable
+    @SerializedName("banner_ad_enable_splash")
+    val bannerAdEnableSplash: Boolean = true,
+
+    @SerializedName(value = "banner_ad_enable_home_screen", alternate = ["banner_ad_enable_home", "banner_ad_enable_contact_home", "banner_ad_enable_launcher_home"])
+    val bannerAdEnableHome: Boolean = true,
+
+    @SerializedName("banner_ad_enable_app_drawer")
+    val bannerAdEnableAppDrawer: Boolean = true,
+
+    @SerializedName("banner_ad_enable_find_phone")
+    val bannerAdEnableFindPhone: Boolean = true,
+
+    @SerializedName(value = "banner_ad_enable_alert_screen", alternate = ["banner_ad_enable_alert", "banner_ad_enable_alert_activity"])
+    val bannerAdEnableAlertScreen: Boolean = true,
+
+    // Banner Ads - Unit IDs
     @SerializedName("banner_ad_id_splash")
     val bannerAdIdSplash: String = DEFAULT_BANNER_ID,
 
-    @SerializedName("banner_ad_id_contact_home")
-    val bannerAdIdContactHome: String = DEFAULT_BANNER_ID,
+    @SerializedName(value = "banner_ad_id_home_screen", alternate = ["banner_ad_id_home", "banner_ad_id_contact_home", "banner_ad_id_launcher_home"])
+    val bannerAdIdHome: String = DEFAULT_BANNER_ID,
 
     @SerializedName("banner_ad_id_app_drawer")
     val bannerAdIdAppDrawer: String = DEFAULT_BANNER_ID,
 
+    @SerializedName("banner_ad_id_find_phone")
+    val bannerAdIdFindPhone: String = DEFAULT_BANNER_ID,
+
+    @SerializedName(value = "banner_ad_id_alert_screen", alternate = ["banner_ad_id_alert", "banner_ad_id_alert_activity"])
+    val bannerAdIdAlertScreen: String = DEFAULT_BANNER_ID,
+
+    // Native Ads - Screen Specific Enable/Disable
+    @SerializedName("native_ad_enable_dashboard")
+    val nativeAdEnableDashboard: Boolean = true,
+
+    @SerializedName("native_ad_enable_google_search")
+    val nativeAdEnableGoogleSearch: Boolean = true,
+
+    @SerializedName("native_ad_enable_language")
+    val nativeAdEnableLanguage: Boolean = true,
+
+    @SerializedName("native_ad_enable_after_call")
+    val nativeAdEnableAfterCall: Boolean = true,
+
+    // Native Ads - Unit IDs & Configuration
     @SerializedName("native_ad_id_dashboard")
     val nativeAdIdDashboard: String = DEFAULT_NATIVE_ID,
 
@@ -24,52 +105,80 @@ data class AdsConfig(
     @SerializedName("native_ad_id_after_call")
     val nativeAdIdAfterCall: String = DEFAULT_NATIVE_ID,
 
+    @SerializedName("native_ad_google_search_item_interval")
+    val nativeAdGoogleSearchItemInterval: Int = 2,
+
+    // Interstitial & Open Ad Unit IDs
     @SerializedName("inter_ad_id")
     val interAdId: String = DEFAULT_INTER_ID,
 
     @SerializedName("app_open_ad_id")
     val appOpenAdId: String = DEFAULT_APP_OPEN_ID,
 
-    @SerializedName(value = "inter_count", alternate = ["interstitialForwardAdCount", "interCount"])
-    val interCount: Int = 1,
+    // Preload Configurations
+    @SerializedName(value = "preload_ad_banner", alternate = ["bannerAdPreload"])
+    val preloadAdBanner: Boolean = false,
 
-    @SerializedName(value = "inter_back_count", alternate = ["interstitialBackwardAdCount"])
-    val interBackCount: Int = 3,
+    @SerializedName(value = "preload_ad_native", alternate = ["nativeAdPreload"])
+    val preloadAdNative: Boolean = false,
 
-    @SerializedName("isAppClickInterOn")
-    val isAppClickInterOn: Boolean = true,
+    @SerializedName(value = "preload_ad_interstitial", alternate = ["interAdPreload"])
+    val preloadAdInterstitial: Boolean = false,
 
-    @SerializedName("isRightLeftSwipeInterOn")
-    val isRightLeftSwipeInterOn: Boolean = true,
-
-    @SerializedName("isBannerOn")
-    val isBannerOn: Boolean = true,
-
-    @SerializedName("isNativeOn")
-    val isNativeOn: Boolean = true,
-
-    @SerializedName("isInterOn")
-    val isInterOn: Boolean = true,
-
-    @SerializedName("bannerAdPreload")
-    val bannerAdPreload: Boolean = false,
-
-    @SerializedName("nativeAdPreload")
-    val nativeAdPreload: Boolean = false,
-
-    @SerializedName("interAdPreload")
-    val interAdPreload: Boolean = true,
-
-    @SerializedName("appOpenAdPreload")
-    val appOpenAdPreload: Boolean = false,
+    @SerializedName(value = "preload_ad_app_open", alternate = ["appOpenAdPreload"])
+    val preloadAdAppOpen: Boolean = false,
 ) {
-    val canShowBanner: Boolean get() = isBannerOn
-    val canShowBannerSplash: Boolean get() = isBannerOn && false
-    val canShowNative: Boolean get() = isNativeOn
-    val canShowInter: Boolean get() = isInterOn
-    val canShowAppOpen: Boolean get() = false
-    val canShowAppClickInter: Boolean get() = isAppClickInterOn
-    val canShowSwipeInter: Boolean get() = isRightLeftSwipeInterOn
+    // Backward compatibility aliases
+    val bannerAdIdContactHome: String get() = bannerAdIdHome
+    val bannerAdEnableContactHome: Boolean get() = bannerAdEnableHome
+    val bannerAdIdAlertActivity: String get() = bannerAdIdAlertScreen
+    val bannerAdEnableAlertActivity: Boolean get() = bannerAdEnableAlertScreen
+    val interCount: Int get() = interAdCounterTrigger
+    val interBackCount: Int get() = interAdBackCounterTrigger
+    val clickCount: Int get() = clickAdCounterTrigger
+    val bannerAdPreload: Boolean get() = preloadAdBanner
+    val nativeAdPreload: Boolean get() = preloadAdNative
+    val interAdPreload: Boolean get() = preloadAdInterstitial
+    val appOpenAdPreload: Boolean get() = preloadAdAppOpen
+
+    // Banner visibility checks (Requires Master Switch AND Screen Switch AND Valid ID)
+    val canShowBanner: Boolean get() = isBannerAdEnabled
+    val canShowBannerSplash: Boolean get() = isBannerAdEnabled && bannerAdEnableSplash && bannerAdIdSplash.isNotBlank()
+    val canShowBannerHome: Boolean get() = isBannerAdEnabled && bannerAdEnableHome && bannerAdIdHome.isNotBlank()
+    val canShowBannerContactHome: Boolean get() = canShowBannerHome
+    val canShowBannerAppDrawer: Boolean get() = isBannerAdEnabled && bannerAdEnableAppDrawer && bannerAdIdAppDrawer.isNotBlank()
+    val canShowBannerFindPhone: Boolean get() = isBannerAdEnabled && bannerAdEnableFindPhone && bannerAdIdFindPhone.isNotBlank()
+    val canShowBannerAlertScreen: Boolean get() = isBannerAdEnabled && bannerAdEnableAlertScreen && bannerAdIdAlertScreen.isNotBlank()
+    val canShowBannerAlertActivity: Boolean get() = canShowBannerAlertScreen
+
+    // Native visibility checks (Requires Master Switch AND Screen Switch AND Valid ID)
+    val canShowNative: Boolean get() = isNativeAdEnabled
+    val canShowNativeDashboard: Boolean get() = isNativeAdEnabled && nativeAdEnableDashboard && nativeAdIdDashboard.isNotBlank()
+    val canShowNativeGoogleSearch: Boolean get() = isNativeAdEnabled && nativeAdEnableGoogleSearch && nativeAdIdGoogleSearch.isNotBlank()
+    val canShowNativeLanguage: Boolean get() = isNativeAdEnabled && nativeAdEnableLanguage && nativeAdIdLanguage.isNotBlank()
+    val canShowNativeAfterCall: Boolean get() = isNativeAdEnabled && nativeAdEnableAfterCall && nativeAdIdAfterCall.isNotBlank()
+
+    // Interstitial & App Open visibility checks (Requires Master Switch AND Valid ID)
+    val canShowInter: Boolean get() = isInterAdEnabled && interAdId.isNotBlank()
+    val canShowAppOpen: Boolean get() = isAppOpenAdEnabled && appOpenAdId.isNotBlank()
+
+    // Action-level visibility checks
+    val isClickInter: Boolean get() = isClickAdInterstitial
+    val isClickAppOpen: Boolean get() = !isClickAdInterstitial
+    val canShowClickAd: Boolean get() = isClickAdEnabled && (if (isClickAdInterstitial) canShowInter else canShowAppOpen)
+    val isAppClickInterOn: Boolean get() = isClickAdEnabled && isClickAdInterstitial
+
+    val isSwipeInter: Boolean get() = isSwipeAdInterstitial
+    val isSwipeAppOpen: Boolean get() = !isSwipeAdInterstitial
+    val canShowSwipeAd: Boolean get() = isSwipeAdEnabled && (if (isSwipeAdInterstitial) canShowInter else canShowAppOpen)
+    val isRightLeftSwipeInterOn: Boolean get() = isSwipeAdEnabled && isSwipeAdInterstitial
+
+    val canShowBackAd: Boolean get() = isBackAdEnabled && (if (isClickAdInterstitial) canShowInter else canShowAppOpen)
+    val canShowAppClickInter: Boolean get() = canShowClickAd
+    val canShowSwipeInter: Boolean get() = canShowSwipeAd
+
+    val clickAdTypeSelection: String get() = if (isClickAdInterstitial) "Inter" else "Open"
+    val swipeAdTypeSelection: String get() = if (isSwipeAdInterstitial) "Inter" else "Open"
 
     companion object {
         const val DEFAULT_BANNER_ID = "ca-app-pub-3940256099942544/9214589741"

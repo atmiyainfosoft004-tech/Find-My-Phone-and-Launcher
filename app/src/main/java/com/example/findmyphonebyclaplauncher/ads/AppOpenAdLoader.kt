@@ -27,41 +27,44 @@ class AppOpenAdLoader(val app: App) :
 
     var appOpenAd: AppOpenAd? = null
     private var appOpenAdLoadCallback: AppOpenAdLoadCallback? = null
-    var currentContactActivity: Activity? = null
-    var contactAppOpenActivity: Activity? = null
+    var currentActivity: Activity? = null
     var loadTimeLong: Long = 0
-    var TAG = "AppOpenAdsStatus"
+    private val TAG = "AppOpenAdsStatus"
 
     init {
+        instance = this
         app.registerActivityLifecycleCallbacks(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 
-    fun preloadAppOpenAd(activity: Activity?) {
+    fun preloadAppOpenAd(activity: Activity? = null) {
+        if (!AdsConfigManager.config.canShowAppOpen) return
         if (AdsConfigManager.config.appOpenAdPreload) {
-            contactAppOpenActivity = activity
+            val act = activity ?: currentActivity
             if (isAvailableAppOpenAd) {
                 return
             }
 
             appOpenAdLoadCallback = object : AppOpenAdLoadCallback() {
                 override fun onAdLoaded(appOpenAd: AppOpenAd) {
-                    AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_loaded")
+                    act?.let { AnalyticsHelper.logAds(it, "appopen_loaded") }
                     this@AppOpenAdLoader.appOpenAd = appOpenAd
                     this@AppOpenAdLoader.loadTimeLong = Date().time
-                    Log.e(TAG, "preload->onAdLoaded")
+                    Log.d(TAG, "preload->onAdLoaded")
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                    AnalyticsHelper.logAds(
-                        contactAppOpenActivity!!,
-                        "appopen_failed_" + loadAdError.code
-                    )
-                    Log.e(TAG, "preload->onAdFailedToLoad")
+                    act?.let {
+                        AnalyticsHelper.logAds(
+                            it,
+                            "appopen_failed_" + loadAdError.code
+                        )
+                    }
+                    Log.e(TAG, "preload->onAdFailedToLoad: ${loadAdError.message}")
                 }
             }
 
-            AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_request")
+            act?.let { AnalyticsHelper.logAds(it, "appopen_request") }
             val requestAds = AdRequest.Builder().build()
             AppOpenAd.load(
                 app,
@@ -73,162 +76,169 @@ class AppOpenAdLoader(val app: App) :
     }
 
     val isAvailableAppOpenAd: Boolean
-        get() = appOpenAd != null
-
-    fun contactAppOpenAdsRequest(activity: Activity?) {
-        if (AdsConfigManager.config.canShowAppOpen) {
-            if (!appOpenShowingBoolean && isAvailableAppOpenAd) {
-                // already loaded
-            } else {
-                preloadAppOpenAd(activity)
-            }
-        }
-    }
+        get() = appOpenAd != null && (Date().time - loadTimeLong < 4 * 3600 * 1000)
 
     fun showAppOpenAds(
         activity: Activity,
         onShowAdCompleteListener: ContactAppOpenAdsListener
     ) {
-        contactAppOpenActivity = activity
-
-        if (AdsConfigManager.config.canShowAppOpen) {
-            if (!appOpenShowingBoolean && isAvailableAppOpenAd) {
-                Log.e(TAG, "showAppOpenAds -> display")
-                val fullScreenContentCallback: FullScreenContentCallback =
-                    object : FullScreenContentCallback() {
-                        override fun onAdDismissedFullScreenContent() {
-                            AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_dismissed")
-                            this@AppOpenAdLoader.appOpenAd = null
-                            appOpenShowingBoolean = false
-                            preloadAppOpenAd(activity)
-                            onShowAdCompleteListener.contactAppOpenAdsShow()
-                        }
-
-                        override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                            AnalyticsHelper.logAds(
-                                contactAppOpenActivity!!,
-                                "appopen_failed_" + adError.code
-                            )
-                            onShowAdCompleteListener.contactAppOpenAdsShow()
-                        }
-
-                        override fun onAdShowedFullScreenContent() {
-                            AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_showed")
-                            appOpenShowingBoolean = true
-                        }
-
-                        override fun onAdClicked() {
-                            super.onAdClicked()
-                            AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_clicked")
-                        }
-                    }
-                appOpenAd!!.fullScreenContentCallback = fullScreenContentCallback
-                appOpenAd!!.show(activity)
-            } else {
-                Log.e(TAG, "showAppOpenAds -> load -> display")
-                appOpenAdLoadCallback = object : AppOpenAdLoadCallback() {
-                    override fun onAdLoaded(appOpenAd: AppOpenAd) {
-                        AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_loaded")
-                        this@AppOpenAdLoader.appOpenAd = appOpenAd
-                        this@AppOpenAdLoader.loadTimeLong = Date().time
-
-                        val fullScreenContentCallback: FullScreenContentCallback =
-                            object : FullScreenContentCallback() {
-                                override fun onAdDismissedFullScreenContent() {
-                                    AnalyticsHelper.logAds(
-                                        contactAppOpenActivity!!,
-                                        "appopen_dismissed"
-                                    )
-                                    this@AppOpenAdLoader.appOpenAd = null
-                                    appOpenShowingBoolean = false
-                                    preloadAppOpenAd(activity)
-                                    onShowAdCompleteListener.contactAppOpenAdsShow()
-                                }
-
-                                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                                    AnalyticsHelper.logAds(
-                                        contactAppOpenActivity!!,
-                                        "appopen_failed_" + adError.code
-                                    )
-                                    onShowAdCompleteListener.contactAppOpenAdsShow()
-                                }
-
-                                override fun onAdShowedFullScreenContent() {
-                                    AnalyticsHelper.logAds(
-                                        contactAppOpenActivity!!,
-                                        "appopen_showed"
-                                    )
-                                    appOpenShowingBoolean = true
-                                }
-
-                                override fun onAdClicked() {
-                                    super.onAdClicked()
-                                    AnalyticsHelper.logAds(
-                                        contactAppOpenActivity!!,
-                                        "appopen_clicked"
-                                    )
-                                }
-                            }
-                        this@AppOpenAdLoader.appOpenAd!!.fullScreenContentCallback =
-                            fullScreenContentCallback
-                        this@AppOpenAdLoader.appOpenAd!!.show(activity)
-                    }
-
-                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
-                        AnalyticsHelper.logAds(
-                            contactAppOpenActivity!!,
-                            "appopen_failed_" + loadAdError.code
-                        )
-                        onShowAdCompleteListener.contactAppOpenAdsShow()
-                    }
-                }
-                AnalyticsHelper.logAds(contactAppOpenActivity!!, "appopen_request")
-                val requestAds = AdRequest.Builder().build()
-                AppOpenAd.load(
-                    app,
-                    AdsConfigManager.config.appOpenAdId,
-                    requestAds,
-                    appOpenAdLoadCallback as AppOpenAdLoadCallback
-                )
-            }
-        } else {
+        showAppOpenAd(activity) {
             onShowAdCompleteListener.contactAppOpenAdsShow()
         }
     }
 
-    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+    fun showAppOpenAd(
+        activity: Activity,
+        onDone: () -> Unit
+    ) {
+        currentActivity = activity
+
+        if (!AdsConfigManager.config.canShowAppOpen) {
+            onDone()
+            return
+        }
+
+        if (!appOpenShowingBoolean && isAvailableAppOpenAd) {
+            Log.d(TAG, "showAppOpenAd -> display cached ad")
+            val fullScreenContentCallback: FullScreenContentCallback =
+                object : FullScreenContentCallback() {
+                    override fun onAdDismissedFullScreenContent() {
+                        AnalyticsHelper.logAds(activity, "appopen_dismissed")
+                        this@AppOpenAdLoader.appOpenAd = null
+                        appOpenShowingBoolean = false
+                        com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                        preloadAppOpenAd(activity)
+                        onDone()
+                    }
+
+                    override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                        AnalyticsHelper.logAds(
+                            activity,
+                            "appopen_failed_" + adError.code
+                        )
+                        this@AppOpenAdLoader.appOpenAd = null
+                        appOpenShowingBoolean = false
+                        com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                        onDone()
+                    }
+
+                    override fun onAdShowedFullScreenContent() {
+                        AnalyticsHelper.logAds(activity, "appopen_showed")
+                        appOpenShowingBoolean = true
+                    }
+
+                    override fun onAdClicked() {
+                        super.onAdClicked()
+                        AnalyticsHelper.logAds(activity, "appopen_clicked")
+                    }
+                }
+            appOpenAd!!.fullScreenContentCallback = fullScreenContentCallback
+            appOpenAd!!.show(activity)
+        } else {
+            Log.d(TAG, "showAppOpenAd -> load on demand -> display")
+            val loadingDialog = AdLoadingDialog(activity)
+            var actionExecuted = false
+
+            fun safeDismissAndContinue() {
+                if (actionExecuted) return
+                actionExecuted = true
+                loadingDialog.dismiss()
+                onDone()
+            }
+
+            loadingDialog.show(timeoutMs = 2500L) {
+                Log.d(TAG, "showAppOpenAd: Loading dialog TIMEOUT -> proceeding")
+                safeDismissAndContinue()
+            }
+
+            val requestAds = AdRequest.Builder().build()
+            AnalyticsHelper.logAds(activity, "appopen_request")
+            AppOpenAd.load(
+                app,
+                AdsConfigManager.config.appOpenAdId,
+                requestAds,
+                object : AppOpenAdLoadCallback() {
+                    override fun onAdLoaded(appOpenAd: AppOpenAd) {
+                        AnalyticsHelper.logAds(activity, "appopen_loaded")
+                        this@AppOpenAdLoader.appOpenAd = appOpenAd
+                        this@AppOpenAdLoader.loadTimeLong = Date().time
+
+                        if (actionExecuted || activity.isFinishing || activity.isDestroyed) {
+                            loadingDialog.dismiss()
+                            return
+                        }
+                        loadingDialog.dismiss()
+
+                        val fullScreenContentCallback = object : FullScreenContentCallback() {
+                            override fun onAdDismissedFullScreenContent() {
+                                AnalyticsHelper.logAds(activity, "appopen_dismissed")
+                                this@AppOpenAdLoader.appOpenAd = null
+                                appOpenShowingBoolean = false
+                                com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                                preloadAppOpenAd(activity)
+                                safeDismissAndContinue()
+                            }
+
+                            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                                AnalyticsHelper.logAds(activity, "appopen_failed_" + adError.code)
+                                this@AppOpenAdLoader.appOpenAd = null
+                                appOpenShowingBoolean = false
+                                com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
+                                safeDismissAndContinue()
+                            }
+
+                            override fun onAdShowedFullScreenContent() {
+                                AnalyticsHelper.logAds(activity, "appopen_showed")
+                                appOpenShowingBoolean = true
+                            }
+
+                            override fun onAdClicked() {
+                                super.onAdClicked()
+                                AnalyticsHelper.logAds(activity, "appopen_clicked")
+                            }
+                        }
+                        appOpenAd.fullScreenContentCallback = fullScreenContentCallback
+                        appOpenAd.show(activity)
+                    }
+
+                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        AnalyticsHelper.logAds(activity, "appopen_failed_" + loadAdError.code)
+                        safeDismissAndContinue()
+                    }
+                }
+            )
+        }
     }
 
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
+
     override fun onActivityStarted(activity: Activity) {
-        currentContactActivity = activity
+        currentActivity = activity
     }
 
     override fun onActivityResumed(activity: Activity) {
-        currentContactActivity = activity
-        Log.e("onActivityResumedCalled", activity.localClassName.toString())
+        currentActivity = activity
     }
 
-    override fun onActivityStopped(activity: Activity) {
-    }
+    override fun onActivityStopped(activity: Activity) {}
 
-    override fun onActivityPaused(activity: Activity) {
-    }
+    override fun onActivityPaused(activity: Activity) {}
 
-    override fun onActivitySaveInstanceState(
-        activity: Activity,
-        savedInstanceState: Bundle
-    ) {
-    }
+    override fun onActivitySaveInstanceState(activity: Activity, savedInstanceState: Bundle) {}
 
     override fun onActivityDestroyed(activity: Activity) {
-        currentContactActivity = null
+        if (currentActivity == activity) {
+            currentActivity = null
+        }
     }
 
-    override fun onStart(owner: LifecycleOwner) {
-    }
+    override fun onStart(owner: LifecycleOwner) {}
 
     companion object {
         var appOpenShowingBoolean: Boolean = false
+        var instance: AppOpenAdLoader? = null
+            private set
+
         private const val KEY_FAILED_COUNT_APP_OPEN = "KeyFailedCountAppOpen"
 
         fun resetCounter() {

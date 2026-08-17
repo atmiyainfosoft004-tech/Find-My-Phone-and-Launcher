@@ -62,7 +62,7 @@ class GoogleSearchFeedAdapter(
 
     private fun AdVH.bind(adId: Int) {
         boundAdId = adId
-        if (!AdsConfigManager.config.canShowNative || adId in failedIds) {
+        if (!AdsConfigManager.config.canShowNativeGoogleSearch || adId in failedIds) {
             hideSlot()
             return
         }

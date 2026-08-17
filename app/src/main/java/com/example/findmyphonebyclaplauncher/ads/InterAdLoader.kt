@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher
 import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper.logAds
+import com.example.findmyphonebyclaplauncher.util.SystemUiHelper
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -22,7 +23,14 @@ class InterAdLoader {
     var isInterstitialShowing: Boolean = false
     private var interstitialAd: InterstitialAd? = null
 
+    val isInterstitialReady: Boolean
+        get() = interstitialAd != null
+
     private val pendingLoadCallbacks = mutableListOf<() -> Unit>()
+
+    init {
+        instance = this
+    }
 
     fun loadInterstitialAds(activity: Activity) {
         if (ads.canShowInter) {
@@ -34,10 +42,17 @@ class InterAdLoader {
         }
     }
 
-    private fun loadInterstitialAd(
+    fun loadInterstitialAd(
         activity: Activity,
         onComplete: (() -> Unit)? = null
     ) {
+        // Strict Guard: Never make an ad load network request if Interstitial is disabled or ID is missing
+        if (!ads.canShowInter) {
+            Log.d("InterstitialDebug", "loadInterstitialAd: Aborted. is_inter_ad_enabled is false or ID is empty")
+            onComplete?.invoke()
+            return
+        }
+
         if (interstitialAd != null) {
             Log.d("InterstitialDebug", "loadInterstitialAd: Ad already cached and ready")
             onComplete?.invoke()
@@ -83,7 +98,16 @@ class InterAdLoader {
         callbacks.forEach { it.invoke() }
     }
 
-    private fun showOrLoadInterstitial(
+    fun showInterstitialDirect(
+        activity: Activity,
+        onDone: () -> Unit
+    ) {
+        showOrLoadInterstitial(activity, isFromBack = false) {
+            onDone()
+        }
+    }
+
+    fun showOrLoadInterstitial(
         activity: Activity,
         isFromBack: Boolean,
         listener: FullScreenDismissListener
@@ -108,6 +132,7 @@ class InterAdLoader {
                 if (actionExecuted) return
                 actionExecuted = true
                 loadingDialog.dismiss()
+                SystemUiHelper.applyStickyImmersiveMode(activity)
                 listener.onDismiss()
             }
 
@@ -150,15 +175,11 @@ class InterAdLoader {
         }
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                Log.d("InterstitialDebug", "onAdDismissedFullScreenContent -> resetting counter and reloading")
-                if (isFromBack) {
-                    resetInterstitialBackwardCount()
-                } else {
-                    resetInterstitialForwardCount()
-                }
+                Log.d("InterstitialDebug", "onAdDismissedFullScreenContent -> resetting state and reloading")
                 interstitialAd = null
                 isInterstitialLoading = false
                 isInterstitialShowing = false
+                SystemUiHelper.applyStickyImmersiveMode(activity)
                 if (ads.canShowInter) {
                     loadInterstitialAd(activity)
                 }
@@ -171,6 +192,7 @@ class InterAdLoader {
                 interstitialAd = null
                 isInterstitialLoading = false
                 isInterstitialShowing = false
+                SystemUiHelper.applyStickyImmersiveMode(activity)
                 logAds(activity, "inter_failed_to_show_" + adError.code)
                 if (ads.canShowInter) {
                     loadInterstitialAd(activity)
@@ -233,6 +255,11 @@ class InterAdLoader {
             )
 
             if (currentInterval >= regularInterval) {
+                if (isFromBack) {
+                    resetInterstitialBackwardCount()
+                } else {
+                    resetInterstitialForwardCount()
+                }
                 showOrLoadInterstitial(activity, isFromBack, listener)
             } else {
                 if (isFromBack) {
@@ -270,6 +297,7 @@ class InterAdLoader {
     companion object {
         private const val KEY_INTERSTITIAL_BACKWARD_COUNT = "interstitial_backward_count"
         private const val KEY_INTERSTITIAL_FORWARD_COUNT = "interstitial_forward_count"
+        private const val KEY_CLICK_COUNT = "app_click_ad_count"
         private const val KEY_FAILED_COUNT_INTERSTITIAL = "KeyFailedCountInterstitial"
 
         var instance: InterAdLoader? = null
@@ -282,49 +310,55 @@ class InterAdLoader {
             private set
 
         fun resetInterstitialForwardCount() {
-            val preferences: SharedPreferences = preference
-            preferences.edit().putInt(KEY_INTERSTITIAL_FORWARD_COUNT, 1).apply()
+            preference.edit().putInt(KEY_INTERSTITIAL_FORWARD_COUNT, 0).apply()
         }
 
         fun resetInterstitialBackwardCount() {
-            val preferences: SharedPreferences = preference
-            preferences.edit().putInt(KEY_INTERSTITIAL_BACKWARD_COUNT, 1).apply()
+            preference.edit().putInt(KEY_INTERSTITIAL_BACKWARD_COUNT, 0).apply()
+        }
+
+        fun resetClickCount() {
+            preference.edit().putInt(KEY_CLICK_COUNT, 0).apply()
         }
 
         fun resetCounter() {
             resetInterstitialForwardCount()
             resetInterstitialBackwardCount()
+            resetClickCount()
             resetFailedCountInterstitial()
         }
 
-        private fun increaseInterstitialForwardCount() {
-            val preferences: SharedPreferences = preference
-            preferences.edit()
-                .putInt(KEY_INTERSTITIAL_FORWARD_COUNT, interstitialForwardCount + 1).apply()
+        fun increaseInterstitialForwardCount(): Int {
+            val next = interstitialForwardCount + 1
+            preference.edit().putInt(KEY_INTERSTITIAL_FORWARD_COUNT, next).apply()
+            return next
         }
 
-        private fun increaseInterstitialBackwardCount() {
-            val preferences: SharedPreferences = preference
-            preferences.edit()
-                .putInt(KEY_INTERSTITIAL_BACKWARD_COUNT, interstitialBackwardCount + 1)
-                .apply()
+        fun increaseInterstitialBackwardCount(): Int {
+            val next = interstitialBackwardCount + 1
+            preference.edit().putInt(KEY_INTERSTITIAL_BACKWARD_COUNT, next).apply()
+            return next
         }
 
-        private val interstitialForwardCount: Int
-            get() {
-                val preferences: SharedPreferences = preference
-                return preferences.getInt(
-                    KEY_INTERSTITIAL_FORWARD_COUNT, 1
-                )
-            }
+        fun increaseClickCount(): Int {
+            val next = clickCount + 1
+            preference.edit().putInt(KEY_CLICK_COUNT, next).apply()
+            return next
+        }
 
-        private val interstitialBackwardCount: Int
-            get() {
-                val preferences: SharedPreferences = preference
-                return preferences.getInt(
-                    KEY_INTERSTITIAL_BACKWARD_COUNT, 1
-                )
-            }
+        fun resetForwardCount() = resetInterstitialForwardCount()
+        fun resetBackwardCount() = resetInterstitialBackwardCount()
+        fun increaseForwardCount() = increaseInterstitialForwardCount()
+        fun increaseBackwardCount() = increaseInterstitialBackwardCount()
+
+        val interstitialForwardCount: Int
+            get() = preference.getInt(KEY_INTERSTITIAL_FORWARD_COUNT, 0)
+
+        val interstitialBackwardCount: Int
+            get() = preference.getInt(KEY_INTERSTITIAL_BACKWARD_COUNT, 0)
+
+        val clickCount: Int
+            get() = preference.getInt(KEY_CLICK_COUNT, 0)
 
         private val preference: SharedPreferences
             get() = App.getInstance().getSharedPreferences(
@@ -332,21 +366,15 @@ class InterAdLoader {
             )
 
         fun resetFailedCountInterstitial() {
-            val preferences: SharedPreferences = preference
-            preferences.edit().putInt(KEY_FAILED_COUNT_INTERSTITIAL, 0).apply()
+            preference.edit().putInt(KEY_FAILED_COUNT_INTERSTITIAL, 0).apply()
         }
 
         private fun increaseFailedCountInterstitial() {
-            val preferences: SharedPreferences = preference
-            preferences.edit().putInt(KEY_FAILED_COUNT_INTERSTITIAL, failedCountInterstitial + 1)
-                .apply()
+            preference.edit().putInt(KEY_FAILED_COUNT_INTERSTITIAL, failedCountInterstitial + 1).apply()
         }
 
         private val failedCountInterstitial: Int
-            get() {
-                val preferences: SharedPreferences = preference
-                return preferences.getInt(KEY_FAILED_COUNT_INTERSTITIAL, 0)
-            }
+            get() = preference.getInt(KEY_FAILED_COUNT_INTERSTITIAL, 0)
 
         fun startActivityWithAd(activity: Activity, intent: Intent?) {
             instance!!.showInterstitialAd(activity, false, FullScreenDismissListener {

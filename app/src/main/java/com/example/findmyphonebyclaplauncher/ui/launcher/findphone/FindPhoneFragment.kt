@@ -45,6 +45,10 @@ class FindPhoneFragment : Fragment() {
         handlePermissionResult(micGranted)
     }
 
+    private val configChangeListener = com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.OnConfigChangeListener {
+        loadBannerAd()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,6 +65,8 @@ class FindPhoneFragment : Fragment() {
         setupWindowInsets()
         setupListeners()
         observeViewModel()
+        loadBannerAd()
+        com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.addConfigChangeListener(configChangeListener)
     }
 
     private fun setupWindowInsets() {
@@ -80,6 +86,24 @@ class FindPhoneFragment : Fragment() {
         super.onResume()
         viewModel.refreshState(requireContext())
         refreshSettingsUI()
+        loadBannerAd()
+    }
+
+    fun loadBannerAd() {
+        val binding = _binding ?: return
+        if (!isAdded) return
+        if (!com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.config.canShowBannerFindPhone) {
+            binding.findPhoneBanner.bannerAdFrameLayout.removeAllViews()
+            binding.findPhoneBanner.bannerAdFrameLayout.visibility = View.GONE
+            binding.findPhoneBanner.bannerAdShimmerFrameLayout.visibility = View.GONE
+            return
+        }
+        if (binding.findPhoneBanner.bannerAdFrameLayout.childCount > 0) return
+        com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showFindPhoneBanner(
+            requireActivity(),
+            binding.findPhoneBanner.bannerAdFrameLayout,
+            binding.findPhoneBanner.bannerAdShimmerFrameLayout
+        )
     }
 
     private fun refreshSettingsUI() {
@@ -119,7 +143,9 @@ class FindPhoneFragment : Fragment() {
 
     private fun setupListeners() {
         binding.btnMenu.setOnClickListener {
-            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), MenuActivity::class.java))
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                requireContext().startActivityWithSlideAnimation(Intent(requireContext(), MenuActivity::class.java))
+            }
         }
 
         binding.switchMasterDetection.setOnClickListener {
@@ -129,7 +155,9 @@ class FindPhoneFragment : Fragment() {
                 requestDetectionPermissions()
                 return@setOnClickListener
             }
-            viewModel.setMasterDetection(requireContext(), newState)
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                viewModel.setMasterDetection(requireContext(), newState)
+            }
         }
 
         binding.switchClapDetection.setOnClickListener {
@@ -144,7 +172,9 @@ class FindPhoneFragment : Fragment() {
                 requestDetectionPermissions()
                 return@setOnClickListener
             }
-            viewModel.setClapDetection(requireContext(), newState)
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                viewModel.setClapDetection(requireContext(), newState)
+            }
         }
 
         binding.switchWhistleDetection.setOnClickListener {
@@ -159,19 +189,27 @@ class FindPhoneFragment : Fragment() {
                 requestDetectionPermissions()
                 return@setOnClickListener
             }
-            viewModel.setWhistleDetection(requireContext(), newState)
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                viewModel.setWhistleDetection(requireContext(), newState)
+            }
         }
 
         binding.cardAlertSound.setOnClickListener {
-            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSoundActivity::class.java))
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSoundActivity::class.java))
+            }
         }
 
         binding.cardAlertSensitivity.setOnClickListener {
-            requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSensitivityActivity::class.java))
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                requireContext().startActivityWithSlideAnimation(Intent(requireContext(), AlertSensitivityActivity::class.java))
+            }
         }
 
         binding.cardAlertDuration.setOnClickListener {
-            showAlertDurationDialog()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(requireActivity()) {
+                showAlertDurationDialog()
+            }
         }
 
         binding.switchFlashlight.setOnClickListener {
@@ -364,6 +402,7 @@ class FindPhoneFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.removeConfigChangeListener(configChangeListener)
         super.onDestroyView()
         _binding = null
     }

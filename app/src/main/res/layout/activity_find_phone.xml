@@ -64,7 +64,7 @@
         android:paddingHorizontal="@dimen/_16sdp"
         android:paddingBottom="@dimen/_24sdp"
         app:layout_constraintTop_toBottomOf="@id/layoutHeader"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toTopOf="@id/findPhoneBanner">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -774,5 +774,15 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Find Phone Banner Ad -->
+    <include
+        android:id="@+id/findPhoneBanner"
+        layout="@layout/ads_contact_banner_shimmer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

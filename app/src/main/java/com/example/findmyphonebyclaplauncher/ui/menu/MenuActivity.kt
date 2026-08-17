@@ -45,29 +45,41 @@ class MenuActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            finishWithSlideAnimation()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+                finishWithSlideAnimation()
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finishWithSlideAnimation()
+                com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this@MenuActivity) {
+                    finishWithSlideAnimation()
+                }
             }
         })
 
         binding.cardAbout.setOnClickListener {
-            openPlayStorePage()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
+                openPlayStorePage()
+            }
         }
 
         binding.cardHelp.setOnClickListener {
-            openPlayStorePage()
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
+                openPlayStorePage()
+            }
         }
 
         binding.cardPrivacy.setOnClickListener {
-            openInAppUrl(PRIVACY_POLICY_URL)
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
+                openInAppUrl(PRIVACY_POLICY_URL)
+            }
         }
 
         binding.cardTerms.setOnClickListener {
-            openInAppUrl(TERMS_OF_SERVICE_URL)
+            com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showAppClickAdThen(this) {
+                openInAppUrl(TERMS_OF_SERVICE_URL)
+            }
         }
     }
 

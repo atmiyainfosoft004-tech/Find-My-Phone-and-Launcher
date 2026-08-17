@@ -2,6 +2,7 @@ package com.example.findmyphonebyclaplauncher.ui.search
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.data.model.BlogPost
 import com.example.findmyphonebyclaplauncher.data.model.GoogleSearchFeedItem
@@ -26,6 +27,22 @@ class GoogleSearchViewModel(application: Application) : AndroidViewModel(applica
     private val _feed = MutableStateFlow(buildFeed(MOCK_BLOGS))
     val feed: StateFlow<List<GoogleSearchFeedItem>> = _feed.asStateFlow()
 
+    private val configListener = AdsConfigManager.OnConfigChangeListener { config ->
+        refreshFeed(config)
+    }
+
+    init {
+        AdsConfigManager.addConfigChangeListener(configListener)
+    }
+
+    private fun refreshFeed(config: AdsConfig = AdsConfigManager.config) {
+        _feed.value = buildFeed(
+            blogs = MOCK_BLOGS,
+            insertAds = config.canShowNativeGoogleSearch,
+            interval = config.nativeAdGoogleSearchItemInterval
+        )
+    }
+
     fun onQueryChanged(text: String) {
         _query.value = text
         val q = text.trim()
@@ -38,6 +55,7 @@ class GoogleSearchViewModel(application: Application) : AndroidViewModel(applica
 
     fun refreshRecent() {
         _recent.value = searchHistory.getRecent()
+        refreshFeed()
     }
 
     fun clearRecent() {
@@ -55,18 +73,24 @@ class GoogleSearchViewModel(application: Application) : AndroidViewModel(applica
         return "https://www.google.com/search?q=$encoded"
     }
 
-    companion object {
-        private const val ADS_EVERY_N_BLOGS = 3
+    override fun onCleared() {
+        AdsConfigManager.removeConfigChangeListener(configListener)
+        super.onCleared()
+    }
 
+    companion object {
         fun buildFeed(
             blogs: List<BlogPost>,
-            insertAds: Boolean = AdsConfigManager.config.canShowNative
+            insertAds: Boolean = AdsConfigManager.config.canShowNativeGoogleSearch,
+            interval: Int = AdsConfigManager.config.nativeAdGoogleSearchItemInterval.coerceAtLeast(1)
         ): List<GoogleSearchFeedItem> {
             val items = mutableListOf<GoogleSearchFeedItem>()
+            val safeInterval = interval.coerceAtLeast(1)
+            var adIndex = 1
             blogs.forEachIndexed { index, post ->
                 items += GoogleSearchFeedItem.Blog(post)
-                if (insertAds && (index + 1) % ADS_EVERY_N_BLOGS == 0) {
-                    items += GoogleSearchFeedItem.AdPlaceholder((index + 1) / ADS_EVERY_N_BLOGS)
+                if (insertAds && (index + 1) % safeInterval == 0) {
+                    items += GoogleSearchFeedItem.AdPlaceholder(adIndex++)
                 }
             }
             return items
