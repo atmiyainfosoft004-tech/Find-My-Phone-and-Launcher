@@ -17,7 +17,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
  */
 object RemoteConfigRepository {
 
-    private const val TAG = "RemoteConfigSync"
+    private const val TAG = "RemoteConfig"
 
     // System & Ad Toggles
     const val KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO = "system_hide_navigation_bar_auto"

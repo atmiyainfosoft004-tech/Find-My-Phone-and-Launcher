@@ -66,13 +66,10 @@ class GoogleSearchFeedAdapter(
             hideSlot()
             return
         }
-        binding.root.visibility = View.VISIBLE
-        binding.nativeAdShimmerFrameLayout.visibility = View.VISIBLE
-        binding.nativeAdFrameLayout.visibility = View.GONE
-        binding.nativeAdFrameLayout.removeAllViews()
 
         val cached = nativeAds[adId]
         if (cached != null) {
+            binding.root.visibility = View.VISIBLE
             LauncherAdsHelper.bindGoogleSearchNative(
                 activity,
                 binding.nativeAdFrameLayout,
@@ -81,6 +78,12 @@ class GoogleSearchFeedAdapter(
             )
             return
         }
+
+        binding.root.visibility = View.VISIBLE
+        binding.nativeAdShimmerFrameLayout.visibility = View.VISIBLE
+        binding.nativeAdFrameLayout.visibility = View.GONE
+        binding.nativeAdFrameLayout.removeAllViews()
+
         if (adId in loadingIds) return
         loadingIds += adId
         LauncherAdsHelper.loadGoogleSearchNative(
@@ -92,13 +95,26 @@ class GoogleSearchFeedAdapter(
                 }
                 nativeAds[adId] = nativeAd
                 loadingIds -= adId
-                notifyAdSlot(adId)
+                if (boundAdId == adId) {
+                    LauncherAdsHelper.bindGoogleSearchNative(
+                        activity,
+                        binding.nativeAdFrameLayout,
+                        binding.nativeAdShimmerFrameLayout,
+                        nativeAd
+                    )
+                } else {
+                    notifyAdSlot(adId)
+                }
             },
             onFailed = {
                 if (destroyed) return@loadGoogleSearchNative
                 loadingIds -= adId
                 failedIds += adId
-                notifyAdSlot(adId)
+                if (boundAdId == adId) {
+                    hideSlot()
+                } else {
+                    notifyAdSlot(adId)
+                }
             }
         )
     }

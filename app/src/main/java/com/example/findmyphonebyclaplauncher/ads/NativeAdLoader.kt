@@ -31,14 +31,17 @@ class NativeAdLoader {
     private var nativeAdPreloadLanguage: NativeAd? = null
     private var nativeAdPreloadAfterCall: NativeAd? = null
 
+    private val isLoadingMap = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+    private val pendingCallbacks = java.util.concurrent.ConcurrentHashMap<String, MutableList<Pair<(NativeAd) -> Unit, () -> Unit>>>()
+
     fun showNativeLarge(
         activity: Activity, ltNativeAds: FrameLayout, ltNativeShimmerAds: FrameLayout
     ) {
         if (ads.canShowNative) {
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.VISIBLE
+            Log.d(TAG, "Requesting Large Native Ad")
             showNative(activity, ltNativeAds, ltNativeShimmerAds, "Large")
         } else {
+            Log.d(TAG, "Native ad disabled by Remote Config")
             ltNativeAds.removeAllViews()
             ltNativeAds.visibility = View.GONE
             ltNativeShimmerAds.visibility = View.GONE
@@ -52,10 +55,9 @@ class NativeAdLoader {
         nativeAdCardView: CardView
     ) {
         if (ads.canShowNative) {
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.VISIBLE
-
-            if (nativeAdPreloadAfterCall != null) {
+            Log.d(TAG, "Requesting After Call Native Ad")
+            if (ads.nativeAdPreload && nativeAdPreloadAfterCall != null) {
+                Log.d(TAG, "Inflating preloaded After Call Native Ad")
                 instance!!.inflateGoogleNativeAd(
                     activity,
                     ltNativeAds,
@@ -65,17 +67,22 @@ class NativeAdLoader {
                     false,
                     "AfterCall"
                 )
+                nativeAdPreloadAfterCall = null
+                loadNativeAdPreload(activity)
             } else {
+                Log.d(TAG, "Loading on-demand After Call Native Ad (Unit ID: ${ads.nativeAdIdAfterCall})")
                 loadAndShowNativeAd(
                     activity,
                     ltNativeAds,
                     ltNativeShimmerAds,
                     "Large",
                     ads.nativeAdIdAfterCall,
-                    "AfterCall"
+                    "AfterCall",
+                    nativeAdCardView
                 )
             }
         } else {
+            Log.d(TAG, "After Call Native Ad disabled by Remote Config")
             ltNativeAds.removeAllViews()
             ltNativeAds.visibility = View.GONE
             ltNativeShimmerAds.visibility = View.GONE
@@ -90,11 +97,9 @@ class NativeAdLoader {
         nativeAdCardView: CardView
     ) {
         if (ads.canShowNative) {
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.VISIBLE
-
-            Log.e("Language native load with id", "${ads.nativeAdIdLanguage}...")
-            if (nativeAdPreloadLanguage != null) {
+            Log.d(TAG, "Requesting Language Native Ad")
+            if (ads.nativeAdPreload && nativeAdPreloadLanguage != null) {
+                Log.d(TAG, "Inflating preloaded Language Native Ad")
                 instance!!.inflateGoogleNativeAd(
                     activity,
                     ltNativeAds,
@@ -104,17 +109,22 @@ class NativeAdLoader {
                     false,
                     "Language"
                 )
+                nativeAdPreloadLanguage = null
+                loadNativeAdPreload(activity)
             } else {
+                Log.d(TAG, "Loading on-demand Language Native Ad (Unit ID: ${ads.nativeAdIdLanguage})")
                 loadAndShowNativeAd(
                     activity,
                     ltNativeAds,
                     ltNativeShimmerAds,
                     "Large",
                     ads.nativeAdIdLanguage,
-                    "Language"
+                    "Language",
+                    nativeAdCardView
                 )
             }
         } else {
+            Log.d(TAG, "Language Native Ad disabled by Remote Config")
             ltNativeAds.removeAllViews()
             ltNativeAds.visibility = View.GONE
             ltNativeShimmerAds.visibility = View.GONE
@@ -129,37 +139,61 @@ class NativeAdLoader {
         onLoaded: (NativeAd) -> Unit,
         onFailed: () -> Unit = {}
     ) {
-        if (!ads.canShowNative) {
+        if (!ads.canShowNative || adUnitId.isBlank()) {
+            Log.d(TAG, "loadNativeAd: skipped, canShowNative is false or adUnitId is blank")
             onFailed()
             return
         }
+
+        val requestKey = "$type:$adUnitId"
+        if (isLoadingMap[requestKey] == true) {
+            Log.d(TAG, "Ad request for placement '$type' is already in progress. Attaching callback to active request.")
+            pendingCallbacks.computeIfAbsent(requestKey) { mutableListOf() }.add(Pair(onLoaded, onFailed))
+            return
+        }
+
+        isLoadingMap[requestKey] = true
+        pendingCallbacks.computeIfAbsent(requestKey) { mutableListOf() }.add(Pair(onLoaded, onFailed))
+
+        Log.d(TAG, "loadNativeAd requested for type: $type with Unit ID: $adUnitId")
         val videoOptions = VideoOptions.Builder().setStartMuted(true).build()
         val adOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()
         val adLoaderNative = AdLoader.Builder(activity.applicationContext, adUnitId)
             .forNativeAd { nativeAd ->
+                Log.d(TAG, "Native Ad ($type) loaded successfully")
                 logAds(activity, "native_loaded_$type")
                 resetFailedCountNative()
+                isLoadingMap[requestKey] = false
+                val callbacks = pendingCallbacks.remove(requestKey) ?: emptyList()
                 if (activity.isDestroyed || activity.isFinishing) {
                     nativeAd.destroy()
                     return@forNativeAd
                 }
-                onLoaded(nativeAd)
+                callbacks.forEach { it.first.invoke(nativeAd) }
             }.withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.e(TAG, "Native Ad ($type) failed to load: ${adError.message} (code ${adError.code})")
                     increaseFailedCountNative()
                     logAds(activity, "native_failed_${type}_" + adError.code)
-                    onFailed()
+                    isLoadingMap[requestKey] = false
+                    val callbacks = pendingCallbacks.remove(requestKey) ?: emptyList()
+                    callbacks.forEach { it.second.invoke() }
                 }
 
                 override fun onAdClicked() {
                     super.onAdClicked()
+                    Log.d(TAG, "Native Ad ($type) clicked")
                     logAds(activity, "native_clicked_$type")
                 }
             }).withNativeAdOptions(adOptions).build()
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "native_req_$type")
         App.runWhenMobileAdsReady {
-            if (activity.isFinishing || activity.isDestroyed) return@runWhenMobileAdsReady
+            if (activity.isFinishing || activity.isDestroyed) {
+                isLoadingMap[requestKey] = false
+                pendingCallbacks.remove(requestKey)
+                return@runWhenMobileAdsReady
+            }
             adLoaderNative.loadAd(adRequest)
         }
     }
@@ -171,6 +205,7 @@ class NativeAdLoader {
         nativeAd: NativeAd,
         type: String = "GoogleSearch"
     ) {
+        Log.d(TAG, "Binding Native Ad for type: $type")
         inflateGoogleNativeAd(
             activity,
             ltNativeAds,
@@ -189,10 +224,10 @@ class NativeAdLoader {
         nativeAdCardView: CardView? = null
     ) {
         if (ads.canShowNative) {
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.VISIBLE
+            Log.d(TAG, "Requesting Small Native Ad")
             showNative(activity, ltNativeAds, ltNativeShimmerAds, "Small")
         } else {
+            Log.d(TAG, "Small Native Ad disabled by Remote Config")
             ltNativeAds.removeAllViews()
             ltNativeAds.visibility = View.GONE
             ltNativeShimmerAds.visibility = View.GONE
@@ -207,7 +242,8 @@ class NativeAdLoader {
         adType: String
     ) {
         if (ads.canShowNative) {
-            if (nativeAdPreload != null) {
+            if (ads.nativeAdPreload && nativeAdPreload != null) {
+                Log.d(TAG, "Inflating preloaded $adType Native Ad (Default)")
                 instance!!.inflateGoogleNativeAd(
                     activity,
                     ltNativeAds,
@@ -217,7 +253,10 @@ class NativeAdLoader {
                     false,
                     "Default"
                 )
+                nativeAdPreload = null
+                loadNativeAdPreload(activity)
             } else {
+                Log.d(TAG, "Loading on-demand $adType Native Ad (Default) with Unit ID: ${ads.nativeAdIdDashboard}")
                 loadAndShowNativeAd(
                     activity,
                     ltNativeAds,
@@ -250,38 +289,56 @@ class NativeAdLoader {
         val adOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()
         val adRequest = AdRequest.Builder().build()
 
-        if (nativeAdPreload == null) {
+        if (nativeAdPreload == null && isLoadingMap["preload_default"] != true) {
+            isLoadingMap["preload_default"] = true
+            Log.d(TAG, "Preloading Dashboard Native Ad with Unit ID: ${ads.nativeAdIdDashboard}")
             AdLoader.Builder(activity.applicationContext, ads.nativeAdIdDashboard)
                 .forNativeAd { nativeAd ->
+                    isLoadingMap["preload_default"] = false
+                    Log.d(TAG, "Preloaded Dashboard Native Ad loaded successfully")
                     logAds(activity, "native_loaded_default")
                     nativeAdPreload = nativeAd
                 }.withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
+                        isLoadingMap["preload_default"] = false
+                        Log.e(TAG, "Preload Dashboard Native Ad failed: ${adError.message} (code ${adError.code})")
                         logAds(activity, "native_failed_default_" + adError.code)
                         increaseFailedCountNative()
                     }
                 }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
         }
 
-        if (nativeAdPreloadLanguage == null) {
+        if (nativeAdPreloadLanguage == null && isLoadingMap["preload_language"] != true) {
+            isLoadingMap["preload_language"] = true
+            Log.d(TAG, "Preloading Language Native Ad with Unit ID: ${ads.nativeAdIdLanguage}")
             AdLoader.Builder(activity.applicationContext, ads.nativeAdIdLanguage)
                 .forNativeAd { nativeAd ->
+                    isLoadingMap["preload_language"] = false
+                    Log.d(TAG, "Preloaded Language Native Ad loaded successfully")
                     logAds(activity, "native_loaded_language")
                     nativeAdPreloadLanguage = nativeAd
                 }.withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
+                        isLoadingMap["preload_language"] = false
+                        Log.e(TAG, "Preload Language Native Ad failed: ${adError.message} (code ${adError.code})")
                         logAds(activity, "native_failed_language_" + adError.code)
                     }
                 }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
         }
 
-        if (nativeAdPreloadAfterCall == null) {
+        if (nativeAdPreloadAfterCall == null && isLoadingMap["preload_aftercall"] != true) {
+            isLoadingMap["preload_aftercall"] = true
+            Log.d(TAG, "Preloading After Call Native Ad with Unit ID: ${ads.nativeAdIdAfterCall}")
             AdLoader.Builder(activity.applicationContext, ads.nativeAdIdAfterCall)
                 .forNativeAd { nativeAd ->
+                    isLoadingMap["preload_aftercall"] = false
+                    Log.d(TAG, "Preloaded After Call Native Ad loaded successfully")
                     logAds(activity, "native_loaded_aftercall")
                     nativeAdPreloadAfterCall = nativeAd
                 }.withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
+                        isLoadingMap["preload_aftercall"] = false
+                        Log.e(TAG, "Preload After Call Native Ad failed: ${adError.message} (code ${adError.code})")
                         logAds(activity, "native_failed_aftercall_" + adError.code)
                     }
                 }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
@@ -294,19 +351,36 @@ class NativeAdLoader {
         adsNativeBigLoadingBinding: FrameLayout,
         adType: String,
         adUnitID: String,
-        type: String = "Default"
+        type: String = "Default",
+        cardView: CardView? = null
     ) {
         if (!ads.isNativeAdEnabled || adUnitID.isBlank()) {
+            Log.d(TAG, "Native ad disabled or empty unit ID ($adUnitID)")
             ltUniversal.removeAllViews()
             ltUniversal.visibility = View.GONE
             adsNativeBigLoadingBinding.visibility = View.GONE
+            cardView?.visibility = View.GONE
             return
         }
-        Log.e("NativeAdLoad", "adUnitID: $adUnitID, type: $type")
+
+        val requestKey = "show:$type:$adUnitID"
+        if (isLoadingMap[requestKey] == true) {
+            Log.d(TAG, "Ad request for placement '$type' is already in progress. Ignoring duplicate request.")
+            return
+        }
+        isLoadingMap[requestKey] = true
+
+        Log.d(TAG, "On-demand Native Ad load: Showing shimmer layout for $type (Unit ID: $adUnitID)")
+        ltUniversal.visibility = View.GONE
+        adsNativeBigLoadingBinding.visibility = View.VISIBLE
+        cardView?.visibility = View.VISIBLE
+
         val videoOptions = VideoOptions.Builder().setStartMuted(true).build()
         val adOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()
         val adLoaderNative = AdLoader.Builder(activity.applicationContext, adUnitID)
             .forNativeAd { nativeAd ->
+                isLoadingMap[requestKey] = false
+                Log.d(TAG, "Native Ad ($type) loaded successfully. Inflating view and hiding shimmer.")
                 logAds(activity, "native_loaded_$type")
                 resetFailedCountNative()
                 if (!activity.isDestroyed && !activity.isFinishing) {
@@ -320,30 +394,40 @@ class NativeAdLoader {
                         type
                     )
                 } else {
-                    when (type) {
-                        "Language" -> nativeAdPreloadLanguage = nativeAd
-                        "AfterCall" -> nativeAdPreloadAfterCall = nativeAd
-                        else -> nativeAdPreload = nativeAd
+                    if (ads.nativeAdPreload) {
+                        when (type) {
+                            "Language" -> nativeAdPreloadLanguage = nativeAd
+                            "AfterCall" -> nativeAdPreloadAfterCall = nativeAd
+                            else -> nativeAdPreload = nativeAd
+                        }
+                    } else {
+                        nativeAd.destroy()
                     }
                 }
             }.withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
+                    isLoadingMap[requestKey] = false
+                    Log.e(TAG, "Native Ad ($type) failed to load: ${adError.message} (code ${adError.code}). Hiding shimmer layout.")
                     ltUniversal.visibility = View.GONE
                     adsNativeBigLoadingBinding.visibility = View.GONE
+                    cardView?.visibility = View.GONE
                     increaseFailedCountNative()
                     logAds(activity, "native_failed_${type}_" + adError.code)
-                    Log.e("NativeAdLoad", "failed $adError")
                 }
 
                 override fun onAdClicked() {
                     super.onAdClicked()
+                    Log.d(TAG, "Native Ad ($type) clicked")
                     logAds(activity, "native_clicked_$type")
                 }
             }).withNativeAdOptions(adOptions).build()
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "native_req_$type")
         App.runWhenMobileAdsReady {
-            if (activity.isFinishing || activity.isDestroyed) return@runWhenMobileAdsReady
+            if (activity.isFinishing || activity.isDestroyed) {
+                isLoadingMap[requestKey] = false
+                return@runWhenMobileAdsReady
+            }
             adLoaderNative.loadAd(adRequest)
         }
     }
@@ -502,6 +586,7 @@ class NativeAdLoader {
     }
 
     companion object {
+        private const val TAG = "NativeAd"
         private const val KEY_FAILED_COUNT_NATIVE = "KeyFailedCountNative"
 
         var instance: NativeAdLoader? = null
@@ -539,7 +624,7 @@ class NativeAdLoader {
             }
 
         fun log(log: String?, e: Exception?) {
-            Log.d("ADCBLOGICLOG", log, e)
+            Log.d(TAG, log, e)
         }
     }
 }

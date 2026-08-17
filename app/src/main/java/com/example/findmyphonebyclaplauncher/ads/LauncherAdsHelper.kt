@@ -55,7 +55,7 @@ object LauncherAdsHelper {
             AdPlacement.BACK_PRESS -> config.isBackAdEnabled && config.canShowInter
         }
 
-        Log.d("AdPlacementDebug", "Placement: $placement | Enabled: $isAdEnabled")
+        Log.d("AdCounter", "showAdForPlacement: Placement=$placement, Enabled=$isAdEnabled")
 
         if (!isAdEnabled) {
             // Flag is false for this specific placement: Skip ad completely
@@ -81,9 +81,10 @@ object LauncherAdsHelper {
             }
         }
 
-        Log.d("AdPlacementDebug", "Placement: $placement | Counter: $counter / $trigger")
+        Log.d("AdCounter", "Placement=$placement -> Counter=$counter / Trigger=$trigger")
 
         if (counter >= trigger) {
+            Log.d("AdCounter", "Threshold reached for $placement! Resetting counter.")
             when (placement) {
                 AdPlacement.APP_CLICK -> InterAdLoader.resetLauncherClickCount()
                 AdPlacement.SWAP -> InterAdLoader.resetForwardCount()
@@ -93,19 +94,24 @@ object LauncherAdsHelper {
             when (placement) {
                 AdPlacement.APP_CLICK -> {
                     if (config.isClickAdInterstitial) {
+                        Log.d("InterstitialAd", "Click trigger hit. is_click_ad_interstitial=true. Showing Interstitial.")
                         showClickInterstitialAd(activity, onAdClosed)
                     } else {
+                        Log.d("AppOpenAd", "Click trigger hit. is_click_ad_interstitial=false. Showing App Open Ad.")
                         showAppOpenAd(activity, onAdClosed)
                     }
                 }
                 AdPlacement.SWAP -> {
                     if (config.isSwipeAdInterstitial) {
+                        Log.d("InterstitialAd", "Swipe trigger hit. is_swipe_ad_interstitial=true. Showing Interstitial.")
                         showClickInterstitialAd(activity, onAdClosed)
                     } else {
+                        Log.d("AppOpenAd", "Swipe trigger hit. is_swipe_ad_interstitial=false. Showing App Open Ad.")
                         showAppOpenAd(activity, onAdClosed)
                     }
                 }
                 AdPlacement.BACK_PRESS -> {
+                    Log.d("InterstitialAd", "In-app back press trigger hit. Showing Back Interstitial Ad.")
                     showBackInterstitialAd(activity, onAdClosed)
                 }
             }
@@ -121,7 +127,7 @@ object LauncherAdsHelper {
         }
         val config = AdsConfigManager.config
         if (!config.canShowInter) {
-            Log.d(TAG, "showClickInterstitialAd: canShowInter is false -> proceeding")
+            Log.d("InterstitialAd", "showClickInterstitialAd: canShowInter is false -> proceeding")
             onDone()
             return
         }
@@ -144,7 +150,7 @@ object LauncherAdsHelper {
         }
         val config = AdsConfigManager.config
         if (!config.canShowAppOpen) {
-            Log.d(TAG, "showAppOpenAd: canShowAppOpen is false -> proceeding")
+            Log.d("AppOpenAd", "showAppOpenAd: canShowAppOpen is false -> proceeding")
             onDone()
             return
         }
@@ -167,28 +173,26 @@ object LauncherAdsHelper {
         val isClickAdInterstitial = config.isClickAdInterstitial
         val triggerThreshold = config.clickAdCounterTrigger.coerceAtLeast(1)
 
-        Log.d("AdRouting", "is_click_ad_enabled: $isClickAdEnabled | is_click_ad_interstitial: $isClickAdInterstitial")
-
         if (!isClickAdEnabled) {
+            Log.d("AdCounter", "is_click_ad_enabled is false -> skipping launcher click ad")
             onContinue()
             return
         }
 
         val clickCount = InterAdLoader.increaseLauncherClickCount()
-        Log.d("AdRouting", "Launcher item clicked: $packageName | launcherClickCount: $clickCount / $triggerThreshold")
+        Log.d("AdCounter", "Launcher item clicked: $packageName | Current count: $clickCount / Trigger: $triggerThreshold")
 
         if (clickCount >= triggerThreshold) {
+            Log.d("AdCounter", "Launcher click threshold reached ($clickCount >= $triggerThreshold). Resetting count to 0.")
             InterAdLoader.resetLauncherClickCount()
 
             if (isClickAdInterstitial) {
-                // Flag is TRUE -> Display Interstitial Ad using inter_ad_id
-                Log.d("AdRouting", "Threshold reached. Showing Interstitial Ad (inter_ad_id)...")
+                Log.d("InterstitialAd", "Click trigger hit. is_click_ad_interstitial=true. Showing Interstitial.")
                 showClickInterstitialAd(activity) {
                     onContinue()
                 }
             } else {
-                // Flag is FALSE -> Display App Open Ad using app_open_ad_id
-                Log.d("AdRouting", "Threshold reached. Showing App Open Ad (app_open_ad_id)...")
+                Log.d("AppOpenAd", "Click trigger hit. is_click_ad_interstitial=false. Showing App Open Ad.")
                 showAppOpenAd(activity) {
                     onContinue()
                 }
@@ -209,27 +213,26 @@ object LauncherAdsHelper {
         val isSwipeEnabled = config.isSwipeAdEnabled
         val isSwipeInter = config.isSwipeAdInterstitial
         val trigger = config.interAdCounterTrigger.coerceAtLeast(1)
-        Log.d("AdRouting", "Swipe ad requested: is_swipe_ad_enabled=$isSwipeEnabled | is_swipe_ad_interstitial=$isSwipeInter")
 
         if (!isSwipeEnabled) {
+            Log.d("AdCounter", "is_swipe_ad_enabled is false -> skipping swipe ad")
             onDone()
             return
         }
 
         val count = InterAdLoader.increaseForwardCount()
-        Log.d("AdRouting", "Swipe counter: $count / $trigger")
+        Log.d("AdCounter", "Swipe action performed. Current count: $count / Trigger: $trigger")
 
         if (count >= trigger) {
+            Log.d("AdCounter", "Swipe threshold reached ($count >= $trigger). Resetting count to 0.")
             InterAdLoader.resetForwardCount()
             if (isSwipeInter) {
-                // Flag is TRUE -> Display Interstitial Ad using inter_ad_id
-                Log.d("AdRouting", "Threshold reached. Showing Interstitial Ad (inter_ad_id)...")
+                Log.d("InterstitialAd", "Swipe trigger hit. is_swipe_ad_interstitial=true. Showing Interstitial.")
                 showClickInterstitialAd(activity) {
                     onDone()
                 }
             } else {
-                // Flag is FALSE -> Display App Open Ad using app_open_ad_id
-                Log.d("AdRouting", "Threshold reached. Showing App Open Ad (app_open_ad_id)...")
+                Log.d("AppOpenAd", "Swipe trigger hit. is_swipe_ad_interstitial=false. Showing App Open Ad.")
                 showAppOpenAd(activity) {
                     onDone()
                 }
@@ -245,7 +248,7 @@ object LauncherAdsHelper {
 
     fun getBackAdTriggerCount(): Int {
         val value = AdsConfigManager.config.interAdBackCounterTrigger
-        Log.d("RemoteConfigDebug", "inter_ad_back_counter_trigger value: $value")
+        Log.d("RemoteConfig", "inter_ad_back_counter_trigger value: $value")
         return value
     }
 
@@ -260,16 +263,18 @@ object LauncherAdsHelper {
         val triggerCount = getBackAdTriggerCount().coerceAtLeast(1)
 
         if (!isBackAdEnabled) {
-            Log.d("BackAdDebug", "Back ad disabled by Remote Config -> proceeding immediately")
+            Log.d("InterstitialAd", "Back ad disabled by Remote Config -> proceeding immediately")
             onComplete()
             return
         }
 
         val backPressCount = InterAdLoader.increaseInAppBackCount()
-        Log.d("BackAdDebug", "In-app screen back pressed: inAppBackCount = $backPressCount / $triggerCount, Enabled: $isBackAdEnabled")
+        Log.d("AdCounter", "In-app back pressed. Current count: $backPressCount / Trigger: $triggerCount")
 
         if (backPressCount >= triggerCount) {
+            Log.d("AdCounter", "In-app back threshold reached ($backPressCount >= $triggerCount). Resetting count to 0.")
             InterAdLoader.resetInAppBackCount()
+            Log.d("InterstitialAd", "Presenting Back Interstitial Ad...")
             InterAdLoader.instance?.showOrLoadInterstitial(activity, isFromBack = true) {
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 if (!activity.isFinishing && !activity.isDestroyed) {

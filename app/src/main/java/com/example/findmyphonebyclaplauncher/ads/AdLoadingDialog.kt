@@ -16,6 +16,10 @@ class AdLoadingDialog(private val activity: Activity) {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var timeoutRunnable: Runnable? = null
 
+    companion object {
+        private const val TAG = "InterstitialAd"
+    }
+
     fun show(timeoutMs: Long = 2500L, onTimeout: (() -> Unit)? = null) {
         if (activity.isFinishing || activity.isDestroyed) return
         dismiss()
@@ -28,11 +32,11 @@ class AdLoadingDialog(private val activity: Activity) {
             d.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             d.show()
             dialog = d
-            Log.d("InterstitialDebug", "AdLoadingDialog: Displaying loader overlay")
+            Log.d(TAG, "AdLoadingDialog: Displaying full-screen ad loading overlay")
 
             val runnable = Runnable {
                 if (dialog?.isShowing == true) {
-                    Log.d("InterstitialDebug", "AdLoadingDialog: Safety timeout ($timeoutMs ms) triggered")
+                    Log.d(TAG, "AdLoadingDialog: Safety timeout ($timeoutMs ms) triggered -> dismissing overlay")
                     dismiss()
                     onTimeout?.invoke()
                 }
@@ -40,7 +44,7 @@ class AdLoadingDialog(private val activity: Activity) {
             timeoutRunnable = runnable
             mainHandler.postDelayed(runnable, timeoutMs)
         } catch (e: Exception) {
-            Log.e("InterstitialDebug", "AdLoadingDialog: Failed to show dialog", e)
+            Log.e(TAG, "AdLoadingDialog: Failed to show dialog", e)
             dialog = null
         }
     }
@@ -51,10 +55,10 @@ class AdLoadingDialog(private val activity: Activity) {
         try {
             if (dialog?.isShowing == true && !activity.isFinishing && !activity.isDestroyed) {
                 dialog?.dismiss()
-                Log.d("InterstitialDebug", "AdLoadingDialog: Dismissed loader overlay")
+                Log.d(TAG, "AdLoadingDialog: Dismissed loader overlay")
             }
         } catch (e: Exception) {
-            Log.e("InterstitialDebug", "AdLoadingDialog: Error dismissing dialog", e)
+            Log.e(TAG, "AdLoadingDialog: Error dismissing dialog", e)
         } finally {
             dialog = null
         }

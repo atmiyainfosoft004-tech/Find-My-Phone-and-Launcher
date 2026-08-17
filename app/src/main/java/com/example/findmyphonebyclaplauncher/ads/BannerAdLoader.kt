@@ -21,31 +21,55 @@ import com.google.android.gms.ads.LoadAdError
 class BannerAdLoader {
     private val ads get() = AdsConfigManager.config
     private var bannerAdPreload: AdView? = null
+    private val isLoadingMap = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
+    companion object {
+        private const val TAG = "BannerAd"
+
+        var instance: BannerAdLoader? = null
+            get() {
+                if (field == null) {
+                    field = BannerAdLoader()
+                }
+                return field
+            }
+            private set
+    }
 
     fun loadBannerAdPreload(activity: Activity) {
         if (ads.bannerAdPreload) {
+            if (isLoadingMap["preload"] == true) {
+                Log.d(TAG, "Banner preload already in progress. Ignoring duplicate request.")
+                return
+            }
+            isLoadingMap["preload"] = true
             App.runWhenMobileAdsReady {
                 bannerAdPreload = null
                 val adView = AdView(activity)
                 adView.adUnitId = ads.bannerAdIdHome
                 adView.setAdSize(getNormalAdSize(activity))
+                Log.d(TAG, "Preloading banner for home screen with Unit ID: ${ads.bannerAdIdHome}")
                 adView.adListener = object : AdListener() {
                     override fun onAdLoaded() {
                         super.onAdLoaded()
+                        isLoadingMap["preload"] = false
+                        Log.d(TAG, "Preloaded banner ad loaded successfully")
                         logAds(activity, "banner_loaded")
                         bannerAdPreload = adView
                     }
 
                     override fun onAdClicked() {
                         super.onAdClicked()
+                        Log.d(TAG, "Preloaded banner ad clicked")
                         logAds(activity, "banner_clicked")
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         super.onAdFailedToLoad(loadAdError)
+                        isLoadingMap["preload"] = false
                         Log.e(
-                            "LoadBannerAdCheck",
-                            "loadBannerAdPreload -> failed code=${loadAdError.code} domain=${loadAdError.domain} msg=${loadAdError.message} cause=${loadAdError.cause}"
+                            TAG,
+                            "Preloaded banner failed to load: code=${loadAdError.code}, message=${loadAdError.message}"
                         )
                         logAds(activity, "banner_failed_to_load_" + loadAdError.code)
                     }
@@ -63,6 +87,7 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout
     ) {
         if (ads.canShowBannerSplash) {
+            Log.d(TAG, "Loading banner for Splash screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
@@ -70,6 +95,7 @@ class BannerAdLoader {
                 ads.bannerAdIdSplash
             )
         } else {
+            Log.d(TAG, "Splash banner disabled by Remote Config")
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
             shimmerFrameLayout.visibility = View.GONE
@@ -82,29 +108,15 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout
     ) {
         if (ads.canShowBannerHome) {
-            if (bannerAdPreload != null) {
-                Log.e("LoadBannerAdCheck", "bannerAdPreload!=null")
-                frameLayout.visibility = View.VISIBLE
-                shimmerFrameLayout.visibility = View.GONE
-
-                if (bannerAdPreload!!.parent != null) {
-                    (bannerAdPreload!!.parent as ViewGroup).removeView(bannerAdPreload)
-                }
-                frameLayout.removeAllViews()
-                logAds(activity, "banner_showed")
-                frameLayout.addView(bannerAdPreload)
-                bannerAdPreload = null
-                Log.e("LoadBannerAdCheck", "loadBannerAdPreload: showBanner")
-                loadBannerAdPreload(activity)
-            } else {
-                loadAndShowBanner(
-                    activity,
-                    frameLayout,
-                    shimmerFrameLayout,
-                    ads.bannerAdIdHome
-                )
-            }
+            Log.d(TAG, "Loading banner for Home screen")
+            loadAndShowBanner(
+                activity,
+                frameLayout,
+                shimmerFrameLayout,
+                ads.bannerAdIdHome
+            )
         } else {
+            Log.d(TAG, "Home banner disabled by Remote Config")
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
             shimmerFrameLayout.visibility = View.GONE
@@ -125,6 +137,7 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout
     ) {
         if (ads.canShowBannerAppDrawer) {
+            Log.d(TAG, "Loading banner for App Drawer")
             loadAndShowBanner(
                 activity,
                 frameLayout,
@@ -132,6 +145,7 @@ class BannerAdLoader {
                 ads.bannerAdIdAppDrawer.ifBlank { ads.bannerAdIdHome }
             )
         } else {
+            Log.d(TAG, "App Drawer banner disabled by Remote Config")
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
             shimmerFrameLayout.visibility = View.GONE
@@ -144,6 +158,7 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout
     ) {
         if (ads.canShowBannerFindPhone) {
+            Log.d(TAG, "Loading banner for Find Phone screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
@@ -151,6 +166,7 @@ class BannerAdLoader {
                 ads.bannerAdIdFindPhone.ifBlank { ads.bannerAdIdHome }
             )
         } else {
+            Log.d(TAG, "Find Phone banner disabled by Remote Config")
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
             shimmerFrameLayout.visibility = View.GONE
@@ -163,6 +179,7 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout
     ) {
         if (ads.canShowBannerAlertScreen) {
+            Log.d(TAG, "Loading banner for Alert screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
@@ -170,6 +187,7 @@ class BannerAdLoader {
                 ads.bannerAdIdAlertScreen.ifBlank { ads.bannerAdIdHome }
             )
         } else {
+            Log.d(TAG, "Alert screen banner disabled by Remote Config")
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
             shimmerFrameLayout.visibility = View.GONE
@@ -182,6 +200,7 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout
     ) {
         if (ads.canShowBanner) {
+            Log.d(TAG, "Loading banner for After Call screen")
             loadAndShowBannerAfterCall(
                 activity,
                 frameLayout,
@@ -189,18 +208,49 @@ class BannerAdLoader {
                 ads.bannerAdIdHome
             )
         } else {
+            Log.d(TAG, "After Call banner disabled by Remote Config")
             frameLayout.removeAllViews()
             frameLayout.visibility = View.GONE
             shimmerFrameLayout.visibility = View.GONE
         }
     }
 
-    private fun loadAndShowBanner(
+    fun loadAndShowBanner(
         activity: Activity,
         frameLayout: FrameLayout,
         shimmerFrameLayout: FrameLayout,
         adUnitID: String
     ) {
+        if (!ads.isBannerAdEnabled || adUnitID.isBlank()) {
+            Log.d(TAG, "Banner ad disabled or empty unit ID ($adUnitID)")
+            frameLayout.removeAllViews()
+            frameLayout.visibility = View.GONE
+            shimmerFrameLayout.visibility = View.GONE
+            return
+        }
+
+        // If preloading is enabled and cached banner is ready, render immediately without shimmer
+        if (ads.bannerAdPreload && bannerAdPreload != null) {
+            Log.d(TAG, "Rendering preloaded banner ad instantly, hiding shimmer")
+            val preloaded = bannerAdPreload!!
+            if (preloaded.parent != null) {
+                (preloaded.parent as ViewGroup).removeView(preloaded)
+            }
+            frameLayout.removeAllViews()
+            frameLayout.addView(preloaded)
+            frameLayout.visibility = View.VISIBLE
+            shimmerFrameLayout.visibility = View.GONE
+            logAds(activity, "banner_showed")
+            bannerAdPreload = null
+            loadBannerAdPreload(activity)
+            return
+        }
+
+        // On-demand: Display shimmer placeholder immediately
+        Log.d(TAG, "On-demand banner load: Showing shimmer placeholder with Unit ID: $adUnitID")
+        shimmerFrameLayout.visibility = View.VISIBLE
+        frameLayout.visibility = View.GONE
+
         App.runWhenMobileAdsReady {
             if (activity.isFinishing || activity.isDestroyed) return@runWhenMobileAdsReady
             frameLayout.post {
@@ -222,9 +272,16 @@ class BannerAdLoader {
             shimmerFrameLayout.visibility = View.GONE
             return
         }
-        Log.e("LoadBannerAdCheck", "load banner unit=$adUnitID")
-        frameLayout.visibility = View.VISIBLE
+
+        val requestKey = "banner:$adUnitID"
+        if (isLoadingMap[requestKey] == true) {
+            Log.d(TAG, "Banner request for unit '$adUnitID' is already in progress. Ignoring duplicate request.")
+            return
+        }
+        isLoadingMap[requestKey] = true
+
         shimmerFrameLayout.visibility = View.VISIBLE
+        frameLayout.visibility = View.GONE
 
         val adView = AdView(activity)
         adView.adUnitId = adUnitID
@@ -232,24 +289,24 @@ class BannerAdLoader {
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
                 super.onAdLoaded()
+                isLoadingMap[requestKey] = false
+                Log.d(TAG, "Banner ad loaded successfully. Hiding shimmer and displaying ad view.")
                 logAds(activity, "banner_loaded")
-                frameLayout.visibility = View.VISIBLE
                 shimmerFrameLayout.visibility = View.GONE
+                frameLayout.visibility = View.VISIBLE
                 logAds(activity, "banner_showed")
             }
 
             override fun onAdClicked() {
                 super.onAdClicked()
+                Log.d(TAG, "Banner ad clicked")
                 logAds(activity, "banner_clicked")
-                showBanner(activity, frameLayout, shimmerFrameLayout)
             }
 
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                 super.onAdFailedToLoad(loadAdError)
-                Log.e(
-                    "LoadBannerAdCheck",
-                    "showBanner -> failed $loadAdError"
-                )
+                isLoadingMap[requestKey] = false
+                Log.e(TAG, "Banner failed to load: ${loadAdError.message} (code ${loadAdError.code})")
                 logAds(activity, "banner_failed_to_load_" + loadAdError.code)
                 frameLayout.removeAllViews()
                 frameLayout.visibility = View.GONE
@@ -268,7 +325,7 @@ class BannerAdLoader {
         shimmerFrameLayout: FrameLayout,
         adUnitID: String
     ) {
-        Log.e("LoadBannerAdCheck", "bannerAdPreload==null")
+        Log.d(TAG, "loadAndShowBannerAfterCall with Unit ID: $adUnitID")
         val adView = AdView(activity)
         adView.adUnitId = adUnitID
         adView.setAdSize(AdSize.MEDIUM_RECTANGLE)
@@ -278,6 +335,7 @@ class BannerAdLoader {
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
                 super.onAdLoaded()
+                Log.d(TAG, "After Call banner loaded successfully")
                 logAds(activity, "banner_loaded")
                 frameLayout.visibility = View.VISIBLE
                 shimmerFrameLayout.visibility = View.GONE
@@ -292,6 +350,7 @@ class BannerAdLoader {
 
             override fun onAdClicked() {
                 super.onAdClicked()
+                Log.d(TAG, "After Call banner clicked")
                 logAds(activity, "banner_clicked")
                 showBanner(activity, frameLayout, shimmerFrameLayout)
             }
@@ -300,7 +359,7 @@ class BannerAdLoader {
                 super.onAdFailedToLoad(loadAdError)
                 frameLayout.visibility = View.GONE
                 shimmerFrameLayout.visibility = View.GONE
-                Log.e("LoadBannerAdCheck", "showBanner -> failed -> ${loadAdError.message}")
+                Log.e(TAG, "After Call banner failed to load: ${loadAdError.message} (code ${loadAdError.code})")
                 logAds(activity, "banner_failed_to_load_" + loadAdError.code)
             }
         }
@@ -337,16 +396,5 @@ class BannerAdLoader {
             (context.resources.getDimension(R.dimen.adaptive_banner_caller_ad_height) / (densityDpi / 160.0f))
 
         return AdSize.getInlineAdaptiveBannerAdSize(adWidthDp.toInt(), adHeightDp.toInt())
-    }
-
-    companion object {
-        var instance: BannerAdLoader? = null
-            get() {
-                if (field == null) {
-                    field = BannerAdLoader()
-                }
-                return field
-            }
-            private set
     }
 }

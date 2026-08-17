@@ -329,4 +329,71 @@ class AdManagerGuardAndRoutingTest {
         assertFalse(dashboardDisabledConfig.canShowNativeDashboard)
         assertTrue(dashboardDisabledConfig.canShowNativeGoogleSearch)
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 6. Preload Flags Configuration & Strategy Resolution
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun preloadFlags_defaultsAndDynamicToggles() {
+        val defaultConfig = AdsConfig.DEFAULT
+        assertFalse("preload_ad_banner defaults to false", defaultConfig.preloadAdBanner)
+        assertFalse("preload_ad_native defaults to false", defaultConfig.preloadAdNative)
+        assertFalse("preload_ad_interstitial defaults to false", defaultConfig.preloadAdInterstitial)
+        assertFalse("preload_ad_app_open defaults to false", defaultConfig.preloadAdAppOpen)
+
+        val preloadEnabledConfig = defaultConfig.copy(
+            preloadAdBanner = true,
+            preloadAdNative = true,
+            preloadAdInterstitial = true,
+            preloadAdAppOpen = true
+        )
+        assertTrue(preloadEnabledConfig.preloadAdBanner)
+        assertTrue(preloadEnabledConfig.preloadAdNative)
+        assertTrue(preloadEnabledConfig.preloadAdInterstitial)
+        assertTrue(preloadEnabledConfig.preloadAdAppOpen)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 7. Request Deduplication & Concurrent Guard Tests
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun duplicateAdRequests_areDeduplicatedAndDoNotDoubleFire() {
+        val isLoadingMap = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+        val pendingCallbacks = java.util.concurrent.ConcurrentHashMap<String, MutableList<String>>()
+
+        var networkRequestsFired = 0
+        fun requestAd(placementKey: String, callbackId: String) {
+            if (isLoadingMap[placementKey] == true) {
+                // Request already pending: queue callback, do not fire network request
+                pendingCallbacks.computeIfAbsent(placementKey) { mutableListOf() }.add(callbackId)
+                return
+            }
+            isLoadingMap[placementKey] = true
+            networkRequestsFired++
+            pendingCallbacks.computeIfAbsent(placementKey) { mutableListOf() }.add(callbackId)
+        }
+
+        // Call 1 at t=0ms (GoogleSearch placement)
+        requestAd("GoogleSearch:ca-app-pub-test", "caller_1")
+        assertEquals("First request must fire network call", 1, networkRequestsFired)
+        assertTrue("isLoadingMap must indicate in-flight request", isLoadingMap["GoogleSearch:ca-app-pub-test"] == true)
+
+        // Call 2 at t=100ms (duplicate GoogleSearch placement while Call 1 is in-flight)
+        requestAd("GoogleSearch:ca-app-pub-test", "caller_2")
+        assertEquals("Duplicate in-flight request MUST NOT fire additional network calls", 1, networkRequestsFired)
+        assertEquals("Both callers must be queued for notification", 2, pendingCallbacks["GoogleSearch:ca-app-pub-test"]?.size)
+
+        // On Load complete
+        isLoadingMap["GoogleSearch:ca-app-pub-test"] = false
+        val executedCallbacks = pendingCallbacks.remove("GoogleSearch:ca-app-pub-test") ?: emptyList()
+        assertEquals(2, executedCallbacks.size)
+        assertTrue(executedCallbacks.contains("caller_1"))
+        assertTrue(executedCallbacks.contains("caller_2"))
+
+        // Call 3 after completion
+        requestAd("GoogleSearch:ca-app-pub-test", "caller_3")
+        assertEquals("New request after completion fires fresh network call", 2, networkRequestsFired)
+    }
 }

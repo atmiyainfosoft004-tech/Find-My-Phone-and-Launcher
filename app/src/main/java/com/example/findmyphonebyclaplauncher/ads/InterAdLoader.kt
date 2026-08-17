@@ -48,25 +48,25 @@ class InterAdLoader {
     ) {
         // Strict Guard: Never make an ad load network request if Interstitial is disabled or ID is missing
         if (!ads.canShowInter) {
-            Log.d("InterstitialDebug", "loadInterstitialAd: Aborted. is_inter_ad_enabled is false or ID is empty")
+            Log.d("InterstitialAd", "loadInterstitialAd: Aborted. is_inter_ad_enabled is false or ID is empty")
             onComplete?.invoke()
             return
         }
 
         if (interstitialAd != null) {
-            Log.d("InterstitialDebug", "loadInterstitialAd: Ad already cached and ready")
+            Log.d("InterstitialAd", "loadInterstitialAd: Ad already cached and ready")
             onComplete?.invoke()
             return
         }
         if (onComplete != null) pendingLoadCallbacks.add(onComplete)
         if (isInterstitialLoading) {
-            Log.d("InterstitialDebug", "loadInterstitialAd: Ad is currently loading, callback attached")
+            Log.d("InterstitialAd", "loadInterstitialAd: Ad is currently loading, callback attached")
             return
         }
         isInterstitialLoading = true
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "inter_req")
-        Log.d("InterstitialDebug", "loadInterstitialAd: Requesting ad with ID '${ads.interAdId}'")
+        Log.d("InterstitialAd", "loadInterstitialAd: Requesting ad with ID '${ads.interAdId}'")
         InterstitialAd.load(
             activity.applicationContext,
             ads.interAdId,
@@ -76,7 +76,7 @@ class InterAdLoader {
                     this@InterAdLoader.interstitialAd = interstitialAd
                     isInterstitialLoading = false
                     logAds(activity, "inter_loaded")
-                    Log.d("InterstitialDebug", "loadInterstitialAd: SUCCESS -> Ad loaded")
+                    Log.d("InterstitialAd", "loadInterstitialAd: SUCCESS -> Ad loaded")
                     resetFailedCountInterstitial()
                     flushLoadCallbacks()
                 }
@@ -84,7 +84,7 @@ class InterAdLoader {
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     increaseFailedCountInterstitial()
                     logAds(activity, "inter_failed_to_load_" + loadAdError.code)
-                    Log.e("InterstitialDebug", "loadInterstitialAd: FAILED -> ${loadAdError.message} (code ${loadAdError.code})")
+                    Log.e("InterstitialAd", "loadInterstitialAd: FAILED -> ${loadAdError.message} (code ${loadAdError.code})")
                     this@InterAdLoader.interstitialAd = null
                     isInterstitialLoading = false
                     flushLoadCallbacks()
@@ -98,15 +98,6 @@ class InterAdLoader {
         callbacks.forEach { it.invoke() }
     }
 
-    fun showInterstitialDirect(
-        activity: Activity,
-        onDone: () -> Unit
-    ) {
-        showOrLoadInterstitial(activity, isFromBack = false) {
-            onDone()
-        }
-    }
-
     fun showOrLoadInterstitial(
         activity: Activity,
         isFromBack: Boolean,
@@ -114,17 +105,17 @@ class InterAdLoader {
     ) {
         App.runWhenMobileAdsReady {
             if (activity.isFinishing || activity.isDestroyed || !ads.canShowInter) {
-                Log.d("InterstitialDebug", "showOrLoadInterstitial: Activity finishing/destroyed or canShowInter is false")
+                Log.d("InterstitialAd", "showOrLoadInterstitial: Activity finishing/destroyed or canShowInter is false")
                 listener.onDismiss()
                 return@runWhenMobileAdsReady
             }
-            if (interstitialAd != null) {
-                Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad ready, presenting now")
+            if (ads.preloadAdInterstitial && interstitialAd != null) {
+                Log.d("InterstitialAd", "showOrLoadInterstitial: Preloaded ad ready, presenting immediately without loading dialog")
                 presentInterstitial(activity, isFromBack, listener)
                 return@runWhenMobileAdsReady
             }
 
-            Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad not ready -> showing loading overlay")
+            Log.d("InterstitialAd", "showOrLoadInterstitial: On-demand loading required (preloadAdInterstitial=${ads.preloadAdInterstitial}) -> showing loading dialog")
             val loadingDialog = AdLoadingDialog(activity)
             var actionExecuted = false
 
@@ -137,7 +128,7 @@ class InterAdLoader {
             }
 
             loadingDialog.show(timeoutMs = 2500L) {
-                Log.d("InterstitialDebug", "showOrLoadInterstitial: Loading dialog TIMEOUT (2.5s) -> proceeding")
+                Log.d("InterstitialAd", "showOrLoadInterstitial: Loading dialog TIMEOUT (2.5s) -> proceeding")
                 safeDismissAndContinue()
             }
 
@@ -151,7 +142,7 @@ class InterAdLoader {
                     loadingDialog.dismiss()
                     presentInterstitial(activity, isFromBack, listener)
                 } else {
-                    Log.d("InterstitialDebug", "showOrLoadInterstitial: Ad load failed -> proceeding")
+                    Log.d("InterstitialAd", "showOrLoadInterstitial: Ad load failed -> proceeding")
                     safeDismissAndContinue()
                 }
             }
@@ -164,23 +155,23 @@ class InterAdLoader {
         listener: FullScreenDismissListener
     ) {
         if (!ads.canShowInter) {
-            Log.d("InterstitialDebug", "presentInterstitial: skipped, canShowInter is false")
+            Log.d("InterstitialAd", "presentInterstitial: skipped, canShowInter is false")
             listener.onDismiss()
             return
         }
         val ad = interstitialAd ?: run {
-            Log.d("InterstitialDebug", "presentInterstitial: interstitialAd is null")
+            Log.d("InterstitialAd", "presentInterstitial: interstitialAd is null")
             listener.onDismiss()
             return
         }
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                Log.d("InterstitialDebug", "onAdDismissedFullScreenContent -> resetting state and reloading")
+                Log.d("InterstitialAd", "onAdDismissedFullScreenContent -> resetting state")
                 interstitialAd = null
                 isInterstitialLoading = false
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
-                if (ads.canShowInter) {
+                if (ads.canShowInter && ads.preloadAdInterstitial) {
                     loadInterstitialAd(activity)
                 }
                 logAds(activity, "inter_dismissed")
@@ -188,27 +179,27 @@ class InterAdLoader {
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
-                Log.e("InterstitialDebug", "onAdFailedToShowFullScreenContent: ${adError.message} (code ${adError.code})")
+                Log.e("InterstitialAd", "onAdFailedToShowFullScreenContent: ${adError.message} (code ${adError.code})")
                 interstitialAd = null
                 isInterstitialLoading = false
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 logAds(activity, "inter_failed_to_show_" + adError.code)
-                if (ads.canShowInter) {
+                if (ads.canShowInter && ads.preloadAdInterstitial) {
                     loadInterstitialAd(activity)
                 }
                 listener.onDismiss()
             }
 
             override fun onAdShowedFullScreenContent() {
-                Log.d("InterstitialDebug", "onAdShowedFullScreenContent: Ad displayed on screen")
-                interstitialAd = null
+                Log.d("InterstitialAd", "onAdShowedFullScreenContent: Ad is visible on screen")
                 isInterstitialShowing = true
                 logAds(activity, "inter_showed")
             }
 
             override fun onAdClicked() {
                 super.onAdClicked()
+                Log.d("InterstitialAd", "interstitial ad clicked")
                 logAds(activity, "inter_clicked")
             }
         }
@@ -217,89 +208,55 @@ class InterAdLoader {
 
     fun showAppClickInterstitial(activity: Activity, listener: FullScreenDismissListener) {
         if (!canShowAppClickInter()) {
-            Log.d("InterstitialDebug", "showAppClickInterstitial: skipped, canShowAppClickInter is false")
+            Log.d("InterstitialAd", "showAppClickInterstitial: skipped, canShowAppClickInter is false")
             listener.onDismiss()
             return
         }
-        showInterstitialAd(activity, false, listener)
+        showOrLoadInterstitial(activity, isFromBack = false, listener)
     }
 
     fun showSwipeInterstitial(activity: Activity, listener: FullScreenDismissListener) {
         if (!canShowSwipeInter()) {
-            Log.d("InterstitialDebug", "showSwipeInterstitial: skipped, canShowSwipeInter is false")
+            Log.d("InterstitialAd", "showSwipeInterstitial: skipped, canShowSwipeInter is false")
             listener.onDismiss()
             return
         }
-        showInterstitialAd(activity, false, listener)
+        showOrLoadInterstitial(activity, isFromBack = false, listener)
     }
 
-    private fun canShowAppClickInter(): Boolean = ads.canShowAppClickInter
-
-    private fun canShowSwipeInter(): Boolean = ads.canShowSwipeInter
+    fun showBackInterstitial(activity: Activity, listener: FullScreenDismissListener) {
+        if (!canShowBackAd()) {
+            Log.d("InterstitialAd", "showBackInterstitial: skipped, canShowBackAd is false")
+            listener.onDismiss()
+            return
+        }
+        showOrLoadInterstitial(activity, isFromBack = true, listener)
+    }
 
     fun showInterstitialAd(
         activity: Activity,
         isFromBack: Boolean,
         listener: FullScreenDismissListener
     ) {
-        if (ads.canShowInter) {
-            val currentInterval: Int =
-                if (isFromBack) interstitialBackwardCount else interstitialForwardCount
-            val regularInterval =
-                if (isFromBack) ads.interBackCount.coerceAtLeast(1)
-                else ads.interCount.coerceAtLeast(1)
-
-            Log.d(
-                "InterstitialDebug",
-                "showInterstitialAd: isFromBack=$isFromBack, currentInterval=$currentInterval, regularInterval=$regularInterval, isAdReady=${interstitialAd != null}"
-            )
-
-            if (currentInterval >= regularInterval) {
-                if (isFromBack) {
-                    resetInterstitialBackwardCount()
-                } else {
-                    resetInterstitialForwardCount()
-                }
-                showOrLoadInterstitial(activity, isFromBack, listener)
-            } else {
-                if (isFromBack) {
-                    increaseInterstitialBackwardCount()
-                } else {
-                    increaseInterstitialForwardCount()
-                }
-                Log.d(
-                    "InterstitialDebug",
-                    "Frequency cap skipped ad: currentInterval=$currentInterval, regularInterval=$regularInterval"
-                )
-                listener.onDismiss()
-            }
-        } else {
-            Log.d("InterstitialDebug", "showInterstitialAd: skipped, ads.canShowInter is false")
-            listener.onDismiss()
-        }
+        showOrLoadInterstitial(activity, isFromBack, listener)
     }
 
     fun showInterstitialImmediate(
         activity: Activity,
         listener: FullScreenDismissListener
     ) {
-        if (ads.canShowInter) {
-            showOrLoadInterstitial(activity, false, listener)
-        } else {
-            listener.onDismiss()
-        }
+        showOrLoadInterstitial(activity, isFromBack = false, listener)
     }
+
+    fun canShowAppClickInter(): Boolean = ads.canShowAppClickInter
+    fun canShowSwipeInter(): Boolean = ads.canShowSwipeInter
+    fun canShowBackAd(): Boolean = ads.canShowBackAd
 
     fun interface FullScreenDismissListener {
         fun onDismiss()
     }
 
     companion object {
-        private const val KEY_INTERSTITIAL_BACKWARD_COUNT = "interstitial_backward_count"
-        private const val KEY_INTERSTITIAL_FORWARD_COUNT = "interstitial_forward_count"
-        private const val KEY_CLICK_COUNT = "app_click_ad_count"
-        private const val KEY_FAILED_COUNT_INTERSTITIAL = "KeyFailedCountInterstitial"
-
         var instance: InterAdLoader? = null
             get() {
                 if (field == null) {
@@ -309,7 +266,13 @@ class InterAdLoader {
             }
             private set
 
+        private const val KEY_INTERSTITIAL_FORWARD_COUNT = "KeyInterstitialForwardCount"
+        private const val KEY_INTERSTITIAL_BACKWARD_COUNT = "KeyInterstitialBackwardCount"
+        private const val KEY_CLICK_COUNT = "KeyClickCount"
+        private const val KEY_FAILED_COUNT_INTERSTITIAL = "KeyFailedCountInterstitial"
+
         fun resetInterstitialForwardCount() {
+            Log.d("AdCounter", "Resetting forward/swipe counter to 0")
             preference.edit().putInt(KEY_INTERSTITIAL_FORWARD_COUNT, 0).apply()
         }
 
@@ -319,6 +282,7 @@ class InterAdLoader {
         }
 
         fun resetCounter() {
+            Log.d("AdCounter", "Resetting all ad counters to 0")
             resetInterstitialForwardCount()
             resetInAppBackCount()
             resetLauncherClickCount()
@@ -331,6 +295,7 @@ class InterAdLoader {
         fun increaseInterstitialForwardCount(): Int {
             val next = interstitialForwardCount + 1
             preference.edit().putInt(KEY_INTERSTITIAL_FORWARD_COUNT, next).apply()
+            Log.d("AdCounter", "Forward/swipe count incremented: $next")
             return next
         }
 
@@ -341,20 +306,24 @@ class InterAdLoader {
         fun increaseInAppBackCount(): Int {
             val next = inAppBackCount + 1
             preference.edit().putInt(KEY_IN_APP_BACK_COUNT, next).apply()
+            Log.d("AdCounter", "In-app back press count incremented: $next")
             return next
         }
 
         fun resetInAppBackCount() {
+            Log.d("AdCounter", "Resetting in-app back press counter to 0")
             preference.edit().putInt(KEY_IN_APP_BACK_COUNT, 0).apply()
         }
 
         fun increaseLauncherClickCount(): Int {
             val next = launcherClickCount + 1
             preference.edit().putInt(KEY_LAUNCHER_CLICK_COUNT, next).apply()
+            Log.d("AdCounter", "Launcher click count incremented: $next")
             return next
         }
 
         fun resetLauncherClickCount() {
+            Log.d("AdCounter", "Resetting launcher click counter to 0")
             preference.edit().putInt(KEY_LAUNCHER_CLICK_COUNT, 0).apply()
         }
 
