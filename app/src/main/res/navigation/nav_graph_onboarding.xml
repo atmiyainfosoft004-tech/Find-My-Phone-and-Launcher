@@ -3,22 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/onboarding_nav_graph"
-    app:startDestination="@id/onboardingScreen2Fragment">
-
-    <!-- Screen 2: Set As Default Launcher Gatekeeper -->
-    <fragment
-        android:id="@+id/onboardingScreen2Fragment"
-        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen2Fragment"
-        android:label="OnboardingScreen2Fragment"
-        tools:layout="@layout/fragment_onboarding_screen2">
-
-        <!-- Action popping OnboardingScreen2Fragment and the whole start graph -->
-        <action
-            android:id="@+id/action_onboardingScreen2_to_onboardingScreen1"
-            app:destination="@id/onboardingScreen1Fragment"
-            app:popUpTo="@id/onboarding_nav_graph"
-            app:popUpToInclusive="true" />
-    </fragment>
+    app:startDestination="@id/onboardingScreen1Fragment">
 
     <!-- Screen 1: Onboarding Intro Video & Features -->
     <fragment

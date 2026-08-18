@@ -9,9 +9,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityLanguageBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
-import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
+import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 import com.example.findmyphonebyclaplauncher.utils.LocaleHelper
 
@@ -26,7 +27,7 @@ class LanguageActivity : BaseActivity() {
         binding = ActivityLanguageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        isFirstTime = intent.getBooleanExtra(EXTRA_IS_FIRST_TIME, false)
+        isFirstTime = intent.getBooleanExtra(EXTRA_IS_FIRST_TIME, false) || intent.getBooleanExtra("isFirstTime", false)
 
         setupWindowInsets()
         setupHeader()
@@ -116,19 +117,22 @@ class LanguageActivity : BaseActivity() {
         binding.btnApplyLanguage.setOnClickListener {
             val selectedItem = adapter.getSelectedItem() ?: return@setOnClickListener
 
-            // 1. Persist the chosen language via LocaleHelper / SharedPreferences and update locale
+            // 1. Mark language as selected in UserPreferencesDataSource
+            UserPreferencesDataSource(this).isLanguageSelected = true
+
+            // 2. Persist the chosen language via LocaleHelper / SharedPreferences and update locale
             LocaleHelper.setLocale(this, selectedItem.code)
 
-            // 2. Perform navigation
+            // 3. Perform navigation
             if (isFirstTime) {
-                // If first time launch, navigate directly to FindPhoneActivity (Home screen) and clear stack
-                val intent = Intent(this, FindPhoneActivity::class.java).apply {
+                // If first time launch, navigate explicitly to OnboardingActivity and clear stack
+                val intent = Intent(this@LanguageActivity, OnboardingActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
                 startActivity(intent)
                 finish()
             } else {
-                // If opened from Menu screen, finish and return to the previous screen
+                // If opened from Menu screen, finish and return seamlessly to the Menu screen
                 finishWithSlideAnimation()
             }
         }

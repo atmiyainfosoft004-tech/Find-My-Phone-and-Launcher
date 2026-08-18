@@ -4,7 +4,7 @@
     <string name="launcher_title">Find My Phone</string>
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
-    <string name="onboarding_title_1">只需拍手或\n吹口哨</string>
+    <string name="onboarding_title_1"><![CDATA[只需<font color="#2563EB">拍手</font>或吹口哨]]></string>
     <string name="onboarding_subtitle_1">即可立即找到您丢失的手机</string>
     <string name="btn_continue">继续</string>
 

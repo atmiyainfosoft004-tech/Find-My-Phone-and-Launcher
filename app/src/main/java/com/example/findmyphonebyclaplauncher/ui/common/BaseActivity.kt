@@ -10,4 +10,14 @@ abstract class BaseActivity : AppCompatActivity() {
         val contextWithLocale = LocaleHelper.onAttach(newBase)
         super.attachBaseContext(contextWithLocale)
     }
+
+    override fun onResume() {
+        super.onResume()
+        updateLocalizedTexts()
+    }
+
+    /**
+     * Override in child activities to re-bind localized strings dynamically when the locale changes or activity resumes.
+     */
+    open fun updateLocalizedTexts() {}
 }

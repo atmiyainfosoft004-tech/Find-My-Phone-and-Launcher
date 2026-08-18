@@ -5,15 +5,14 @@ import android.graphics.Matrix
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.databinding.FragmentOnboardingScreen1Binding
@@ -53,19 +52,22 @@ class OnboardingScreen1Fragment : Fragment() {
             }
         )
 
-        val htmlTitle = "Just <font color='#2563EB'>clap</font> or whistle"
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            binding.txtTitle.text = Html.fromHtml(htmlTitle, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            @Suppress("DEPRECATION")
-            binding.txtTitle.text = Html.fromHtml(htmlTitle)
-        }
-
+        updateLocalizedTexts()
         setupVideoPlayer()
 
         binding.btnContinue.setOnClickListener {
             (activity as? OnboardingActivity)?.navigateToPage(com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter.PAGE_SCREEN_3)
         }
+    }
+
+    private fun updateLocalizedTexts() {
+        if (_binding == null) return
+        val ctx = context ?: return
+
+        val rawTitle = ctx.getString(R.string.onboarding_title_1)
+        binding.txtTitle.text = HtmlCompat.fromHtml(rawTitle, HtmlCompat.FROM_HTML_MODE_LEGACY)
+        binding.txtSubtitle.text = ctx.getString(R.string.onboarding_subtitle_1)
+        binding.btnContinue.text = ctx.getString(R.string.btn_continue)
     }
 
     private fun setupVideoPlayer() {
@@ -167,6 +169,8 @@ class OnboardingScreen1Fragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        updateLocalizedTexts()
+
         val ctx = context ?: return
         val prefs = com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource(ctx)
         if (prefs.isOnboardingCompleted) {

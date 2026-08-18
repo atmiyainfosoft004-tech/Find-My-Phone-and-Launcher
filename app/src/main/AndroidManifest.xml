@@ -118,6 +118,11 @@
 
         <!-- Onboarding -->
         <activity
+            android:name=".ui.onboarding.OnboardingScreen2Activity"
+            android:exported="false"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
+
+        <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:exported="false"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />

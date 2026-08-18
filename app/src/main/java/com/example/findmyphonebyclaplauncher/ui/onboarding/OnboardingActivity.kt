@@ -4,8 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.databinding.ActivityOnboardingBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
@@ -21,7 +21,7 @@ class OnboardingActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        @Suppress("DEPRECATION")
+
         setupWindowInsets()
         setupViewPager()
         observeViewModel()
@@ -29,7 +29,7 @@ class OnboardingActivity : BaseActivity() {
     }
 
     private fun setupWindowInsets() {
-        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.root.setPadding(
@@ -47,8 +47,7 @@ class OnboardingActivity : BaseActivity() {
         binding.vpOnboarding.adapter = adapter
         binding.vpOnboarding.isUserInputEnabled = false
 
-        // Always begin strictly on OnboardingScreen2Fragment (Page 0) without skipping
-        binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_2, false)
+        binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_1, false)
     }
 
     private fun observeViewModel() {
@@ -60,7 +59,7 @@ class OnboardingActivity : BaseActivity() {
     private fun setupBackPressedHandler() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Do nothing: completely ignore back button clicks/gestures across onboarding
+                // Ignore back button clicks/gestures across onboarding
             }
         })
     }
@@ -85,6 +84,6 @@ class OnboardingActivity : BaseActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
-        finishAndRemoveTask()
+        finish()
     }
 }

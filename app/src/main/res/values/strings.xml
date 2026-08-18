@@ -4,7 +4,7 @@
     <string name="launcher_title">Find My Phone</string>
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
-    <string name="onboarding_title_1">Just clap or\nwhistle</string>
+    <string name="onboarding_title_1"><![CDATA[Just <font color="#2563EB">clap</font> or whistle]]></string>
     <string name="onboarding_subtitle_1">To find your lost phone instantly</string>
     <string name="btn_continue">Continue</string>
 
@@ -227,7 +227,7 @@
     <string name="select_your_language">Select Your Language</string>
     <string name="change_language">Change Language</string>
     <string name="language">Language</string>
-    <string name="app_is_already_installed">App is already installed</string>
+    <string name="app_is_already_installed" translatable="false">App is already installed</string>
     <string name="lang_english">English</string>
     <string name="lang_hindi">हिन्दी</string>
     <string name="lang_spanish">Español</string>

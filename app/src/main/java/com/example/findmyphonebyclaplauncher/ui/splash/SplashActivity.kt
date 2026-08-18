@@ -4,19 +4,17 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
-import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivitySplashBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
-import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
+import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingScreen2Activity
 import com.example.findmyphonebyclaplauncher.utils.LauncherHelper
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,14 +32,11 @@ class SplashActivity : BaseActivity() {
         setContentView(binding.root)
 
         setupWindowInsets()
-
-        if (savedInstanceState == null) {
-            handleSplashTransition()
-        }
+        handleSplashTransition()
     }
 
     private fun setupWindowInsets() {
-        androidx.core.view.WindowCompat.getInsetsController(window, window.decorView).apply {
+        WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = true
             isAppearanceLightNavigationBars = true
         }
@@ -71,48 +66,23 @@ class SplashActivity : BaseActivity() {
 
             Log.d("SplashActivity", "Proceeding to next screen (trigger: $reason)")
 
+            // New Flow Sequence:
+            // If default launcher is already set AND onboarding is completed/skipped with permissions: Go to FindPhoneActivity
+            // Otherwise: Go directly to OnboardingScreen2Activity
             val targetClass = if (isDefaultLauncher && (hasPermission || isCompleted || isSkipped)) {
                 FindPhoneActivity::class.java
             } else {
-                OnboardingActivity::class.java
+                OnboardingScreen2Activity::class.java
             }
 
             startActivity(Intent(this@SplashActivity, targetClass))
             finish()
         }
 
-        // Fallback / Timeout safety mechanism (3.5s) to guarantee the user is never stuck
+        // Timeout safety mechanism (1.5s splash display duration)
         timeoutJob = lifecycleScope.launch {
-            delay(3500L)
-            proceedToNextScreen("TimeoutFallback")
-        }
-
-        // Initialize and synchronize with Firebase Remote Config fetchAndActivate()
-        AdsConfigManager.initialize(applicationContext) { success ->
-            Log.d("RemoteConfig", "fetchAndActivate complete: isSuccessful=$success")
-            val backTrigger = AdsConfigManager.config.interAdBackCounterTrigger
-            Log.d("RemoteConfig", "Active inter_ad_back_counter_trigger=$backTrigger")
-
-            if (com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(this@SplashActivity)) {
-                if (AdsConfigManager.config.canShowAppOpen && AdsConfigManager.config.preloadAdAppOpen) {
-                    com.example.findmyphonebyclaplauncher.ads.AppOpenAdLoader.instance?.preloadAppOpenAd(this@SplashActivity)
-                }
-                if (AdsConfigManager.config.canShowInter && AdsConfigManager.config.preloadAdInterstitial) {
-                    com.example.findmyphonebyclaplauncher.ads.InterAdLoader.instance?.loadInterstitialAds(this@SplashActivity)
-                }
-                if (AdsConfigManager.config.canShowBanner && AdsConfigManager.config.preloadAdBanner) {
-                    com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.loadBannerAdPreload(this@SplashActivity)
-                }
-                if (AdsConfigManager.config.canShowNative && AdsConfigManager.config.preloadAdNative) {
-                    com.example.findmyphonebyclaplauncher.ads.NativeAdLoader.instance?.loadNativeAdPreload(this@SplashActivity)
-                }
-            }
-
-            lifecycleScope.launch {
-                // Small delay (minimum splash duration for smooth UX)
-                delay(1200L)
-                proceedToNextScreen("RemoteConfigComplete")
-            }
+            delay(1500)
+            proceedToNextScreen("TimeoutReached")
         }
     }
 

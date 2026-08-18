@@ -4,7 +4,7 @@
     <string name="launcher_title">Find My Phone</string>
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
-    <string name="onboarding_title_1">Просто похлопайте или\nпосвистите</string>
+    <string name="onboarding_title_1"><![CDATA[Просто <font color="#2563EB">похлопайте</font> или посвистите]]></string>
     <string name="onboarding_subtitle_1">Чтобы мгновенно найти потерянный телефон</string>
     <string name="btn_continue">Продолжить</string>
 

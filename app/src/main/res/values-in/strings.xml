@@ -4,7 +4,7 @@
     <string name="launcher_title">Find My Phone</string>
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
-    <string name="onboarding_title_1">Cukup bertepuk atau\nbersiul</string>
+    <string name="onboarding_title_1"><![CDATA[Cukup <font color="#2563EB">bertepuk</font> atau bersiul]]></string>
     <string name="onboarding_subtitle_1">Untuk menemukan telepon Anda yang hilang secara instan</string>
     <string name="btn_continue">Lanjutkan</string>
 

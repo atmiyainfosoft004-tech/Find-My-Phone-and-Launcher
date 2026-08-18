@@ -4,7 +4,7 @@
     <string name="launcher_title">Find My Phone</string>
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
-    <string name="onboarding_title_1">Einfach klatschen oder\npfeifen</string>
+    <string name="onboarding_title_1"><![CDATA[Einfach <font color="#2563EB">klatschen</font> oder pfeifen]]></string>
     <string name="onboarding_subtitle_1">Um Ihr verlorenes Telefon sofort zu finden</string>
     <string name="btn_continue">Weiter</string>
 

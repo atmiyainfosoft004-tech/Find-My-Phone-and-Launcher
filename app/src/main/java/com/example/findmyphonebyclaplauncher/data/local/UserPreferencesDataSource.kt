@@ -15,6 +15,10 @@ class UserPreferencesDataSource(context: Context) {
         Context.MODE_PRIVATE
     )
 
+    var isLanguageSelected: Boolean
+        get() = prefs.getBoolean("key_language_selected", false)
+        set(value) = prefs.edit().putBoolean("key_language_selected", value).apply()
+
     var isOnboardingCompleted: Boolean
         get() = prefs.getBoolean(Constants.KEY_ONBOARDING_COMPLETED, false)
         set(value) = prefs.edit().putBoolean(Constants.KEY_ONBOARDING_COMPLETED, value).apply()

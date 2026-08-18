@@ -35,6 +35,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/onboarding_title_1"
+        android:textColor="@color/color_text_on_light"
+        android:textAllCaps="false"
         android:textAppearance="@style/TextAppearance.App.Onboarding.HeadlineLarge"
         android:fontFamily="@font/inter_extrabold"
         app:fontFamily="@font/inter_extrabold"

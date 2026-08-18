@@ -63,7 +63,6 @@
         app:layout_constraintTop_toBottomOf="@id/layoutHeader">
 
         <!-- Item 0: About Us -->
-
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardAbout"
             android:layout_width="match_parent"
@@ -103,6 +102,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tvAboutUs"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/about_us"
@@ -131,7 +131,6 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Item 1: Language -->
-
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardLanguage"
             android:layout_width="match_parent"
@@ -170,6 +169,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tvLanguage"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/language"
@@ -237,6 +237,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tvHelp"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/help"
@@ -304,6 +305,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tvPrivacyPolicy"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/privacy_policy"
@@ -371,6 +373,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/tvTermsOfService"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/terms_of_service"

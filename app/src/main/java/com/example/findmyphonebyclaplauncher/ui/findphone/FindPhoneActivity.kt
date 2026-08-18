@@ -28,6 +28,17 @@ class FindPhoneActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         prefs = UserPreferencesDataSource(this)
 
+        if (!prefs.isLanguageSelected) {
+            val intent = Intent(this, com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity::class.java).apply {
+                putExtra(com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity.EXTRA_IS_FIRST_TIME, true)
+                putExtra("isFirstTime", true)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
+            return
+        }
+
         if (!prefs.isOnboardingCompleted && !prefs.isOnboardingSkipped) {
             startActivity(Intent(this, com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity::class.java))
             finish()

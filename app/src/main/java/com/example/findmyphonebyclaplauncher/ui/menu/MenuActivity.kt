@@ -6,11 +6,11 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.ActivityMenuBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
@@ -28,6 +28,15 @@ class MenuActivity : BaseActivity() {
 
         setupWindowInsets()
         setupListeners()
+    }
+
+    override fun updateLocalizedTexts() {
+        binding.txtTitle.text = getString(R.string.menu)
+        binding.tvAboutUs.text = getString(R.string.about_us)
+        binding.tvLanguage.text = getString(R.string.language)
+        binding.tvHelp.text = getString(R.string.help)
+        binding.tvPrivacyPolicy.text = getString(R.string.privacy_policy)
+        binding.tvTermsOfService.text = getString(R.string.terms_of_service)
     }
 
     private fun setupWindowInsets() {

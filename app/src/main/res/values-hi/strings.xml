@@ -4,7 +4,7 @@
     <string name="launcher_title">Find My Phone</string>
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
-    <string name="onboarding_title_1">बस ताली बजाएं या\nसीटी बजाएं</string>
+    <string name="onboarding_title_1"><![CDATA[बस <font color="#2563EB">ताली</font> बजाएं या सीटी बजाएं]]></string>
     <string name="onboarding_subtitle_1">अपना खोया हुआ फोन तुरंत ढूंढने के लिए</string>
     <string name="btn_continue">जारी रखें</string>
 
