@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/onboarding_nav_graph"
+    app:startDestination="@id/onboardingScreen2Fragment">
+
+    <!-- Screen 2: Set As Default Launcher Gatekeeper -->
+    <fragment
+        android:id="@+id/onboardingScreen2Fragment"
+        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen2Fragment"
+        android:label="OnboardingScreen2Fragment"
+        tools:layout="@layout/fragment_onboarding_screen2">
+
+        <!-- Action popping OnboardingScreen2Fragment and the whole start graph -->
+        <action
+            android:id="@+id/action_onboardingScreen2_to_onboardingScreen1"
+            app:destination="@id/onboardingScreen1Fragment"
+            app:popUpTo="@id/onboarding_nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Screen 1: Onboarding Intro Video & Features -->
+    <fragment
+        android:id="@+id/onboardingScreen1Fragment"
+        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen1Fragment"
+        android:label="OnboardingScreen1Fragment"
+        tools:layout="@layout/fragment_onboarding_screen1">
+
+        <action
+            android:id="@+id/action_onboardingScreen1_to_onboardingScreen3"
+            app:destination="@id/onboardingScreen3Fragment" />
+    </fragment>
+
+    <!-- Screen 3: Microphone & Notification Permissions -->
+    <fragment
+        android:id="@+id/onboardingScreen3Fragment"
+        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen3Fragment"
+        android:label="OnboardingScreen3Fragment"
+        tools:layout="@layout/fragment_onboarding_screen3">
+
+        <action
+            android:id="@+id/action_onboardingScreen3_to_onboardingScreen4"
+            app:destination="@id/onboardingScreen4Fragment" />
+    </fragment>
+
+    <!-- Screen 4: Sound Selector & Volume -->
+    <fragment
+        android:id="@+id/onboardingScreen4Fragment"
+        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen4Fragment"
+        android:label="OnboardingScreen4Fragment"
+        tools:layout="@layout/fragment_onboarding_screen4">
+
+        <action
+            android:id="@+id/action_onboardingScreen4_to_onboardingScreen5"
+            app:destination="@id/onboardingScreen5Fragment" />
+        <action
+            android:id="@+id/action_onboardingScreen4_to_onboardingScreen6"
+            app:destination="@id/onboardingScreen6Fragment" />
+    </fragment>
+
+    <!-- Screen 5: Sound / Clap Listening Test -->
+    <fragment
+        android:id="@+id/onboardingScreen5Fragment"
+        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen5Fragment"
+        android:label="OnboardingScreen5Fragment"
+        tools:layout="@layout/fragment_onboarding_screen5">
+
+        <action
+            android:id="@+id/action_onboardingScreen5_to_onboardingScreen6"
+            app:destination="@id/onboardingScreen6Fragment" />
+    </fragment>
+
+    <!-- Screen 6: Final Launcher Preview & Setup Complete -->
+    <fragment
+        android:id="@+id/onboardingScreen6Fragment"
+        android:name="com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen6Fragment"
+        android:label="OnboardingScreen6Fragment"
+        tools:layout="@layout/fragment_onboarding_screen6" />
+
+</navigation>

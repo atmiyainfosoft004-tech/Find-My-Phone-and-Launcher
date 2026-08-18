@@ -222,4 +222,5 @@
     <string name="app_updated_success_title">App Updated Successfully</string>
     <string name="app_uninstalled_success_title">App Uninstalled Successfully</string>
     <string name="set_as_default">Set As Default</string>
+    <string name="set_as_default_launcher_required">Please set Find My Phone as your default home app to proceed</string>
 </resources>

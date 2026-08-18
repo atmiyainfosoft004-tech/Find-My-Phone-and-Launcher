@@ -1,5 +1,6 @@
 package com.example.findmyphonebyclaplauncher.ui.onboarding.fragments
 
+import android.content.Intent
 import android.graphics.Matrix
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
@@ -12,6 +13,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.databinding.FragmentOnboardingScreen1Binding
@@ -40,6 +42,16 @@ class OnboardingScreen1Fragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Block System Back Press completely (non-functional back callback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // Do nothing: completely disable back press when set as default launcher
+                }
+            }
+        )
 
         val htmlTitle = "Just <font color='#2563EB'>clap</font> or whistle"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -155,6 +167,16 @@ class OnboardingScreen1Fragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        val ctx = context ?: return
+        val prefs = com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource(ctx)
+        if (prefs.isOnboardingCompleted) {
+            val intent = Intent(ctx, com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            activity?.finish()
+            return
+        }
         try {
             if (mediaPlayer != null && !(mediaPlayer!!.isPlaying)) {
                 mediaPlayer?.start()

@@ -13,6 +13,7 @@ object LauncherHelper {
     private const val TAG = "DefaultHomeDebug"
 
     fun isDefaultLauncher(context: Context): Boolean {
+        // Tier 1: RoleManager check (Android 10+ / Q+)
         val roleHeld = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val roleManager = context.getSystemService(Context.ROLE_SERVICE) as? RoleManager
             roleManager?.isRoleHeld(RoleManager.ROLE_HOME) == true
@@ -20,8 +21,12 @@ object LauncherHelper {
             false
         }
 
+        // Tier 2: PackageManager resolve check with CATEGORY_DEFAULT
         val pmDefault = runCatching {
-            val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) }
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                addCategory(Intent.CATEGORY_DEFAULT)
+            }
             val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 context.packageManager.resolveActivity(
                     intent,
@@ -31,11 +36,30 @@ object LauncherHelper {
                 @Suppress("DEPRECATION")
                 context.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
             }
-            resolveInfo?.activityInfo?.packageName == context.packageName
+            val pkg = resolveInfo?.activityInfo?.packageName
+            pkg != null && pkg == context.packageName
         }.getOrDefault(false)
 
-        val result = roleHeld || pmDefault
-        Log.d(TAG, "isDefaultLauncher check: roleHeld=$roleHeld, pmDefault=$pmDefault -> result=$result")
+        // Tier 3: PackageManager resolve fallback with CATEGORY_HOME
+        val pmFallback = runCatching {
+            val intent = Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+            }
+            val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.resolveActivity(
+                    intent,
+                    PackageManager.ResolveInfoFlags.of(0L)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.resolveActivity(intent, 0)
+            }
+            val pkg = resolveInfo?.activityInfo?.packageName
+            pkg != null && pkg == context.packageName
+        }.getOrDefault(false)
+
+        val result = roleHeld || pmDefault || pmFallback
+        Log.d(TAG, "isDefaultLauncher: roleHeld=$roleHeld, pmDefault=$pmDefault, pmFallback=$pmFallback -> result=$result")
         return result
     }
 

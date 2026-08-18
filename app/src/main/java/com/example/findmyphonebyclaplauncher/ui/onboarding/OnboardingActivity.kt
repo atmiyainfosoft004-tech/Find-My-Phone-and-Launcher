@@ -2,6 +2,7 @@ package com.example.findmyphonebyclaplauncher.ui.onboarding
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,6 +24,7 @@ class OnboardingActivity : AppCompatActivity() {
         setupWindowInsets()
         setupViewPager()
         observeViewModel()
+        setupBackPressedHandler()
     }
 
     private fun setupWindowInsets() {
@@ -54,6 +56,14 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupBackPressedHandler() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Do nothing: completely ignore back button clicks/gestures across onboarding
+            }
+        })
+    }
+
     fun goToNextPage() {
         val next = binding.vpOnboarding.currentItem + 1
         if (next < OnboardingPagerAdapter.PAGE_COUNT) {
@@ -74,11 +84,6 @@ class OnboardingActivity : AppCompatActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
-        finish()
-    }
-
-    @Suppress("OVERRIDE_DEPRECATION")
-    override fun onBackPressed() {
-        finish()
+        finishAndRemoveTask()
     }
 }

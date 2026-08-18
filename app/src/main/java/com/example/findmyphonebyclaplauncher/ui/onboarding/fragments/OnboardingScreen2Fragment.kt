@@ -3,7 +3,6 @@ package com.example.findmyphonebyclaplauncher.ui.onboarding.fragments
 import android.app.role.RoleManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -11,8 +10,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.databinding.FragmentOnboardingScreen2Binding
 import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter
@@ -23,14 +25,19 @@ class OnboardingScreen2Fragment : Fragment() {
     private var _binding: FragmentOnboardingScreen2Binding? = null
     private val binding get() = _binding!!
 
-    private var awaitingSettingsReturn = false
     private var isNavigated = false
+
+    private val backPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            // Do nothing: block back press on fragment level
+        }
+    }
 
     private val defaultRoleLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        Log.d(TAG, "defaultRoleLauncher ActivityResultCallback received: resultCode=${result.resultCode}")
-        checkDefaultHomeAppAndProceed(forceProceed = true, source = "ActivityResultCallback")
+        Log.d(TAG, "defaultRoleLauncher result received: resultCode=${result.resultCode}")
+        checkAndProceedIfDefault(source = "ActivityResultCallback")
     }
 
     override fun onCreateView(
@@ -45,48 +52,50 @@ class OnboardingScreen2Fragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         isNavigated = false
-        Log.d(TAG, "onViewCreated: isDefaultLauncher=${isDefaultLauncher()}")
 
+        // Register in-screen back-press handler strictly for this screen
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+
+        // Trigger default prompt ONLY when btnContinue is clicked
         binding.btnContinue.setOnClickListener {
-            val isDefault = isDefaultLauncher()
-            Log.d(TAG, "btnContinue clicked: isDefault=$isDefault, awaitingSettingsReturn=$awaitingSettingsReturn")
-            if (isDefault || awaitingSettingsReturn) {
-                checkDefaultHomeAppAndProceed(forceProceed = true, source = "btnContinue_Proceed")
+            if (isDefaultLauncher()) {
+                proceedToNextScreen(source = "btnContinue_AlreadyDefault")
             } else {
                 requestDefaultLauncher()
             }
         }
-
-//        binding.cardFindMyPhoneOption.setOnClickListener {
-//            Log.d(TAG, "cardFindMyPhoneOption clicked")
-//            requestDefaultLauncher()
-//        }
     }
 
     override fun onResume() {
         super.onResume()
-        val isDefault = isDefaultLauncher()
-        Log.d(TAG, "onResume: isDefault=$isDefault, awaitingSettingsReturn=$awaitingSettingsReturn, isNavigated=$isNavigated")
+        // Real-time verification: automatically proceed if app is confirmed as default launcher
+        checkAndProceedIfDefault(source = "onResume")
+    }
 
-        // Dual-validation: If app is confirmed default launcher or returning from system prompt
-        if (!isNavigated && (isDefault || awaitingSettingsReturn)) {
-            checkDefaultHomeAppAndProceed(forceProceed = awaitingSettingsReturn, source = "onResume_DualCheck")
+    private fun checkAndProceedIfDefault(source: String) {
+        if (!isAdded || isNavigated) return
+
+        val isDefault = isDefaultLauncher()
+        Log.d(TAG, "checkAndProceedIfDefault: isDefault=$isDefault, source=$source")
+
+        if (isDefault) {
+            proceedToNextScreen(source)
         }
     }
 
     private fun requestDefaultLauncher() {
-        if (isNavigated) {
-            Log.d(TAG, "requestDefaultLauncher: Aborted, already navigated")
+        if (isNavigated) return
+
+        if (isDefaultLauncher()) {
+            proceedToNextScreen(source = "requestDefaultLauncher_AlreadyDefault")
             return
         }
-        awaitingSettingsReturn = true
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val roleManager = requireContext().getSystemService(Context.ROLE_SERVICE) as? RoleManager
             if (roleManager != null && roleManager.isRoleAvailable(RoleManager.ROLE_HOME)) {
                 if (roleManager.isRoleHeld(RoleManager.ROLE_HOME)) {
-                    Log.d(TAG, "requestDefaultLauncher: ROLE_HOME is already held -> proceeding immediately")
-                    checkDefaultHomeAppAndProceed(forceProceed = true, source = "RoleHeldDirect")
+                    proceedToNextScreen(source = "RoleHeldDirect")
                     return
                 }
                 var roleIntentLaunched = false
@@ -130,63 +139,31 @@ class OnboardingScreen2Fragment : Fragment() {
         }
 
         if (!launched) {
-            Log.d(TAG, "No system launcher settings intent could be launched -> proceeding with fallback")
-            checkDefaultHomeAppAndProceed(forceProceed = true, source = "NoIntentFallback")
+            Log.d(TAG, "No system launcher settings intent could be launched")
+            context?.let { ctx ->
+                Toast.makeText(ctx, R.string.set_as_default_launcher_required, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun isDefaultLauncher(): Boolean {
         val ctx = context ?: return false
-        val roleHeld = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val roleManager = ctx.getSystemService(Context.ROLE_SERVICE) as? RoleManager
-            roleManager?.isRoleHeld(RoleManager.ROLE_HOME) == true
-        } else {
-            false
-        }
-
-        val pmDefault = runCatching {
-            val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) }
-            val resolveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ctx.packageManager.resolveActivity(
-                    intent,
-                    PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                ctx.packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
-            }
-            resolveInfo?.activityInfo?.packageName == ctx.packageName
-        }.getOrDefault(false)
-
-        return roleHeld || pmDefault
+        return LauncherHelper.isDefaultLauncher(ctx)
     }
 
-    private fun checkDefaultHomeAppAndProceed(
-        forceProceed: Boolean = false,
-        source: String = "unknown"
-    ) {
-        if (!isAdded || isNavigated) {
-            Log.d(TAG, "checkDefaultHomeAppAndProceed: Aborted (isAdded=$isAdded, isNavigated=$isNavigated, source=$source)")
-            return
-        }
-
-        val isDefault = isDefaultLauncher()
-        Log.d(TAG, "checkDefaultHomeAppAndProceed: isDefault=$isDefault, forceProceed=$forceProceed, source=$source")
-
-        if (isDefault || forceProceed) {
-            isNavigated = true
-            awaitingSettingsReturn = false
-            navigateToScreen1(source)
-        }
-    }
-
-    private fun navigateToScreen1(source: String) {
-        Log.d(TAG, "navigateToScreen1: Triggering navigation strictly to OnboardingScreen1Fragment (index 1) [source: $source]")
+    private fun proceedToNextScreen(source: String) {
+        if (isNavigated) return
+        isNavigated = true
+        backPressedCallback.isEnabled = false
+        backPressedCallback.remove()
+        Log.d(TAG, "proceedToNextScreen: Navigating to OnboardingScreen1Fragment (source: $source)")
         (activity as? OnboardingActivity)?.navigateToPage(OnboardingPagerAdapter.PAGE_SCREEN_1)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        backPressedCallback.isEnabled = false
+        backPressedCallback.remove()
         _binding = null
     }
 
