@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertSoundBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundItem
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.SoundPickerAdapter
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
@@ -23,7 +24,7 @@ import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
  * Activity to select and preview alert sound ringtones and volume.
  * Items only preview audio upon selection; changes are committed ONLY when tapping "Save".
  */
-class AlertSoundActivity : AppCompatActivity() {
+class AlertSoundActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAlertSoundBinding
     private lateinit var prefs: UserPreferencesDataSource
@@ -121,7 +122,7 @@ class AlertSoundActivity : AppCompatActivity() {
             // Save action: Commit temporary selection state to persistent storage
             commitSettings()
             stopPreview()
-            Toast.makeText(this, getString(R.string.alert_sound) + " saved", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.alert_sound_saved), Toast.LENGTH_SHORT).show()
             com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
                 finishWithSlideAnimation()
             }

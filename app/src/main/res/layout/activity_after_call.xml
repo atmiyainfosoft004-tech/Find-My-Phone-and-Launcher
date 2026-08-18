@@ -120,7 +120,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Find Phone"
+                    android:text="@string/find_phone"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:textSize="12sp" />
@@ -149,7 +149,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Share"
+                    android:text="@string/share"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:textSize="12sp" />
@@ -178,7 +178,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Search"
+                    android:text="@string/search"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:textSize="12sp" />
@@ -193,7 +193,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
-        android:text="Call History"
+        android:text="@string/call_history"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"

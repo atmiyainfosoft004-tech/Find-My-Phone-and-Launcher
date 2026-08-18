@@ -54,6 +54,12 @@ class AppContextPopup(
         val arrowHeight = (7 * density).roundToInt()
         val edgeInset = (10 * density).roundToInt()
 
+        if (app.packageName == context.packageName) {
+            binding.tvAppInfo.setText(R.string.app_is_already_installed)
+        } else {
+            binding.tvAppInfo.setText(R.string.app_info)
+        }
+
         if (app.isFavorite) {
             binding.tvFavorite.setText(R.string.remove_from_favorites)
             binding.ivFavorite.setImageResource(R.drawable.ic_star)

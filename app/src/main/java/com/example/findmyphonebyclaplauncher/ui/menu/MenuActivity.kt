@@ -13,9 +13,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.ActivityMenuBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
+import com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
-class MenuActivity : AppCompatActivity() {
+class MenuActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMenuBinding
 
@@ -59,6 +61,13 @@ class MenuActivity : AppCompatActivity() {
                 }
             }
         })
+
+        binding.cardLanguage.setOnClickListener {
+            val intent = Intent(this, LanguageActivity::class.java).apply {
+                putExtra(LanguageActivity.EXTRA_IS_FIRST_TIME, false)
+            }
+            startActivity(intent)
+        }
 
         binding.cardAbout.setOnClickListener {
             openPlayStorePage()

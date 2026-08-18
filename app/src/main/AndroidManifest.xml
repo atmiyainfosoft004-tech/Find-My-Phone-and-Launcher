@@ -150,6 +150,13 @@
             android:launchMode="singleTop"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
+        <!-- Language Activity -->
+        <activity
+            android:name=".ui.language.LanguageActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
+
         <!-- Alert Sensitivity Activity -->
         <activity
             android:name=".ui.settings.AlertSensitivityActivity"

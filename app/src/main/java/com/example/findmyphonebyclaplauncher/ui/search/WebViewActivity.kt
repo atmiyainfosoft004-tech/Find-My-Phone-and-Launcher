@@ -9,11 +9,11 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.example.findmyphonebyclaplauncher.databinding.ActivityWebViewBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 
-class WebViewActivity : AppCompatActivity() {
+class WebViewActivity : BaseActivity() {
 
     private lateinit var binding: ActivityWebViewBinding
 

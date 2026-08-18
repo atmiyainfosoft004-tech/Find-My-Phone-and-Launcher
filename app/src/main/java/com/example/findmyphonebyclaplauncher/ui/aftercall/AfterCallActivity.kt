@@ -22,12 +22,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.ads.BannerAdLoader
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.search.GoogleSearchActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class AfterCallActivity : AppCompatActivity() {
+class AfterCallActivity : BaseActivity() {
 
     private val viewModel: AfterCallViewModel by viewModels()
     private lateinit var adapter: CallHistoryAdapter

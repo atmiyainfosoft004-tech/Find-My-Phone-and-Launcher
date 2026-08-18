@@ -223,4 +223,25 @@
     <string name="app_uninstalled_success_title">App Uninstalled Successfully</string>
     <string name="set_as_default">Set As Default</string>
     <string name="set_as_default_launcher_required">Please set Find My Phone as your default home app to proceed</string>
+    <!-- ── Language Selection & Context Menu Strings ───────────────── -->
+    <string name="select_your_language">Select Your Language</string>
+    <string name="change_language">Change Language</string>
+    <string name="language">Language</string>
+    <string name="app_is_already_installed">App is already installed</string>
+    <string name="lang_english">English</string>
+    <string name="lang_hindi">हिन्दी</string>
+    <string name="lang_spanish">Español</string>
+    <string name="lang_french">Français</string>
+    <string name="lang_german">Deutsch</string>
+    <string name="lang_indonesian">Bahasa Indonesia</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_chinese">中文</string>
+    <!-- ── Newly Audited Strings ───────────────────────────────────── -->
+    <string name="app_is_secure_to_use">This app is secure to use</string>
+    <string name="open">Open</string>
+    <string name="find_phone">Find Phone</string>
+    <string name="share">Share</string>
+    <string name="search">Search</string>
+    <string name="call_history">Call History</string>
+    <string name="alert_sound_saved">Alert sound saved</string>
 </resources>

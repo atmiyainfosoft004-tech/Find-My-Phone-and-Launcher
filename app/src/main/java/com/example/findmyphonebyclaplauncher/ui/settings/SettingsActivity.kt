@@ -13,9 +13,10 @@ import com.example.findmyphonebyclaplauncher.utils.OemCompatibilityManager
 import com.google.android.material.snackbar.Snackbar
 
 import androidx.activity.OnBackPressedCallback
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
 

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Find My Phone</string>
+    <string name="launcher_title">Find My Phone</string>
+
+    <!-- ── Onboarding ─────────────────────────────────────────────────── -->
+    <string name="onboarding_title_1">Просто похлопайте или\nпосвистите</string>
+    <string name="onboarding_subtitle_1">Чтобы мгновенно найти потерянный телефон</string>
+    <string name="btn_continue">Продолжить</string>
+
+    <string name="mascot_permission_text">Давайте протестируем! Разрешите доступ к аудио и уведомлениям, чтобы я мог вас слышать.</string>
+    <string name="mascot_default_launcher_text">Чтобы Find My Phone всегда был наготове, выберите меня в качестве главного приложения по умолчанию!</string>
+    <string name="default_home_app_title">Главное приложение по умолчанию</string>
+    <string name="find_my_phone_launcher_name">Find My Phone Launcher</string>
+    <string name="other_app_label">Другое приложение</string>
+    <string name="audio_access_title">Требуется доступ к аудио</string>
+    <string name="audio_access_desc">Слушает только ваши хлопки и свист. Мы никогда не загружаем и не сохраняем аудиофайлы.</string>
+    <string name="privacy_matters_text">Ваша конфиденциальность важна</string>
+
+    <string name="mascot_sound_picker_text">Теперь выберите любимый звук сигнала и настройте громкость.</string>
+    <string name="alert_sound_volume_label">Громкость сигнала</string>
+    <string name="tap_to_play_sound_label">НАЖМИТЕ ДЛЯ ВОСПРОИЗВЕДЕНИЯ</string>
+    <string name="btn_test_it_now">Протестировать сейчас</string>
+    <string name="btn_skip_for_now"><u>Пропустить пока</u></string>
+
+    <string name="mascot_listening_test_text">Давайте протестируем! Похлопайте 3 раза или громко посвистите.</string>
+    <string name="listening_header">Прослушивание…</string>
+    <string name="listening_subtitle">Посвистите или похлопайте 3 раза</string>
+    <string name="btn_test_it_later">Протестирую позже</string>
+
+    <string name="mascot_home_preview_text">Ваши системные данные в безопасности! Наш лончер только обновляет макет для быстрого доступа.</string>
+    <string name="label_find_phone_active">Find My Phone активен</string>
+    <string name="btn_got_it">Понятно</string>
+    <string name="label_camera">Камера</string>
+    <string name="label_maps">Карты</string>
+    <string name="label_messages">Сообщения</string>
+    <string name="label_photos">Фотографии</string>
+    <string name="label_search_apps">Поиск приложений…</string>
+
+    <!-- ── Home / Main Dashboard ──────────────────────────────────────── -->
+    <string name="find_phone_title">Найти мой телефон</string>
+    <string name="find_phone_subtitle">Найдите свой телефон хлопком или свистом</string>
+    <string name="detection_master_label_off">Распознавание хлопков и свиста ВЫКЛ</string>
+    <string name="detection_master_label_on">Распознавание хлопков и свиста ВКЛ</string>
+    <string name="find_phone_3_claps">Распознавание 3 хлопков</string>
+    <string name="find_phone_whistle">Распознавание свиста</string>
+    <string name="alert_sound">Звук сигнала</string>
+    <string name="your_ringtone">Ваш\nРингтон</string>
+
+    <string name="label_sound_alert">Звуковой сигнал</string>
+    <string name="label_flashlight_alert">Сигнал вспышкой</string>
+    <string name="label_vibration_alert">Вибросигнал</string>
+    <string name="label_multi_alert_settings">Мульти-настройки сигнала</string>
+    <string name="label_alert_duration">Длительность сигнала</string>
+    <string name="label_alert_sound">Звук сигнала</string>
+    <string name="label_preview_sound">Прослушать</string>
+    <string name="label_stop_sound">Стоп</string>
+    <string name="label_keep_active">Держать Find My Phone активным</string>
+    <string name="label_battery_desc">Оптимизация батареи может остановить работу в фоновом режиме. Разрешите фоновую работу для надежности.</string>
+    <string name="label_open_battery_settings">Открыть настройки батареи</string>
+
+    <string name="radio_sound_whistle">Тон свистка</string>
+    <string name="radio_sound_melody">Громкая мелодия</string>
+    <string name="radio_sound_animal">Лай собаки</string>
+    <string name="radio_sound_electronic">Электронная сирена</string>
+
+    <string name="service_status_active">Распознавание активно</string>
+    <string name="service_status_off">Распознавание выключено</string>
+
+    <!-- ── Permissions ─────────────────────────────────────────────────── -->
+    <string name="mic_permission_required">Требуется разрешение на микрофон для распознавания хлопков и свиста.</string>
+    <string name="mic_permission_rationale">Разрешите доступ к микрофону, чтобы приложение могло слушать хлопки и свист.</string>
+    <string name="mic_permission_denied">Доступ к микрофону отклонен. Распознавание не будет работать.</string>
+    <string name="mic_permission_permanently_denied">Доступ отклонен навсегда. Включите его вручную в Настройках.</string>
+    <string name="allow">Разрешить</string>
+    <string name="open_settings">Открыть настройки</string>
+
+    <!-- ── Alert ───────────────────────────────────────────────────────── -->
+    <string name="alert_title">Ваш телефон найден!</string>
+    <string name="alert_subtitle">Нажмите СТОП, чтобы выключить сигнал</string>
+    <string name="stop_alert">СТОП</string>
+    <string name="yeahTitle">Ура!</string>
+    <string name="youveFoundYourPhone">Вы нашли свой телефон</string>
+    <string name="btnDismiss">Закрыть</string>
+    <string name="alert_notification_title">Find My Phone — Активен</string>
+    <string name="alert_notification_text">Нажмите, чтобы остановить сигнал.</string>
+
+    <!-- ── Service Notification ────────────────────────────────────────── -->
+    <string name="service_notification_title">Find My Phone активен</string>
+    <string name="service_notification_text">Слушает хлопки и свист…</string>
+
+    <!-- ── Notification Channels ──────────────────────────────────────── -->
+    <string name="channel_detection_name">Распознавание звука</string>
+    <string name="channel_detection_description">Служба фонового режима для распознавания хлопков и свиста</string>
+    <string name="channel_alert_name">Сигнал поиска телефона</string>
+    <string name="channel_alert_description">Сигнал при нахождении телефона хлопком или свистом</string>
+
+    <!-- ── Settings ────────────────────────────────────────────────────── -->
+    <string name="settings">Настройки</string>
+    <string name="battery_optimization_title">Фоновая активность</string>
+    <string name="battery_optimization_description">Для надежного распознавания разрешите работу приложения в фоновом режиме без ограничений.</string>
+    <string name="battery_status_unrestricted">Без ограничений — работа надежна</string>
+    <string name="battery_status_restricted">Ограничено — работа может останавливаться в фоне</string>
+    <string name="allow_background_activity">Разрешить работу в фоне</string>
+    <string name="oem_autostart_title">Разрешение на автозапуск</string>
+    <string name="oem_autostart_description">Включите автозапуск для устройств %1$s.</string>
+    <string name="open_autostart_settings">Открыть настройки автозапуска</string>
+    <string name="oem_settings_not_found">Настройки автозапуска не найдены на этом устройстве.</string>
+    <string name="audio_access_needed">Требуется доступ к аудио</string>
+
+    <!-- ── Content Descriptions ────────────────────────────────────────── -->
+    <string name="content_desc_clap_icon">Значок распознавания хлопков</string>
+    <string name="content_desc_whistle_icon">Значок распознавания свиста</string>
+    <string name="content_desc_sound_alert">Значок звукового сигнала</string>
+    <string name="content_desc_flashlight_alert">Значок сигнала вспышкой</string>
+    <string name="content_desc_vibration_alert">Значок вибросигнала</string>
+    <string name="content_desc_mascot">Талисман</string>
+    <string name="content_desc_microphone">Значок микрофона</string>
+    <string name="content_desc_volume_low">Тихая громкость</string>
+    <string name="content_desc_volume_high">Громкая громкость</string>
+    <string name="content_desc_checkmark">Выбрано</string>
+    <string name="content_desc_sound_item_icon">Значок варианта звука</string>
+    <string name="content_desc_clap_hands">Иллюстрация хлопков рук</string>
+    <string name="air_horn">Пневмо\nгудок</string>
+    <string name="baby_laugh">Смех\nмладенца</string>
+    <string name="cat">Кошка</string>
+    <string name="dog">Собака</string>
+    <string name="door_bell">Дверной\nзвонок</string>
+    <string name="train">Поезд</string>
+    <string name="hello">Привет</string>
+    <string name="horn">Гудок</string>
+
+    <!-- ── Dashboard / Settings New Strings ───────────────────────────── -->
+    <string name="find_my_phone_launcher_title">Find My Phone Launcher</string>
+    <string name="clap_and_whistle_detection">Распознавание хлопков и свиста</string>
+    <string name="always_watching_background">Всегда отслеживает в фоне</string>
+    <string name="find_phone_with_3_claps">Найти телефон 3 хлопками</string>
+    <string name="alerts_on_double_triple_clap">Сигнал на двойной или тройной хлопок</string>
+    <string name="find_phone_by_whistle">Найти телефон свистом</string>
+    <string name="alerts_on_sharp_whistle">Сигнал на резкий свист</string>
+    <string name="volume">ГРОМКОСТЬ</string>
+    <string name="alert_sensitivity">Чувствительность сигнала</string>
+    <string name="badge_new">НОВОЕ</string>
+    <string name="set_how_easily_alert_triggers">Настройте легкость срабатывания сигнала</string>
+    <string name="how_long_alert_plays">Как долго звучит сигнал</string>
+    <string name="flashlight">Фонарик</string>
+    <string name="strobe_flash_on_alert">Мигание вспышкой при сигнале</string>
+    <string name="vibration">Вибрация</string>
+    <string name="vibrate_together_with_alert_sound">Вибрировать вместе со звуком сигнала</string>
+
+    <!-- ── Menu Screen Strings ────────────────────────────────────────── -->
+    <string name="menu">Меню</string>
+    <string name="about_us">О нас</string>
+    <string name="help">Помощь</string>
+    <string name="privacy_policy">Политика конфиденциальности</string>
+    <string name="terms_of_service">Условия использования</string>
+
+    <!-- ── Alert Sensitivity Screen Strings ────────────────────────────── -->
+    <string name="alert_sensitivity_desc">Настройте чувствительность к хлопку или свисту.</string>
+    <string name="sensitivity_low">Низкая</string>
+    <string name="sensitivity_medium">Средняя</string>
+    <string name="sensitivity_high">Высокая</string>
+    <string name="recommended">Рекомендуется</string>
+    <string name="btn_save">Сохранить</string>
+
+    <!-- ── Alert Sound Screen Strings ─────────────────────────────────── -->
+    <string name="ad_placeholder">Место для рекламы</string>
+    <string name="your_ringtone_single">Ваш рингтон</string>
+    <string name="default_duration_30s">30 сек</string>
+    <string name="enable_master_detection_first">Сначала включите распознавание хлопков и свиста</string>
+
+    <!-- ── Alert Duration Dialog Strings (camelCase) ──────────────────── -->
+    <string name="alertDurationTitle">ДЛИТЕЛЬНОСТЬ СИГНАЛА</string>
+    <string name="duration10Sec">10 сек</string>
+    <string name="duration30Sec">30 сек</string>
+    <string name="duration60Sec">60 сек</string>
+    <string name="duration120Sec">120 сек</string>
+    <string name="btnCancel">ОТМЕНА</string>
+    <string name="btnOk">ОК</string>
+    <string name="app_info">О приложении</string>
+    <string name="add_to_favorites">Добавить в избранное</string>
+    <string name="remove_from_favorites">Удалить из избранного</string>
+    <string name="uninstall">Удалить</string>
+    <string name="uninstall_confirm_message">Вы хотите удалить это приложение?</string>
+    <string name="uninstalled_app">Приложение %1$s удалено</string>
+    <string name="uninstall_failed">Не удалось удалить %1$s</string>
+    <string name="cancel">Отмена</string>
+    <string name="ok">ОК</string>
+    <string name="search_apps_hint">Поиск приложений…</string>
+    <string name="clear_search">Очистить поиск</string>
+    <string name="no_apps_found_subtitle">Попробуйте поискать с другим ключевым словом</string>
+    <string name="phone">Телефон</string>
+    <string name="home">Главная</string>
+    <string name="apps">Приложения</string>
+    <string name="usage_permission_required">Предоставьте доступ к использованию для просмотра недавних приложений.</string>
+    <string name="suggested_for_now">Рекомендуемые приложения</string>
+    <string name="recent_apps">Недавние приложения</string>
+    <string name="app_usage_stats">Использование приложений</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="tab_all">Все</string>
+    <string name="tab_favorites">Избранное</string>
+    <string name="tab_audio">Аудио</string>
+    <string name="tab_games">Игры</string>
+    <string name="tab_photography">Фотография</string>
+    <string name="tab_productivity">Продуктивность</string>
+    <string name="tab_social">Соцсети</string>
+    <string name="tab_video">Видео</string>
+    <string name="tab_others">Другое</string>
+
+    <!-- ── Google Search Strings ────────────────────────────────────────── -->
+    <string name="recent_searches">Недавние поиски</string>
+    <string name="clear_all">Очистить все</string>
+    <string name="search_suggestions">Поисковые подсказки</string>
+    <string name="google_search_hint">Поиск</string>
+    <string name="back">Назад</string>
+    <string name="fill_search">Заполнить поиск</string>
+    <string name="open_voice_search">Голосовой поиск</string>
+    <string name="loading_ad_message">Загрузка рекламы…</string>
+
+    <!-- ── App Install Success Strings ────────────────────────────────── -->
+    <string name="app_install_success_title">Приложение успешно установлено</string>
+    <string name="app_updated_success_title">Приложение успешно обновлено</string>
+    <string name="app_uninstalled_success_title">Приложение успешно удалено</string>
+    <string name="set_as_default">Установить по умолчанию</string>
+    <string name="set_as_default_launcher_required">Установите Find My Phone в качестве главного приложения по умолчанию для продолжения</string>
+
+    <!-- ── Language Selection & Context Menu Strings ───────────────── -->
+    <string name="select_your_language">Выберите ваш язык</string>
+    <string name="change_language">Изменить язык</string>
+    <string name="language">Язык</string>
+    <string name="app_is_already_installed">Приложение уже установлено</string>
+    <string name="lang_english">English</string>
+    <string name="lang_hindi">हिन्दी</string>
+    <string name="lang_spanish">Español</string>
+    <string name="lang_french">Français</string>
+    <string name="lang_german">Deutsch</string>
+    <string name="lang_indonesian">Bahasa Indonesia</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_chinese">中文</string>
+
+    <!-- ── Newly Audited Strings ───────────────────────────────────── -->
+    <string name="app_is_secure_to_use">Это приложение безопасно в использовании</string>
+    <string name="open">Открыть</string>
+    <string name="find_phone">Найти телефон</string>
+    <string name="share">Поделиться</string>
+    <string name="search">Поиск</string>
+    <string name="call_history">История звонков</string>
+    <string name="alert_sound_saved">Звук сигнала сохранен</string>
+</resources>

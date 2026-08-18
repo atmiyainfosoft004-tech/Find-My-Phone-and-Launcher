@@ -9,9 +9,10 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertSensitivityBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.util.finishWithSlideAnimation
 
-class AlertSensitivityActivity : AppCompatActivity() {
+class AlertSensitivityActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAlertSensitivityBinding
     private lateinit var prefs: UserPreferencesDataSource

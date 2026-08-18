@@ -24,10 +24,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
 import com.example.findmyphonebyclaplauncher.databinding.ActivityGoogleSearchBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.util.ChromeCustomTabHelper
 import kotlinx.coroutines.launch
 
-class GoogleSearchActivity : AppCompatActivity() {
+class GoogleSearchActivity : BaseActivity() {
 
     private lateinit var binding: ActivityGoogleSearchBinding
     private val viewModel: GoogleSearchViewModel by viewModels()

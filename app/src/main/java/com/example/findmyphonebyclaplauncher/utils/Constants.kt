@@ -40,6 +40,7 @@ object Constants {
     const val KEY_SELECTED_ALERT_SOUND                = "selected_alert_sound"
     const val KEY_SELECTED_ALERT_DURATION             = "selected_alert_duration"
     const val KEY_ALERT_SOUND_VOLUME                  = "alert_sound_volume"
+    const val KEY_SELECTED_LANGUAGE                   = "selected_language"
 
     // ─────────────────────────────────────────────────────────────────────────
     // Clap Detection Thresholds

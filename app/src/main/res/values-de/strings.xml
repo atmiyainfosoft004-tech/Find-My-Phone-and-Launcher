@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Find My Phone</string>
+    <string name="launcher_title">Find My Phone</string>
+
+    <!-- ── Onboarding ─────────────────────────────────────────────────── -->
+    <string name="onboarding_title_1">Einfach klatschen oder\npfeifen</string>
+    <string name="onboarding_subtitle_1">Um Ihr verlorenes Telefon sofort zu finden</string>
+    <string name="btn_continue">Weiter</string>
+
+    <string name="mascot_permission_text">Lass es uns testen! Erlauben Sie den Zugriff auf Audio und Benachrichtigungen.</string>
+    <string name="mascot_default_launcher_text">Damit Find My Phone immer aufmerksam ist, wählen Sie mich bitte als Standard-Start-App!</string>
+    <string name="default_home_app_title">Standard-Start-App</string>
+    <string name="find_my_phone_launcher_name">Find My Phone Launcher</string>
+    <string name="other_app_label">Andere App</string>
+    <string name="audio_access_title">Audio-Zugriff erforderlich</string>
+    <string name="audio_access_desc">Hört nur auf Ihr Klatschen und Pfeifen. Wir speichern oder übertragen niemals Audiodateien.</string>
+    <string name="privacy_matters_text">Ihre Privatsphäre ist wichtig</string>
+
+    <string name="mascot_sound_picker_text">Wählen Sie nun Ihren Lieblings-Alarmton und stellen Sie die Lautstärke ein.</string>
+    <string name="alert_sound_volume_label">Alarm-Lautstärke</string>
+    <string name="tap_to_play_sound_label">TIPPEN ZUM ABSPIELEN</string>
+    <string name="btn_test_it_now">Jetzt testen</string>
+    <string name="btn_skip_for_now"><u>Vorerst überspringen</u></string>
+
+    <string name="mascot_listening_test_text">Lass es uns testen! Klatschen Sie 3 Mal oder pfeifen Sie laut.</string>
+    <string name="listening_header">Hört zu…</string>
+    <string name="listening_subtitle">Pfeifen Sie oder klatschen Sie 3 Mal</string>
+    <string name="btn_test_it_later">Später testen</string>
+
+    <string name="mascot_home_preview_text">Ihre Systemdaten sind sicher! Unser Launcher aktualisiert nur Ihr Layout für schnellen Zugriff.</string>
+    <string name="label_find_phone_active">Find My Phone aktiv</string>
+    <string name="btn_got_it">Verstanden</string>
+    <string name="label_camera">Kamera</string>
+    <string name="label_maps">Karten</string>
+    <string name="label_messages">Nachrichten</string>
+    <string name="label_photos">Fotos</string>
+    <string name="label_search_apps">Apps suchen…</string>
+
+    <!-- ── Home / Main Dashboard ──────────────────────────────────────── -->
+    <string name="find_phone_title">Mein Telefon finden</string>
+    <string name="find_phone_subtitle">Finden Sie Ihr Telefon durch Klatschen oder Pfeifen</string>
+    <string name="detection_master_label_off">Klatsch- &amp; Pfeif-Erkennung AUS</string>
+    <string name="detection_master_label_on">Klatsch- &amp; Pfeif-Erkennung EIN</string>
+    <string name="find_phone_3_claps">3-Klatsch-Erkennung</string>
+    <string name="find_phone_whistle">Pfeif-Erkennung</string>
+    <string name="alert_sound">Alarmton</string>
+    <string name="your_ringtone">Ihr\nKlingelton</string>
+
+    <string name="label_sound_alert">Audio-Alarm</string>
+    <string name="label_flashlight_alert">Blitzlicht-Alarm</string>
+    <string name="label_vibration_alert">Vibrations-Alarm</string>
+    <string name="label_multi_alert_settings">Mehrfach-Alarmeinstellungen</string>
+    <string name="label_alert_duration">Alarmdauer</string>
+    <string name="label_alert_sound">Alarmton</string>
+    <string name="label_preview_sound">Vorschau</string>
+    <string name="label_stop_sound">Stopp</string>
+    <string name="label_keep_active">Find My Phone aktiv halten</string>
+    <string name="label_battery_desc">Die Akku-Optimierung kann die Erkennung im Hintergrund stoppen. Erlauben Sie Hintergrundaktivität für höhere Zuverlässigkeit.</string>
+    <string name="label_open_battery_settings">Akku-Einstellungen öffnen</string>
+
+    <string name="radio_sound_whistle">Pfeifton</string>
+    <string name="radio_sound_melody">Laute Melodie</string>
+    <string name="radio_sound_animal">Hundebellen</string>
+    <string name="radio_sound_electronic">Elektronische Sirene</string>
+
+    <string name="service_status_active">Erkennung aktiv</string>
+    <string name="service_status_off">Erkennung aus</string>
+
+    <!-- ── Permissions ─────────────────────────────────────────────────── -->
+    <string name="mic_permission_required">Mikrofon-Berechtigung ist erforderlich, um Klatschen und Pfeifen zu erkennen.</string>
+    <string name="mic_permission_rationale">Erlauben Sie Mikrofonzugriff, damit die App Klatschen und Pfeifen hören kann.</string>
+    <string name="mic_permission_denied">Mikrofon-Berechtigung verweigert. Erkennung funktioniert nicht.</string>
+    <string name="mic_permission_permanently_denied">Mikrofon-Berechtigung dauerhaft verweigert. Bitte in den Einstellungen aktivieren.</string>
+    <string name="allow">Zulassen</string>
+    <string name="open_settings">Einstellungen öffnen</string>
+
+    <!-- ── Alert ───────────────────────────────────────────────────────── -->
+    <string name="alert_title">Ihr Telefon wurde gefunden!</string>
+    <string name="alert_subtitle">Tippen Sie auf STOPP, um den Alarm zu beenden</string>
+    <string name="stop_alert">STOPP</string>
+    <string name="yeahTitle">Super!</string>
+    <string name="youveFoundYourPhone">Sie haben Ihr Telefon gefunden</string>
+    <string name="btnDismiss">Schließen</string>
+    <string name="alert_notification_title">Find My Phone — Aktiv</string>
+    <string name="alert_notification_text">Tippen, um den Alarm zu stoppen.</string>
+
+    <!-- ── Service Notification ────────────────────────────────────────── -->
+    <string name="service_notification_title">Find My Phone ist aktiv</string>
+    <string name="service_notification_text">Hört auf Klatschen und Pfeifen…</string>
+
+    <!-- ── Notification Channels ──────────────────────────────────────── -->
+    <string name="channel_detection_name">Sound-Erkennung</string>
+    <string name="channel_detection_description">Vordergrunddienst für Klatsch- und Pfeiferkennung</string>
+    <string name="channel_alert_name">Telefon-Suchalarm</string>
+    <string name="channel_alert_description">Alarm, wenn Ihr Telefon gefunden wird</string>
+
+    <!-- ── Settings ────────────────────────────────────────────────────── -->
+    <string name="settings">Einstellungen</string>
+    <string name="battery_optimization_title">Hintergrundaktivität</string>
+    <string name="battery_optimization_description">Für eine zuverlässige Erkennung erlauben Sie der App die uneingeschränkte Ausführung im Hintergrund.</string>
+    <string name="battery_status_unrestricted">Uneingeschränkt — Erkennung funktioniert zuverlässig</string>
+    <string name="battery_status_restricted">Eingeschränkt — Erkennung kann im Hintergrund stoppen</string>
+    <string name="allow_background_activity">Hintergrundaktivität zulassen</string>
+    <string name="oem_autostart_title">Autostart-Berechtigung</string>
+    <string name="oem_autostart_description">Aktivieren Sie den Autostart für %1$s-Geräte.</string>
+    <string name="open_autostart_settings">Autostart-Einstellungen öffnen</string>
+    <string name="oem_settings_not_found">Einstellungen auf diesem Gerät nicht gefunden.</string>
+    <string name="audio_access_needed">Audio-Zugriff erforderlich</string>
+
+    <!-- ── Content Descriptions ────────────────────────────────────────── -->
+    <string name="content_desc_clap_icon">Klatsch-Erkennungs-Icon</string>
+    <string name="content_desc_whistle_icon">Pfeif-Erkennungs-Icon</string>
+    <string name="content_desc_sound_alert">Sound-Alarm-Icon</string>
+    <string name="content_desc_flashlight_alert">Blitzlicht-Alarm-Icon</string>
+    <string name="content_desc_vibration_alert">Vibrations-Alarm-Icon</string>
+    <string name="content_desc_mascot">Maskottchen</string>
+    <string name="content_desc_microphone">Mikrofon-Hör-Icon</string>
+    <string name="content_desc_volume_low">Leise Lautstärke</string>
+    <string name="content_desc_volume_high">Laute Lautstärke</string>
+    <string name="content_desc_checkmark">Ausgewählt</string>
+    <string name="content_desc_sound_item_icon">Sound-Optionen-Icon</string>
+    <string name="content_desc_clap_hands">Klatschen-Illustration</string>
+    <string name="air_horn">Nebel\nhorn</string>
+    <string name="baby_laugh">Baby\nlachen</string>
+    <string name="cat">Katze</string>
+    <string name="dog">Hund</string>
+    <string name="door_bell">Tür\nglocke</string>
+    <string name="train">Zug</string>
+    <string name="hello">Hallo</string>
+    <string name="horn">Hupe</string>
+
+    <!-- ── Dashboard / Settings New Strings ───────────────────────────── -->
+    <string name="find_my_phone_launcher_title">Find My Phone Launcher</string>
+    <string name="clap_and_whistle_detection">Klatsch- &amp; Pfeif-Erkennung</string>
+    <string name="always_watching_background">Immer im Hintergrund aktiv</string>
+    <string name="find_phone_with_3_claps">Telefon finden mit 3x Klatschen</string>
+    <string name="alerts_on_double_triple_clap">Alarme bei zweimaligem/dreimaligem Klatschen</string>
+    <string name="find_phone_by_whistle">Telefon finden durch Pfeifen</string>
+    <string name="alerts_on_sharp_whistle">Alarme bei hohem Pfeifton</string>
+    <string name="volume">LAUTSTÄRKE</string>
+    <string name="alert_sensitivity">Alarm-Empfindlichkeit</string>
+    <string name="badge_new">NEU</string>
+    <string name="set_how_easily_alert_triggers">Legen Sie fest, wie leicht der Alarm auslöst</string>
+    <string name="how_long_alert_plays">Wie lange der Alarm ertönt</string>
+    <string name="flashlight">Taschenlampe</string>
+    <string name="strobe_flash_on_alert">Blitzlicht bei Telefon-Alarm</string>
+    <string name="vibration">Vibration</string>
+    <string name="vibrate_together_with_alert_sound">Zusammen mit Alarmton vibrieren</string>
+
+    <!-- ── Menu Screen Strings ────────────────────────────────────────── -->
+    <string name="menu">Menü</string>
+    <string name="about_us">Über uns</string>
+    <string name="help">Hilfe</string>
+    <string name="privacy_policy">Datenschutz-Bestimmungen</string>
+    <string name="terms_of_service">Nutzungsbedingungen</string>
+
+    <!-- ── Alert Sensitivity Screen Strings ────────────────────────────── -->
+    <string name="alert_sensitivity_desc">Stellen Sie die Empfindlichkeit auf Klatschen und Pfeifen ein.</string>
+    <string name="sensitivity_low">Niedrig</string>
+    <string name="sensitivity_medium">Mittel</string>
+    <string name="sensitivity_high">Hoch</string>
+    <string name="recommended">Empfohlen</string>
+    <string name="btn_save">Speichern</string>
+
+    <!-- ── Alert Sound Screen Strings ─────────────────────────────────── -->
+    <string name="ad_placeholder">Werbefläche</string>
+    <string name="your_ringtone_single">Ihr Klingelton</string>
+    <string name="default_duration_30s">30 Sek.</string>
+    <string name="enable_master_detection_first">Bitte aktivieren Sie zuerst die Erkennung</string>
+
+    <!-- ── Alert Duration Dialog Strings (camelCase) ──────────────────── -->
+    <string name="alertDurationTitle">ALARMDAUER</string>
+    <string name="duration10Sec">10 Sek.</string>
+    <string name="duration30Sec">30 Sek.</string>
+    <string name="duration60Sec">60 Sek.</string>
+    <string name="duration120Sec">120 Sek.</string>
+    <string name="btnCancel">ABBRECHEN</string>
+    <string name="btnOk">OK</string>
+    <string name="app_info">App-Info</string>
+    <string name="add_to_favorites">Zu Favoriten hinzufügen</string>
+    <string name="remove_from_favorites">Aus Favoriten entfernen</string>
+    <string name="uninstall">Deinstallieren</string>
+    <string name="uninstall_confirm_message">Möchten Sie diese App deinstallieren?</string>
+    <string name="uninstalled_app">%1$s deinstalliert</string>
+    <string name="uninstall_failed">%1$s konnte nicht deinstalliert werden</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
+    <string name="search_apps_hint">Apps suchen…</string>
+    <string name="clear_search">Suche löschen</string>
+    <string name="no_apps_found_subtitle">Versuchen Sie es mit einem anderen Begriff</string>
+    <string name="phone">Telefon</string>
+    <string name="home">Startseite</string>
+    <string name="apps">Apps</string>
+    <string name="usage_permission_required">Gewähren Sie Nutzungszugriff für kürzlich verwendete Apps.</string>
+    <string name="suggested_for_now">Vorgeschlagene Apps</string>
+    <string name="recent_apps">Neueste Apps</string>
+    <string name="app_usage_stats">App-Nutzung</string>
+    <string name="grant_permission">Zugriff gewähren</string>
+    <string name="tab_all">Alle</string>
+    <string name="tab_favorites">Favoriten</string>
+    <string name="tab_audio">Audio</string>
+    <string name="tab_games">Spiele</string>
+    <string name="tab_photography">Fotografie</string>
+    <string name="tab_productivity">Produktivität</string>
+    <string name="tab_social">Soziales</string>
+    <string name="tab_video">Video</string>
+    <string name="tab_others">Sonstige</string>
+
+    <!-- ── Google Search Strings ────────────────────────────────────────── -->
+    <string name="recent_searches">Letzte Suchen</string>
+    <string name="clear_all">Alles löschen</string>
+    <string name="search_suggestions">Suchvorschläge</string>
+    <string name="google_search_hint">Suchen</string>
+    <string name="back">Zurück</string>
+    <string name="fill_search">Suche ausfüllen</string>
+    <string name="open_voice_search">Sprachsuche</string>
+    <string name="loading_ad_message">Werbung wird geladen…</string>
+
+    <!-- ── App Install Success Strings ────────────────────────────────── -->
+    <string name="app_install_success_title">App erfolgreich installiert</string>
+    <string name="app_updated_success_title">App erfolgreich aktualisiert</string>
+    <string name="app_uninstalled_success_title">App erfolgreich deinstalliert</string>
+    <string name="set_as_default">Als Standard festlegen</string>
+    <string name="set_as_default_launcher_required">Legen Sie Find My Phone als Start-App fest, um fortzufahren</string>
+
+    <!-- ── Language Selection & Context Menu Strings ───────────────── -->
+    <string name="select_your_language">Wählen Sie Ihre Sprache</string>
+    <string name="change_language">Sprache ändern</string>
+    <string name="language">Sprache</string>
+    <string name="app_is_already_installed">App ist bereits installiert</string>
+    <string name="lang_english">English</string>
+    <string name="lang_hindi">हिन्दी</string>
+    <string name="lang_spanish">Español</string>
+    <string name="lang_french">Français</string>
+    <string name="lang_german">Deutsch</string>
+    <string name="lang_indonesian">Bahasa Indonesia</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_chinese">中文</string>
+
+    <!-- ── Newly Audited Strings ───────────────────────────────────── -->
+    <string name="app_is_secure_to_use">Diese App ist sicher zu verwenden</string>
+    <string name="open">Öffnen</string>
+    <string name="find_phone">Telefon finden</string>
+    <string name="share">Teilen</string>
+    <string name="search">Suchen</string>
+    <string name="call_history">Anrufverlauf</string>
+    <string name="alert_sound_saved">Alarmton gespeichert</string>
+</resources>

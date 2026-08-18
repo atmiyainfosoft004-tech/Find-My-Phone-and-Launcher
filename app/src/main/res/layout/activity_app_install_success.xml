@@ -63,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="This app is secure to use"
+                    android:text="@string/app_is_secure_to_use"
                     android:textColor="@color/accent_green"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -125,7 +125,7 @@
                     android:background="@drawable/bg_btn_green"
                     android:gravity="center"
                     android:paddingHorizontal="20dp"
-                    android:text="Open"
+                    android:text="@string/open"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -178,7 +178,7 @@
         android:layout_marginBottom="@dimen/spacing_lg"
         android:background="@drawable/bg_btn_green"
         android:gravity="center"
-        android:text="Open"
+        android:text="@string/open"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"

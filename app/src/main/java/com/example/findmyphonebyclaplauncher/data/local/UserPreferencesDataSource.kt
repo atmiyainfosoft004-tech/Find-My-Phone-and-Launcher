@@ -70,4 +70,8 @@ class UserPreferencesDataSource(context: Context) {
     var alertSensitivity: String
         get() = prefs.getString("alert_sensitivity", "Medium") ?: "Medium"
         set(value) = prefs.edit().putString("alert_sensitivity", value).apply()
+
+    var selectedLanguage: String
+        get() = prefs.getString(Constants.KEY_SELECTED_LANGUAGE, "en") ?: "en"
+        set(value) = prefs.edit().putString(Constants.KEY_SELECTED_LANGUAGE, value).apply()
 }

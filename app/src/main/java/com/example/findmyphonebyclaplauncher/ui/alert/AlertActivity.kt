@@ -18,6 +18,7 @@ import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAlertBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.utils.Constants
 import kotlinx.coroutines.launch
 
@@ -27,7 +28,7 @@ import kotlinx.coroutines.launch
  * Configures window flags to show over the lock screen and keep the screen on.
  * Calls [FindPhoneManager.stopFindPhone] when the user taps STOP or presses Back.
  */
-class AlertActivity : AppCompatActivity() {
+class AlertActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAlertBinding
 

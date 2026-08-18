@@ -14,11 +14,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityLauncherBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.launcher.LauncherHostFragment
 import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.LauncherPagerAdapter
 import com.example.findmyphonebyclaplauncher.utils.LauncherHelper
 
-class FindPhoneActivity : AppCompatActivity() {
+class FindPhoneActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLauncherBinding
     private lateinit var prefs: UserPreferencesDataSource

@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Find My Phone</string>
+    <string name="launcher_title">Find My Phone</string>
+
+    <!-- ── Onboarding ─────────────────────────────────────────────────── -->
+    <string name="onboarding_title_1">Cukup bertepuk atau\nbersiul</string>
+    <string name="onboarding_subtitle_1">Untuk menemukan telepon Anda yang hilang secara instan</string>
+    <string name="btn_continue">Lanjutkan</string>
+
+    <string name="mascot_permission_text">Mari kita coba! Berikan akses audio dan notifikasi agar saya bisa mendengar Anda.</string>
+    <string name="mascot_default_launcher_text">Agar Find My Phone selalu siaga, silakan pilih saya sebagai aplikasi beranda default Anda!</string>
+    <string name="default_home_app_title">Aplikasi Beranda Default</string>
+    <string name="find_my_phone_launcher_name">Find My Phone Launcher</string>
+    <string name="other_app_label">Aplikasi Lain</string>
+    <string name="audio_access_title">Akses Audio Diperlukan</string>
+    <string name="audio_access_desc">Hanya mendengarkan tepukan dan siulan unik Anda. Kami tidak pernah mengunggah atau menyimpan file audio.</string>
+    <string name="privacy_matters_text">Privasi Anda penting</string>
+
+    <string name="mascot_sound_picker_text">Sekarang pilih suara peringatan favorit Anda dan atur volume pendengaran.</string>
+    <string name="alert_sound_volume_label">Volume Suara Peringatan</string>
+    <string name="tap_to_play_sound_label">KETUK UNTUK MEMUTAR SUARA</string>
+    <string name="btn_test_it_now">Uji sekarang</string>
+    <string name="btn_skip_for_now"><u>Lewati dulu</u></string>
+
+    <string name="mascot_listening_test_text">Mari uji! Bertepuk tangan 3 kali atau bersiul dengan keras.</string>
+    <string name="listening_header">Mendengarkan…</string>
+    <string name="listening_subtitle">Bersiul atau bertepuk tangan 3 kali</string>
+    <string name="btn_test_it_later">Saya akan mengujinya nanti</string>
+
+    <string name="mascot_home_preview_text">Data sistem Anda aman! Peluncur kami hanya memperbarui tata letak Anda untuk akses langsung.</string>
+    <string name="label_find_phone_active">Find My Phone Aktif</string>
+    <string name="btn_got_it">Mengerti</string>
+    <string name="label_camera">Kamera</string>
+    <string name="label_maps">Peta</string>
+    <string name="label_messages">Pesan</string>
+    <string name="label_photos">Foto</string>
+    <string name="label_search_apps">Cari aplikasi…</string>
+
+    <!-- ── Home / Main Dashboard ──────────────────────────────────────── -->
+    <string name="find_phone_title">Cari HP Saya</string>
+    <string name="find_phone_subtitle">Temukan telepon Anda dengan tepukan atau siulan</string>
+    <string name="detection_master_label_off">Deteksi Tepukan &amp; Siulan MATI</string>
+    <string name="detection_master_label_on">Deteksi Tepukan &amp; Siulan AKTIF</string>
+    <string name="find_phone_3_claps">Deteksi 3 Tepukan</string>
+    <string name="find_phone_whistle">Deteksi Siulan</string>
+    <string name="alert_sound">Suara Peringatan</string>
+    <string name="your_ringtone">Nada Dering\nAnda</string>
+
+    <string name="label_sound_alert">Peringatan Suara</string>
+    <string name="label_flashlight_alert">Peringatan Senter</string>
+    <string name="label_vibration_alert">Peringatan Getaran</string>
+    <string name="label_multi_alert_settings">Pengaturan Banyak Peringatan</string>
+    <string name="label_alert_duration">Durasi Peringatan</string>
+    <string name="label_alert_sound">Suara Peringatan</string>
+    <string name="label_preview_sound">Pratinjau</string>
+    <string name="label_stop_sound">Hentikan</string>
+    <string name="label_keep_active">Jaga Find My Phone Tetap Aktif</string>
+    <string name="label_battery_desc">Optimasi baterai dapat menghentikan deteksi di latar belakang. Izinkan aktivitas latar belakang agar lebih andal.</string>
+    <string name="label_open_battery_settings">Buka Pengaturan Baterai</string>
+
+    <string name="radio_sound_whistle">Nada Siulan</string>
+    <string name="radio_sound_melody">Melodi Keras</string>
+    <string name="radio_sound_animal">Gonggongan Anjing</string>
+    <string name="radio_sound_electronic">Sirine Elektronik</string>
+
+    <string name="service_status_active">Deteksi Aktif</string>
+    <string name="service_status_off">Deteksi Mati</string>
+
+    <!-- ── Permissions ─────────────────────────────────────────────────── -->
+    <string name="mic_permission_required">Izin mikrofon diperlukan untuk mendeteksi tepukan dan siulan.</string>
+    <string name="mic_permission_rationale">Berikan akses mikrofon agar aplikasi dapat mendengarkan tepukan dan siulan.</string>
+    <string name="mic_permission_denied">Izin mikrofon ditolak. Deteksi tidak akan berfungsi.</string>
+    <string name="mic_permission_permanently_denied">Izin mikrofon ditolak secara permanen. Buka Pengaturan untuk mengizinkannya.</string>
+    <string name="allow">Izinkan</string>
+    <string name="open_settings">Buka Pengaturan</string>
+
+    <!-- ── Alert ───────────────────────────────────────────────────────── -->
+    <string name="alert_title">Telepon Anda Ditemukan!</string>
+    <string name="alert_subtitle">Ketuk STOP untuk mematikan suara peringatan</string>
+    <string name="stop_alert">STOP</string>
+    <string name="yeahTitle">Hore!</string>
+    <string name="youveFoundYourPhone">Anda Telah Menemukan Telepon Anda</string>
+    <string name="btnDismiss">Tutup</string>
+    <string name="alert_notification_title">Find My Phone — Aktif</string>
+    <string name="alert_notification_text">Ketuk untuk menghentikan peringatan telepon.</string>
+
+    <!-- ── Service Notification ────────────────────────────────────────── -->
+    <string name="service_notification_title">Find My Phone aktif</string>
+    <string name="service_notification_text">Mendengarkan tepukan dan siulan…</string>
+
+    <!-- ── Notification Channels ──────────────────────────────────────── -->
+    <string name="channel_detection_name">Deteksi Suara</string>
+    <string name="channel_detection_description">Layanan latar depan untuk deteksi tepukan dan siulan</string>
+    <string name="channel_alert_name">Peringatan Pencarian Telepon</string>
+    <string name="channel_alert_description">Peringatan saat telepon Anda ditemukan</string>
+
+    <!-- ── Settings ────────────────────────────────────────────────────── -->
+    <string name="settings">Pengaturan</string>
+    <string name="battery_optimization_title">Aktivitas Latar Belakang</string>
+    <string name="battery_optimization_description">Untuk deteksi yang andal, izinkan aplikasi ini berjalan di latar belakang tanpa pembatasan.</string>
+    <string name="battery_status_unrestricted">Tanpa pembatasan — deteksi berjalan lancar</string>
+    <string name="battery_status_restricted">Dibatasi — deteksi mungkin berhenti di latar belakang</string>
+    <string name="allow_background_activity">Izinkan Aktivitas Latar Belakang</string>
+    <string name="oem_autostart_title">Izin Mulai Otomatis</string>
+    <string name="oem_autostart_description">Aktifkan mulai otomatis untuk perangkat %1$s.</string>
+    <string name="open_autostart_settings">Buka Pengaturan Mulai Otomatis</string>
+    <string name="oem_settings_not_found">Pengaturan tidak ditemukan di perangkat ini.</string>
+    <string name="audio_access_needed">Akses Audio Diperlukan</string>
+
+    <!-- ── Content Descriptions ────────────────────────────────────────── -->
+    <string name="content_desc_clap_icon">Ikon deteksi tepukan</string>
+    <string name="content_desc_whistle_icon">Ikon deteksi siulan</string>
+    <string name="content_desc_sound_alert">Ikon peringatan suara</string>
+    <string name="content_desc_flashlight_alert">Ikon peringatan senter</string>
+    <string name="content_desc_vibration_alert">Ikon peringatan getaran</string>
+    <string name="content_desc_mascot">Maskot</string>
+    <string name="content_desc_microphone">Ikon pendengaran mikrofon</string>
+    <string name="content_desc_volume_low">Volume rendah</string>
+    <string name="content_desc_volume_high">Volume tinggi</string>
+    <string name="content_desc_checkmark">Dipilih</string>
+    <string name="content_desc_sound_item_icon">Ikon opsi suara</string>
+    <string name="content_desc_clap_hands">Ilustrasi tepuk tangan</string>
+    <string name="air_horn">Klakson\nUdara</string>
+    <string name="baby_laugh">Tawa\nBayi</string>
+    <string name="cat">Kucing</string>
+    <string name="dog">Anjing</string>
+    <string name="door_bell">Bel\nPintu</string>
+    <string name="train">Kereta</string>
+    <string name="hello">Halo</string>
+    <string name="horn">Klakson</string>
+
+    <!-- ── Dashboard / Settings New Strings ───────────────────────────── -->
+    <string name="find_my_phone_launcher_title">Find My Phone Launcher</string>
+    <string name="clap_and_whistle_detection">Deteksi Tepukan &amp; Siulan</string>
+    <string name="always_watching_background">Selalu memantau di latar belakang</string>
+    <string name="find_phone_with_3_claps">Cari HP dengan 3 Tepukan</string>
+    <string name="alerts_on_double_triple_clap">Peringatan pada tepuk tangan ganda/tiga kali</string>
+    <string name="find_phone_by_whistle">Cari HP dengan Siulan</string>
+    <string name="alerts_on_sharp_whistle">Peringatan pada siulan bernada tinggi</string>
+    <string name="volume">VOLUME</string>
+    <string name="alert_sensitivity">Sensitivitas Peringatan</string>
+    <string name="badge_new">BARU</string>
+    <string name="set_how_easily_alert_triggers">Atur seberapa mudah peringatan terpicu</string>
+    <string name="how_long_alert_plays">Berapa lama peringatan berbunyi</string>
+    <string name="flashlight">Senter</string>
+    <string name="strobe_flash_on_alert">Lampu strobo saat peringatan telepon</string>
+    <string name="vibration">Getaran</string>
+    <string name="vibrate_together_with_alert_sound">Bergetar bersamaan dengan suara peringatan</string>
+
+    <!-- ── Menu Screen Strings ────────────────────────────────────────── -->
+    <string name="menu">Menu</string>
+    <string name="about_us">Tentang Kami</string>
+    <string name="help">Bantuan</string>
+    <string name="privacy_policy">Kebijakan Privasi</string>
+    <string name="terms_of_service">Ketentuan Layanan</string>
+
+    <!-- ── Alert Sensitivity Screen Strings ────────────────────────────── -->
+    <string name="alert_sensitivity_desc">Atur sensitivitas terhadap tepukan atau siulan Anda.</string>
+    <string name="sensitivity_low">Rendah</string>
+    <string name="sensitivity_medium">Sedang</string>
+    <string name="sensitivity_high">Tinggi</string>
+    <string name="recommended">Direkomendasikan</string>
+    <string name="btn_save">Simpan</string>
+
+    <!-- ── Alert Sound Screen Strings ─────────────────────────────────── -->
+    <string name="ad_placeholder">Tempat Iklan</string>
+    <string name="your_ringtone_single">Nada Dering Anda</string>
+    <string name="default_duration_30s">30 Detik</string>
+    <string name="enable_master_detection_first">Aktifkan Deteksi Tepukan &amp; Siulan terlebih dahulu</string>
+
+    <!-- ── Alert Duration Dialog Strings (camelCase) ──────────────────── -->
+    <string name="alertDurationTitle">DURASI PERINGATAN</string>
+    <string name="duration10Sec">10 detik</string>
+    <string name="duration30Sec">30 detik</string>
+    <string name="duration60Sec">60 detik</string>
+    <string name="duration120Sec">120 detik</string>
+    <string name="btnCancel">BATAL</string>
+    <string name="btnOk">OK</string>
+    <string name="app_info">Info aplikasi</string>
+    <string name="add_to_favorites">Tambah ke favorit</string>
+    <string name="remove_from_favorites">Hapus dari favorit</string>
+    <string name="uninstall">Copot pemasangan</string>
+    <string name="uninstall_confirm_message">Apakah Anda ingin mencopot pemasangan aplikasi ini?</string>
+    <string name="uninstalled_app">%1$s telah dicopot</string>
+    <string name="uninstall_failed">Gagal mencopot %1$s</string>
+    <string name="cancel">Batal</string>
+    <string name="ok">OK</string>
+    <string name="search_apps_hint">Cari aplikasi…</string>
+    <string name="clear_search">Hapus pencarian</string>
+    <string name="no_apps_found_subtitle">Coba cari dengan kata kunci lain</string>
+    <string name="phone">Telepon</string>
+    <string name="home">Beranda</string>
+    <string name="apps">Aplikasi</string>
+    <string name="usage_permission_required">Berikan akses penggunaan untuk melihat aplikasi yang baru saja digunakan.</string>
+    <string name="suggested_for_now">Aplikasi Disarankan</string>
+    <string name="recent_apps">Aplikasi Terbaru</string>
+    <string name="app_usage_stats">Penggunaan Aplikasi</string>
+    <string name="grant_permission">Berikan Izin</string>
+    <string name="tab_all">Semua</string>
+    <string name="tab_favorites">Favorit</string>
+    <string name="tab_audio">Audio</string>
+    <string name="tab_games">Game</string>
+    <string name="tab_photography">Fotografi</string>
+    <string name="tab_productivity">Produktivitas</string>
+    <string name="tab_social">Sosial</string>
+    <string name="tab_video">Video</string>
+    <string name="tab_others">Lainnya</string>
+
+    <!-- ── Google Search Strings ────────────────────────────────────────── -->
+    <string name="recent_searches">Pencarian Terakhir</string>
+    <string name="clear_all">Hapus Semua</string>
+    <string name="search_suggestions">Saran Pencarian</string>
+    <string name="google_search_hint">Cari</string>
+    <string name="back">Kembali</string>
+    <string name="fill_search">Isi pencarian</string>
+    <string name="open_voice_search">Pencarian suara</string>
+    <string name="loading_ad_message">Memuat iklan…</string>
+
+    <!-- ── App Install Success Strings ────────────────────────────────── -->
+    <string name="app_install_success_title">Aplikasi Berhasil Diinstal</string>
+    <string name="app_updated_success_title">Aplikasi Berhasil Diperbarui</string>
+    <string name="app_uninstalled_success_title">Aplikasi Berhasil Dicopot</string>
+    <string name="set_as_default">Atur Sebagai Default</string>
+    <string name="set_as_default_launcher_required">Silakan atur Find My Phone sebagai aplikasi beranda default untuk melanjutkan</string>
+
+    <!-- ── Language Selection & Context Menu Strings ───────────────── -->
+    <string name="select_your_language">Pilih Bahasa Anda</string>
+    <string name="change_language">Ubah Bahasa</string>
+    <string name="language">Bahasa</string>
+    <string name="app_is_already_installed">Aplikasi sudah terinstal</string>
+    <string name="lang_english">English</string>
+    <string name="lang_hindi">हिन्दी</string>
+    <string name="lang_spanish">Español</string>
+    <string name="lang_french">Français</string>
+    <string name="lang_german">Deutsch</string>
+    <string name="lang_indonesian">Bahasa Indonesia</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_chinese">中文</string>
+
+    <!-- ── Newly Audited Strings ───────────────────────────────────── -->
+    <string name="app_is_secure_to_use">Aplikasi ini aman untuk digunakan</string>
+    <string name="open">Buka</string>
+    <string name="find_phone">Cari Telepon</string>
+    <string name="share">Bagikan</string>
+    <string name="search">Cari</string>
+    <string name="call_history">Riwayat Panggilan</string>
+    <string name="alert_sound_saved">Suara peringatan disimpan</string>
+</resources>

@@ -156,8 +156,13 @@ class OnboardingScreen2Fragment : Fragment() {
         isNavigated = true
         backPressedCallback.isEnabled = false
         backPressedCallback.remove()
-        Log.d(TAG, "proceedToNextScreen: Navigating to OnboardingScreen1Fragment (source: $source)")
-        (activity as? OnboardingActivity)?.navigateToPage(OnboardingPagerAdapter.PAGE_SCREEN_1)
+        Log.d(TAG, "proceedToNextScreen: Navigating to LanguageActivity (source: $source)")
+        val intent = Intent(requireContext(), com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity::class.java).apply {
+            putExtra(com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity.EXTRA_IS_FIRST_TIME, true)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        activity?.finish()
     }
 
     override fun onDestroyView() {

@@ -13,9 +13,10 @@ import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.ads.NativeAdLoader
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.databinding.ActivityAppInstallSuccessBinding
+import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import java.io.File
 
-class AppInstallSuccessActivity : AppCompatActivity() {
+class AppInstallSuccessActivity : BaseActivity() {
 
     private lateinit var binding: ActivityAppInstallSuccessBinding
     private var targetPackageName: String = ""
