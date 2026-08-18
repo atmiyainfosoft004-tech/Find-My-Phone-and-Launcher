@@ -7,6 +7,7 @@ import android.widget.FrameLayout
 import androidx.cardview.widget.CardView
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.ads.config.RemoteConfigRepository
+import com.example.findmyphonebyclaplauncher.util.NetworkUtil
 import com.example.findmyphonebyclaplauncher.util.SystemUiHelper
 import com.google.android.gms.ads.nativead.NativeAd
 
@@ -27,12 +28,14 @@ object LauncherAdsHelper {
     }
 
     fun preloadInterstitial(activity: Activity) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) return
         if (RemoteConfigRepository.isInterAdEnabled && RemoteConfigRepository.interAdId.isNotBlank()) {
             InterAdLoader.instance?.loadInterstitialAds(activity)
         }
     }
 
     fun preloadAppOpen(activity: Activity) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) return
         if (RemoteConfigRepository.isAppOpenAdEnabled && RemoteConfigRepository.appOpenAdId.isNotBlank()) {
             AppOpenAdLoader.instance?.preloadAppOpenAd(activity)
         }
@@ -44,6 +47,12 @@ object LauncherAdsHelper {
         onAdClosed: () -> Unit
     ) {
         if (activity.isFinishing || activity.isDestroyed) {
+            onAdClosed()
+            return
+        }
+
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("AdCounter", "showAdForPlacement: Offline mode. Suppressing ad for $placement")
             onAdClosed()
             return
         }
@@ -125,6 +134,11 @@ object LauncherAdsHelper {
             onDone()
             return
         }
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "showClickInterstitialAd: Offline mode -> proceeding")
+            onDone()
+            return
+        }
         val config = AdsConfigManager.config
         if (!config.canShowInter) {
             Log.d("InterstitialAd", "showClickInterstitialAd: canShowInter is false -> proceeding")
@@ -148,6 +162,11 @@ object LauncherAdsHelper {
             onDone()
             return
         }
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("AppOpenAd", "showAppOpenAd: Offline mode -> proceeding")
+            onDone()
+            return
+        }
         val config = AdsConfigManager.config
         if (!config.canShowAppOpen) {
             Log.d("AppOpenAd", "showAppOpenAd: canShowAppOpen is false -> proceeding")
@@ -164,6 +183,12 @@ object LauncherAdsHelper {
 
     fun showAppClickAd(activity: Activity, packageName: String, onContinue: () -> Unit) {
         if (activity.isFinishing || activity.isDestroyed) {
+            onContinue()
+            return
+        }
+
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("AdCounter", "showAppClickAd: Offline mode -> opening app directly")
             onContinue()
             return
         }
@@ -205,6 +230,12 @@ object LauncherAdsHelper {
 
     fun showSwipeAd(activity: Activity, onDone: () -> Unit = {}) {
         if (activity.isFinishing || activity.isDestroyed) {
+            onDone()
+            return
+        }
+
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("AdCounter", "showSwipeAd: Offline mode -> skipping swipe ad")
             onDone()
             return
         }
@@ -254,6 +285,12 @@ object LauncherAdsHelper {
 
     fun onFeatureBackRequested(activity: Activity, onComplete: () -> Unit) {
         if (activity.isFinishing || activity.isDestroyed) {
+            onComplete()
+            return
+        }
+
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "onFeatureBackRequested: Offline mode -> proceeding immediately")
             onComplete()
             return
         }
@@ -311,7 +348,7 @@ object LauncherAdsHelper {
     }
 
     fun showBlogReturnInter(activity: Activity) {
-        if (activity.isFinishing || activity.isDestroyed || !AdsConfigManager.config.canShowInter) return
+        if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowInter) return
         InterAdLoader.instance?.showInterstitialImmediate(activity) {}
     }
 
@@ -327,17 +364,12 @@ object LauncherAdsHelper {
         }
     }
 
-    /**
-     * Dedicated isolated routing:
-     * - showInterstitial == true: Displays Interstitial Ad (inter_ad_id)
-     * - showInterstitial == false: Displays App Open Ad (app_open_ad_id)
-     */
     fun showRoutedFullScreenAd(
         activity: Activity,
         showInterstitial: Boolean,
         onDismiss: () -> Unit
     ) {
-        if (activity.isFinishing || activity.isDestroyed) {
+        if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
             onDismiss()
             return
         }
@@ -350,7 +382,7 @@ object LauncherAdsHelper {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Native & Banner Ad Helpers (Guarded)
+    // Native & Banner Ad Helpers (Guarded with Network & Remote Config)
     // ─────────────────────────────────────────────────────────────────────────
 
     fun showDashboardNative(
@@ -359,14 +391,11 @@ object LauncherAdsHelper {
         shimmerFrame: FrameLayout,
         nativeCard: CardView
     ) {
-        if (!AdsConfigManager.config.canShowNativeDashboard) {
-            nativeFrame.removeAllViews()
-            nativeFrame.visibility = View.GONE
-            shimmerFrame.visibility = View.GONE
-            nativeCard.visibility = View.GONE
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowNativeDashboard) {
+            NativeAdLoader.instance?.hideNativeContainer(nativeFrame, shimmerFrame, nativeCard)
             return
         }
-        NativeAdLoader.instance?.showNativeLarge(activity, nativeFrame, shimmerFrame)
+        NativeAdLoader.instance?.showDashboardNative(activity, nativeFrame, shimmerFrame, nativeCard)
     }
 
     fun loadGoogleSearchNative(
@@ -374,7 +403,7 @@ object LauncherAdsHelper {
         onLoaded: (NativeAd) -> Unit,
         onFailed: () -> Unit
     ) {
-        if (!AdsConfigManager.config.canShowNativeGoogleSearch) {
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowNativeGoogleSearch) {
             onFailed()
             return
         }
@@ -392,56 +421,55 @@ object LauncherAdsHelper {
         activity: Activity,
         nativeFrame: FrameLayout,
         shimmerFrame: FrameLayout,
-        nativeAd: NativeAd
+        nativeAd: NativeAd,
+        cardView: CardView? = null
     ) {
         NativeAdLoader.instance?.bindNativeLarge(
             activity,
             nativeFrame,
             shimmerFrame,
             nativeAd,
-            "GoogleSearch"
+            "GoogleSearch",
+            cardView
         )
     }
 
     fun showDrawerBanner(
         activity: Activity,
         bannerFrame: FrameLayout,
-        shimmerFrame: FrameLayout
+        shimmerFrame: FrameLayout,
+        rootContainer: View? = null
     ) {
-        if (!AdsConfigManager.config.canShowBannerAppDrawer) {
-            bannerFrame.removeAllViews()
-            bannerFrame.visibility = View.GONE
-            shimmerFrame.visibility = View.GONE
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowBannerAppDrawer) {
+            BannerAdLoader.instance?.hideBannerContainer(bannerFrame, shimmerFrame, rootContainer)
             return
         }
-        BannerAdLoader.instance?.showDrawerBanner(activity, bannerFrame, shimmerFrame)
+        BannerAdLoader.instance?.showDrawerBanner(activity, bannerFrame, shimmerFrame, rootContainer)
     }
 
     fun showFindPhoneBanner(
         activity: Activity,
         bannerFrame: FrameLayout,
-        shimmerFrame: FrameLayout
+        shimmerFrame: FrameLayout,
+        rootContainer: View? = null
     ) {
-        if (!AdsConfigManager.config.canShowBannerFindPhone) {
-            bannerFrame.removeAllViews()
-            bannerFrame.visibility = View.GONE
-            shimmerFrame.visibility = View.GONE
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowBannerFindPhone) {
+            BannerAdLoader.instance?.hideBannerContainer(bannerFrame, shimmerFrame, rootContainer)
             return
         }
-        BannerAdLoader.instance?.showFindPhoneBanner(activity, bannerFrame, shimmerFrame)
+        BannerAdLoader.instance?.showFindPhoneBanner(activity, bannerFrame, shimmerFrame, rootContainer)
     }
 
     fun showAlertBanner(
         activity: Activity,
         bannerFrame: FrameLayout,
-        shimmerFrame: FrameLayout
+        shimmerFrame: FrameLayout,
+        rootContainer: View? = null
     ) {
-        if (!AdsConfigManager.config.canShowBannerAlertScreen) {
-            bannerFrame.removeAllViews()
-            bannerFrame.visibility = View.GONE
-            shimmerFrame.visibility = View.GONE
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowBannerAlertScreen) {
+            BannerAdLoader.instance?.hideBannerContainer(bannerFrame, shimmerFrame, rootContainer)
             return
         }
-        BannerAdLoader.instance?.showAlertBanner(activity, bannerFrame, shimmerFrame)
+        BannerAdLoader.instance?.showAlertBanner(activity, bannerFrame, shimmerFrame, rootContainer)
     }
 }

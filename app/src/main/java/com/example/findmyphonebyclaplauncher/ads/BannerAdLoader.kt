@@ -13,6 +13,8 @@ import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper.logAds
+import com.example.findmyphonebyclaplauncher.util.NetworkUtil
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -37,14 +39,77 @@ class BannerAdLoader {
             private set
     }
 
+    private fun startShimmerAnimation(view: View?) {
+        when (view) {
+            is ShimmerFrameLayout -> {
+                view.visibility = View.VISIBLE
+                view.startShimmer()
+            }
+            is ViewGroup -> {
+                view.visibility = View.VISIBLE
+                val shimmer = view.findViewById<ShimmerFrameLayout>(R.id.bannerAdShimmerFrameLayout)
+                    ?: (0 until view.childCount).mapNotNull { view.getChildAt(it) as? ShimmerFrameLayout }.firstOrNull()
+                shimmer?.startShimmer()
+            }
+            else -> {
+                view?.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun stopShimmerAnimation(view: View?) {
+        when (view) {
+            is ShimmerFrameLayout -> {
+                view.stopShimmer()
+                view.visibility = View.GONE
+            }
+            is ViewGroup -> {
+                val shimmer = view.findViewById<ShimmerFrameLayout>(R.id.bannerAdShimmerFrameLayout)
+                    ?: (0 until view.childCount).mapNotNull { view.getChildAt(it) as? ShimmerFrameLayout }.firstOrNull()
+                shimmer?.stopShimmer()
+                view.visibility = View.GONE
+            }
+            else -> {
+                view?.visibility = View.GONE
+            }
+        }
+    }
+
+    fun hideBannerContainer(
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: View,
+        rootContainer: View? = null
+    ) {
+        stopShimmerAnimation(shimmerFrameLayout)
+        shimmerFrameLayout.visibility = View.GONE
+        frameLayout.removeAllViews()
+        frameLayout.visibility = View.GONE
+        rootContainer?.visibility = View.GONE
+
+        // Also check if immediate parent or grand-parent is llBannerRoot
+        val parent = frameLayout.parent as? View
+        if (parent?.id == R.id.llBannerRoot) {
+            parent.visibility = View.GONE
+        }
+    }
+
     fun loadBannerAdPreload(activity: Activity) {
-        if (ads.bannerAdPreload) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "loadBannerAdPreload: Offline mode detected. Suppressing banner preload.")
+            return
+        }
+
+        if (ads.bannerAdPreload && ads.canShowBannerHome) {
             if (isLoadingMap["preload"] == true) {
                 Log.d(TAG, "Banner preload already in progress. Ignoring duplicate request.")
                 return
             }
             isLoadingMap["preload"] = true
             App.runWhenMobileAdsReady {
+                if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
+                    isLoadingMap["preload"] = false
+                    return@runWhenMobileAdsReady
+                }
                 bannerAdPreload = null
                 val adView = AdView(activity)
                 adView.adUnitId = ads.bannerAdIdHome
@@ -85,137 +150,172 @@ class BannerAdLoader {
     fun showSplashBanner(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Splash banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         if (ads.canShowBannerSplash) {
             Log.d(TAG, "Loading banner for Splash screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdSplash
+                ads.bannerAdIdSplash,
+                rootContainer
             )
         } else {
             Log.d(TAG, "Splash banner disabled by Remote Config")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
         }
     }
 
     fun showHomeBanner(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Home banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         if (ads.canShowBannerHome) {
             Log.d(TAG, "Loading banner for Home screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdHome
+                ads.bannerAdIdHome,
+                rootContainer
             )
         } else {
             Log.d(TAG, "Home banner disabled by Remote Config")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
         }
     }
 
     fun showBanner(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
     ) {
-        showHomeBanner(activity, frameLayout, shimmerFrameLayout)
+        showHomeBanner(activity, frameLayout, shimmerFrameLayout, rootContainer)
     }
 
     fun showDrawerBanner(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "App Drawer banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         if (ads.canShowBannerAppDrawer) {
             Log.d(TAG, "Loading banner for App Drawer")
             loadAndShowBanner(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdAppDrawer.ifBlank { ads.bannerAdIdHome }
+                ads.bannerAdIdAppDrawer.ifBlank { ads.bannerAdIdHome },
+                rootContainer
             )
         } else {
             Log.d(TAG, "App Drawer banner disabled by Remote Config")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
         }
     }
 
     fun showFindPhoneBanner(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Find Phone banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         if (ads.canShowBannerFindPhone) {
             Log.d(TAG, "Loading banner for Find Phone screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdFindPhone.ifBlank { ads.bannerAdIdHome }
+                ads.bannerAdIdFindPhone.ifBlank { ads.bannerAdIdHome },
+                rootContainer
             )
         } else {
             Log.d(TAG, "Find Phone banner disabled by Remote Config")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
         }
     }
 
     fun showAlertBanner(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: FrameLayout
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Alert screen banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         if (ads.canShowBannerAlertScreen) {
             Log.d(TAG, "Loading banner for Alert screen")
             loadAndShowBanner(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                ads.bannerAdIdAlertScreen.ifBlank { ads.bannerAdIdHome }
+                ads.bannerAdIdAlertScreen.ifBlank { ads.bannerAdIdHome },
+                rootContainer
             )
         } else {
             Log.d(TAG, "Alert screen banner disabled by Remote Config")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
         }
     }
 
     fun showBannerAfterCall(
         activity: Activity,
         frameLayout: FrameLayout,
-        shimmerFrameLayout: View
+        shimmerFrameLayout: View,
+        rootContainer: View? = null
     ) {
-        if (ads.canShowBannerAfterCall || ads.canShowBanner) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "After Call banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
+        if (ads.canShowBannerAfterCall) {
             Log.d(TAG, "Loading Medium Rectangle banner for After Call screen")
-            shimmerFrameLayout.visibility = View.VISIBLE
-            frameLayout.visibility = View.GONE
             val adUnitId = ads.bannerAdIdAfterCall.ifBlank { ads.bannerAdIdHome.ifBlank { AdsConfig.DEFAULT_BANNER_ID } }
             loadAndShowBannerAfterCall(
                 activity,
                 frameLayout,
                 shimmerFrameLayout,
-                adUnitId
+                adUnitId,
+                rootContainer
             )
         } else {
             Log.d(TAG, "After Call banner disabled by Remote Config")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
         }
     }
 
@@ -223,13 +323,18 @@ class BannerAdLoader {
         activity: Activity,
         frameLayout: FrameLayout,
         shimmerFrameLayout: FrameLayout,
-        adUnitID: String
+        adUnitID: String,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Offline mode detected: Suppressing banner request for unit '$adUnitID'")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         if (!ads.isBannerAdEnabled || adUnitID.isBlank()) {
             Log.d(TAG, "Banner ad disabled or empty unit ID ($adUnitID)")
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
             return
         }
 
@@ -240,26 +345,37 @@ class BannerAdLoader {
             if (preloaded.parent != null) {
                 (preloaded.parent as ViewGroup).removeView(preloaded)
             }
+            stopShimmerAnimation(shimmerFrameLayout)
+            shimmerFrameLayout.visibility = View.GONE
             frameLayout.removeAllViews()
             frameLayout.addView(preloaded)
             frameLayout.visibility = View.VISIBLE
-            shimmerFrameLayout.visibility = View.GONE
+            rootContainer?.visibility = View.VISIBLE
+            (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
             logAds(activity, "banner_showed")
             bannerAdPreload = null
             loadBannerAdPreload(activity)
             return
         }
 
-        // On-demand: Display shimmer placeholder immediately
+        // On-demand: Display shimmer placeholder only when actively requesting
         Log.d(TAG, "On-demand banner load: Showing shimmer placeholder with Unit ID: $adUnitID")
-        shimmerFrameLayout.visibility = View.VISIBLE
+        rootContainer?.visibility = View.VISIBLE
+        (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
+        startShimmerAnimation(shimmerFrameLayout)
         frameLayout.visibility = View.GONE
 
         App.runWhenMobileAdsReady {
-            if (activity.isFinishing || activity.isDestroyed) return@runWhenMobileAdsReady
+            if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
+                hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+                return@runWhenMobileAdsReady
+            }
             frameLayout.post {
-                if (activity.isFinishing || activity.isDestroyed) return@post
-                attachAndLoadBanner(activity, frameLayout, shimmerFrameLayout, adUnitID)
+                if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
+                    hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+                    return@post
+                }
+                attachAndLoadBanner(activity, frameLayout, shimmerFrameLayout, adUnitID, rootContainer)
             }
         }
     }
@@ -268,12 +384,11 @@ class BannerAdLoader {
         activity: Activity,
         frameLayout: FrameLayout,
         shimmerFrameLayout: FrameLayout,
-        adUnitID: String
+        adUnitID: String,
+        rootContainer: View? = null
     ) {
-        if (!ads.isBannerAdEnabled || adUnitID.isBlank()) {
-            frameLayout.removeAllViews()
-            frameLayout.visibility = View.GONE
-            shimmerFrameLayout.visibility = View.GONE
+        if (!NetworkUtil.isNetworkAvailable(activity) || !ads.isBannerAdEnabled || adUnitID.isBlank()) {
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
             return
         }
 
@@ -284,7 +399,9 @@ class BannerAdLoader {
         }
         isLoadingMap[requestKey] = true
 
-        shimmerFrameLayout.visibility = View.VISIBLE
+        rootContainer?.visibility = View.VISIBLE
+        (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
+        startShimmerAnimation(shimmerFrameLayout)
         frameLayout.visibility = View.GONE
 
         val adView = AdView(activity)
@@ -296,8 +413,11 @@ class BannerAdLoader {
                 isLoadingMap[requestKey] = false
                 Log.d(TAG, "Banner ad loaded successfully. Hiding shimmer and displaying ad view.")
                 logAds(activity, "banner_loaded")
+                stopShimmerAnimation(shimmerFrameLayout)
                 shimmerFrameLayout.visibility = View.GONE
                 frameLayout.visibility = View.VISIBLE
+                rootContainer?.visibility = View.VISIBLE
+                (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
                 logAds(activity, "banner_showed")
             }
 
@@ -312,9 +432,7 @@ class BannerAdLoader {
                 isLoadingMap[requestKey] = false
                 Log.e(TAG, "Banner failed to load: ${loadAdError.message} (code ${loadAdError.code})")
                 logAds(activity, "banner_failed_to_load_" + loadAdError.code)
-                frameLayout.removeAllViews()
-                frameLayout.visibility = View.GONE
-                shimmerFrameLayout.visibility = View.GONE
+                hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
             }
         }
         frameLayout.removeAllViews()
@@ -327,14 +445,34 @@ class BannerAdLoader {
         activity: Activity,
         frameLayout: FrameLayout,
         shimmerFrameLayout: View,
-        adUnitID: String
+        adUnitID: String,
+        rootContainer: View? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "loadAndShowBannerAfterCall: Offline mode. Suppressing request.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
         val safeAdUnitId = if (adUnitID.contains("2247696110")) {
             AdsConfig.DEFAULT_BANNER_ID
         } else {
             adUnitID.ifBlank { AdsConfig.DEFAULT_BANNER_ID }
         }
+
+        val requestKey = "banner_after_call:$safeAdUnitId"
+        if (isLoadingMap[requestKey] == true) {
+            Log.d(TAG, "After Call banner request is already in progress. Ignoring duplicate.")
+            return
+        }
+        isLoadingMap[requestKey] = true
+
         Log.d(TAG, "loadAndShowBannerAfterCall with Unit ID: $safeAdUnitId")
+        rootContainer?.visibility = View.VISIBLE
+        (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
+        startShimmerAnimation(shimmerFrameLayout)
+        frameLayout.visibility = View.GONE
+
         val adView = AdView(activity)
         adView.adUnitId = safeAdUnitId
         adView.setAdSize(AdSize.MEDIUM_RECTANGLE)
@@ -344,10 +482,14 @@ class BannerAdLoader {
         adView.adListener = object : AdListener() {
             override fun onAdLoaded() {
                 super.onAdLoaded()
+                isLoadingMap[requestKey] = false
                 Log.d(TAG, "After Call banner loaded successfully")
                 logAds(activity, "banner_loaded")
-                frameLayout.visibility = View.VISIBLE
+                stopShimmerAnimation(shimmerFrameLayout)
                 shimmerFrameLayout.visibility = View.GONE
+                frameLayout.visibility = View.VISIBLE
+                rootContainer?.visibility = View.VISIBLE
+                (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
 
                 if (adView.parent != null) {
                     (adView.parent as ViewGroup).removeView(adView)
@@ -361,15 +503,14 @@ class BannerAdLoader {
                 super.onAdClicked()
                 Log.d(TAG, "After Call banner clicked")
                 logAds(activity, "banner_clicked")
-                showBannerAfterCall(activity, frameLayout, shimmerFrameLayout)
             }
 
             override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                 super.onAdFailedToLoad(loadAdError)
-                frameLayout.visibility = View.GONE
-                shimmerFrameLayout.visibility = View.GONE
+                isLoadingMap[requestKey] = false
                 Log.e(TAG, "After Call banner failed to load: ${loadAdError.message} (code ${loadAdError.code})")
                 logAds(activity, "banner_failed_to_load_" + loadAdError.code)
+                hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
             }
         }
     }

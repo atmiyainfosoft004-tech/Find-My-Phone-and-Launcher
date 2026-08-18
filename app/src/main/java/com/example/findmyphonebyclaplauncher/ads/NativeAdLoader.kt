@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RatingBar
@@ -14,6 +15,8 @@ import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper.logAds
+import com.example.findmyphonebyclaplauncher.util.NetworkUtil
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
@@ -34,17 +37,93 @@ class NativeAdLoader {
     private val isLoadingMap = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
     private val pendingCallbacks = java.util.concurrent.ConcurrentHashMap<String, MutableList<Pair<(NativeAd) -> Unit, () -> Unit>>>()
 
-    fun showNativeLarge(
-        activity: Activity, ltNativeAds: FrameLayout, ltNativeShimmerAds: FrameLayout
+    private fun startShimmerAnimation(view: View?) {
+        when (view) {
+            is ShimmerFrameLayout -> {
+                view.visibility = View.VISIBLE
+                view.startShimmer()
+            }
+            is ViewGroup -> {
+                view.visibility = View.VISIBLE
+                val shimmer = view.findViewById<ShimmerFrameLayout>(R.id.shimmer_view_container)
+                    ?: (0 until view.childCount).mapNotNull { view.getChildAt(it) as? ShimmerFrameLayout }.firstOrNull()
+                shimmer?.startShimmer()
+            }
+            else -> {
+                view?.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun stopShimmerAnimation(view: View?) {
+        when (view) {
+            is ShimmerFrameLayout -> {
+                view.stopShimmer()
+                view.visibility = View.GONE
+            }
+            is ViewGroup -> {
+                val shimmer = view.findViewById<ShimmerFrameLayout>(R.id.shimmer_view_container)
+                    ?: (0 until view.childCount).mapNotNull { view.getChildAt(it) as? ShimmerFrameLayout }.firstOrNull()
+                shimmer?.stopShimmer()
+                view.visibility = View.GONE
+            }
+            else -> {
+                view?.visibility = View.GONE
+            }
+        }
+    }
+
+    fun hideNativeContainer(
+        ltNativeAds: FrameLayout,
+        ltNativeShimmerAds: FrameLayout,
+        cardView: CardView? = null
     ) {
+        stopShimmerAnimation(ltNativeShimmerAds)
+        ltNativeShimmerAds.visibility = View.GONE
+        ltNativeAds.removeAllViews()
+        ltNativeAds.visibility = View.GONE
+        cardView?.visibility = View.GONE
+    }
+
+    fun showDashboardNative(
+        activity: Activity,
+        ltNativeAds: FrameLayout,
+        ltNativeShimmerAds: FrameLayout,
+        cardView: CardView? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showDashboardNative: Offline mode. Hiding view completely.")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, cardView)
+            return
+        }
+
+        if (ads.canShowNativeDashboard) {
+            Log.d(TAG, "Requesting Dashboard Native Ad")
+            showNative(activity, ltNativeAds, ltNativeShimmerAds, "Large", ads.nativeAdIdDashboard, "Dashboard", cardView)
+        } else {
+            Log.d(TAG, "Dashboard native ad disabled by Remote Config")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, cardView)
+        }
+    }
+
+    fun showNativeLarge(
+        activity: Activity,
+        ltNativeAds: FrameLayout,
+        ltNativeShimmerAds: FrameLayout,
+        cardView: CardView? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showNativeLarge: Offline mode. Hiding view completely.")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, cardView)
+            return
+        }
+
         if (ads.canShowNative) {
             Log.d(TAG, "Requesting Large Native Ad")
-            showNative(activity, ltNativeAds, ltNativeShimmerAds, "Large")
+            showNative(activity, ltNativeAds, ltNativeShimmerAds, "Large", ads.nativeAdIdDashboard, "Default", cardView)
         } else {
             Log.d(TAG, "Native ad disabled by Remote Config")
-            ltNativeAds.removeAllViews()
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.GONE
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, cardView)
         }
     }
 
@@ -54,10 +133,17 @@ class NativeAdLoader {
         ltNativeShimmerAds: FrameLayout,
         nativeAdCardView: CardView
     ) {
-        if (ads.canShowNative) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showNativeLargeAfterCall: Offline mode. Hiding view completely.")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
+            return
+        }
+
+        if (ads.canShowNativeAfterCall) {
             Log.d(TAG, "Requesting After Call Native Ad")
             if (ads.nativeAdPreload && nativeAdPreloadAfterCall != null) {
                 Log.d(TAG, "Inflating preloaded After Call Native Ad")
+                nativeAdCardView.visibility = View.VISIBLE
                 instance!!.inflateGoogleNativeAd(
                     activity,
                     ltNativeAds,
@@ -65,7 +151,8 @@ class NativeAdLoader {
                     nativeAdPreloadAfterCall!!,
                     "Large",
                     false,
-                    "AfterCall"
+                    "AfterCall",
+                    nativeAdCardView
                 )
                 nativeAdPreloadAfterCall = null
                 loadNativeAdPreload(activity)
@@ -83,10 +170,7 @@ class NativeAdLoader {
             }
         } else {
             Log.d(TAG, "After Call Native Ad disabled by Remote Config")
-            ltNativeAds.removeAllViews()
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.GONE
-            nativeAdCardView.visibility = View.GONE
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
         }
     }
 
@@ -96,10 +180,17 @@ class NativeAdLoader {
         ltNativeShimmerAds: FrameLayout,
         nativeAdCardView: CardView
     ) {
-        if (ads.canShowNative) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showNativeLargeLanguage: Offline mode. Hiding view completely.")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
+            return
+        }
+
+        if (ads.canShowNativeLanguage) {
             Log.d(TAG, "Requesting Language Native Ad")
             if (ads.nativeAdPreload && nativeAdPreloadLanguage != null) {
                 Log.d(TAG, "Inflating preloaded Language Native Ad")
+                nativeAdCardView.visibility = View.VISIBLE
                 instance!!.inflateGoogleNativeAd(
                     activity,
                     ltNativeAds,
@@ -107,7 +198,8 @@ class NativeAdLoader {
                     nativeAdPreloadLanguage!!,
                     "Large",
                     false,
-                    "Language"
+                    "Language",
+                    nativeAdCardView
                 )
                 nativeAdPreloadLanguage = null
                 loadNativeAdPreload(activity)
@@ -125,10 +217,7 @@ class NativeAdLoader {
             }
         } else {
             Log.d(TAG, "Language Native Ad disabled by Remote Config")
-            ltNativeAds.removeAllViews()
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.GONE
-            nativeAdCardView.visibility = View.GONE
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
         }
     }
 
@@ -139,6 +228,12 @@ class NativeAdLoader {
         onLoaded: (NativeAd) -> Unit,
         onFailed: () -> Unit = {}
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "loadNativeAd: Offline mode. Suppressing request for type: $type")
+            onFailed()
+            return
+        }
+
         if (!ads.canShowNative || adUnitId.isBlank()) {
             Log.d(TAG, "loadNativeAd: skipped, canShowNative is false or adUnitId is blank")
             onFailed()
@@ -189,9 +284,10 @@ class NativeAdLoader {
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "native_req_$type")
         App.runWhenMobileAdsReady {
-            if (activity.isFinishing || activity.isDestroyed) {
+            if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
                 isLoadingMap[requestKey] = false
-                pendingCallbacks.remove(requestKey)
+                val callbacks = pendingCallbacks.remove(requestKey) ?: emptyList()
+                callbacks.forEach { it.second.invoke() }
                 return@runWhenMobileAdsReady
             }
             adLoaderNative.loadAd(adRequest)
@@ -203,7 +299,8 @@ class NativeAdLoader {
         ltNativeAds: FrameLayout,
         ltNativeShimmerAds: FrameLayout,
         nativeAd: NativeAd,
-        type: String = "GoogleSearch"
+        type: String = "GoogleSearch",
+        cardView: CardView? = null
     ) {
         Log.d(TAG, "Binding Native Ad for type: $type")
         inflateGoogleNativeAd(
@@ -213,7 +310,8 @@ class NativeAdLoader {
             nativeAd,
             "Large",
             true,
-            type
+            type,
+            cardView
         )
     }
 
@@ -223,15 +321,18 @@ class NativeAdLoader {
         ltNativeShimmerAds: FrameLayout,
         nativeAdCardView: CardView? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showNativeSmall: Offline mode. Hiding view completely.")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
+            return
+        }
+
         if (ads.canShowNative) {
             Log.d(TAG, "Requesting Small Native Ad")
-            showNative(activity, ltNativeAds, ltNativeShimmerAds, "Small")
+            showNative(activity, ltNativeAds, ltNativeShimmerAds, "Small", ads.nativeAdIdDashboard, "Default", nativeAdCardView)
         } else {
             Log.d(TAG, "Small Native Ad disabled by Remote Config")
-            ltNativeAds.removeAllViews()
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.GONE
-            nativeAdCardView?.visibility = View.GONE
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
         }
     }
 
@@ -239,57 +340,67 @@ class NativeAdLoader {
         activity: Activity,
         ltNativeAds: FrameLayout,
         ltNativeShimmerAds: FrameLayout,
-        adType: String
+        adType: String,
+        adUnitId: String,
+        type: String = "Default",
+        cardView: CardView? = null
     ) {
-        if (ads.canShowNative) {
-            if (ads.nativeAdPreload && nativeAdPreload != null) {
-                Log.d(TAG, "Inflating preloaded $adType Native Ad (Default)")
-                instance!!.inflateGoogleNativeAd(
-                    activity,
-                    ltNativeAds,
-                    ltNativeShimmerAds,
-                    nativeAdPreload!!,
-                    adType,
-                    false,
-                    "Default"
-                )
-                nativeAdPreload = null
-                loadNativeAdPreload(activity)
-            } else {
-                Log.d(TAG, "Loading on-demand $adType Native Ad (Default) with Unit ID: ${ads.nativeAdIdDashboard}")
-                loadAndShowNativeAd(
-                    activity,
-                    ltNativeAds,
-                    ltNativeShimmerAds,
-                    adType,
-                    ads.nativeAdIdDashboard,
-                    "Default"
-                )
-            }
+        if (!NetworkUtil.isNetworkAvailable(activity) || !ads.canShowNative) {
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, cardView)
+            return
+        }
+
+        if (ads.nativeAdPreload && nativeAdPreload != null) {
+            Log.d(TAG, "Inflating preloaded $adType Native Ad ($type)")
+            cardView?.visibility = View.VISIBLE
+            instance!!.inflateGoogleNativeAd(
+                activity,
+                ltNativeAds,
+                ltNativeShimmerAds,
+                nativeAdPreload!!,
+                adType,
+                false,
+                type,
+                cardView
+            )
+            nativeAdPreload = null
+            loadNativeAdPreload(activity)
         } else {
-            ltNativeAds.removeAllViews()
-            ltNativeAds.visibility = View.GONE
-            ltNativeShimmerAds.visibility = View.GONE
+            Log.d(TAG, "Loading on-demand $adType Native Ad ($type) with Unit ID: $adUnitId")
+            loadAndShowNativeAd(
+                activity,
+                ltNativeAds,
+                ltNativeShimmerAds,
+                adType,
+                adUnitId,
+                type,
+                cardView
+            )
         }
     }
 
     fun loadNativeAdPreload(activity: Activity) {
-        if (ads.nativeAdPreload &&
-            ads.canShowNative
-        ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "loadNativeAdPreload: Offline mode. Suppressing native preload.")
+            return
+        }
+
+        if (ads.nativeAdPreload && ads.canShowNative) {
             App.runWhenMobileAdsReady {
-                if (activity.isFinishing || activity.isDestroyed) return@runWhenMobileAdsReady
+                if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) return@runWhenMobileAdsReady
                 preloadNativeAds(activity)
             }
         }
     }
 
     private fun preloadNativeAds(activity: Activity) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) return
+
         val videoOptions = VideoOptions.Builder().setStartMuted(true).build()
         val adOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()
         val adRequest = AdRequest.Builder().build()
 
-        if (nativeAdPreload == null && isLoadingMap["preload_default"] != true) {
+        if (ads.canShowNativeDashboard && nativeAdPreload == null && isLoadingMap["preload_default"] != true) {
             isLoadingMap["preload_default"] = true
             Log.d(TAG, "Preloading Dashboard Native Ad with Unit ID: ${ads.nativeAdIdDashboard}")
             AdLoader.Builder(activity.applicationContext, ads.nativeAdIdDashboard)
@@ -308,7 +419,7 @@ class NativeAdLoader {
                 }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
         }
 
-        if (nativeAdPreloadLanguage == null && isLoadingMap["preload_language"] != true) {
+        if (ads.canShowNativeLanguage && nativeAdPreloadLanguage == null && isLoadingMap["preload_language"] != true) {
             isLoadingMap["preload_language"] = true
             Log.d(TAG, "Preloading Language Native Ad with Unit ID: ${ads.nativeAdIdLanguage}")
             AdLoader.Builder(activity.applicationContext, ads.nativeAdIdLanguage)
@@ -326,7 +437,7 @@ class NativeAdLoader {
                 }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
         }
 
-        if (nativeAdPreloadAfterCall == null && isLoadingMap["preload_aftercall"] != true) {
+        if (ads.canShowNativeAfterCall && nativeAdPreloadAfterCall == null && isLoadingMap["preload_aftercall"] != true) {
             isLoadingMap["preload_aftercall"] = true
             Log.d(TAG, "Preloading After Call Native Ad with Unit ID: ${ads.nativeAdIdAfterCall}")
             AdLoader.Builder(activity.applicationContext, ads.nativeAdIdAfterCall)
@@ -354,12 +465,15 @@ class NativeAdLoader {
         type: String = "Default",
         cardView: CardView? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Offline mode detected: Suppressing native ad request ($type)")
+            hideNativeContainer(ltUniversal, adsNativeBigLoadingBinding, cardView)
+            return
+        }
+
         if (!ads.isNativeAdEnabled || adUnitID.isBlank()) {
             Log.d(TAG, "Native ad disabled or empty unit ID ($adUnitID)")
-            ltUniversal.removeAllViews()
-            ltUniversal.visibility = View.GONE
-            adsNativeBigLoadingBinding.visibility = View.GONE
-            cardView?.visibility = View.GONE
+            hideNativeContainer(ltUniversal, adsNativeBigLoadingBinding, cardView)
             return
         }
 
@@ -371,9 +485,10 @@ class NativeAdLoader {
         isLoadingMap[requestKey] = true
 
         Log.d(TAG, "On-demand Native Ad load: Showing shimmer layout for $type (Unit ID: $adUnitID)")
-        ltUniversal.visibility = View.GONE
-        adsNativeBigLoadingBinding.visibility = View.VISIBLE
         cardView?.visibility = View.VISIBLE
+        ltUniversal.removeAllViews()
+        ltUniversal.visibility = View.GONE
+        startShimmerAnimation(adsNativeBigLoadingBinding)
 
         val videoOptions = VideoOptions.Builder().setStartMuted(true).build()
         val adOptions = NativeAdOptions.Builder().setVideoOptions(videoOptions).build()
@@ -391,7 +506,8 @@ class NativeAdLoader {
                         nativeAd,
                         adType,
                         true,
-                        type
+                        type,
+                        cardView
                     )
                 } else {
                     if (ads.nativeAdPreload) {
@@ -408,9 +524,7 @@ class NativeAdLoader {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     isLoadingMap[requestKey] = false
                     Log.e(TAG, "Native Ad ($type) failed to load: ${adError.message} (code ${adError.code}). Hiding shimmer layout.")
-                    ltUniversal.visibility = View.GONE
-                    adsNativeBigLoadingBinding.visibility = View.GONE
-                    cardView?.visibility = View.GONE
+                    hideNativeContainer(ltUniversal, adsNativeBigLoadingBinding, cardView)
                     increaseFailedCountNative()
                     logAds(activity, "native_failed_${type}_" + adError.code)
                 }
@@ -424,8 +538,9 @@ class NativeAdLoader {
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "native_req_$type")
         App.runWhenMobileAdsReady {
-            if (activity.isFinishing || activity.isDestroyed) {
+            if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
                 isLoadingMap[requestKey] = false
+                hideNativeContainer(ltUniversal, adsNativeBigLoadingBinding, cardView)
                 return@runWhenMobileAdsReady
             }
             adLoaderNative.loadAd(adRequest)
@@ -439,10 +554,13 @@ class NativeAdLoader {
         nativeAd: NativeAd,
         adType: String,
         isFromStatic: Boolean?,
-        type: String = "Default"
+        type: String = "Default",
+        cardView: CardView? = null
     ) {
+        stopShimmerAnimation(adsNativeBigLoadingBinding)
         adsNativeBigLoadingBinding.visibility = View.GONE
         ltUniversal.visibility = View.VISIBLE
+        cardView?.visibility = View.VISIBLE
 
         var adView =
             activity.layoutInflater.inflate(

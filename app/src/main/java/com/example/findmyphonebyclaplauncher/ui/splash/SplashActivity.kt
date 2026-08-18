@@ -92,17 +92,19 @@ class SplashActivity : AppCompatActivity() {
             val backTrigger = AdsConfigManager.config.interAdBackCounterTrigger
             Log.d("RemoteConfig", "Active inter_ad_back_counter_trigger=$backTrigger")
 
-            if (AdsConfigManager.config.canShowAppOpen && AdsConfigManager.config.preloadAdAppOpen) {
-                com.example.findmyphonebyclaplauncher.ads.AppOpenAdLoader.instance?.preloadAppOpenAd(this@SplashActivity)
-            }
-            if (AdsConfigManager.config.canShowInter && AdsConfigManager.config.preloadAdInterstitial) {
-                com.example.findmyphonebyclaplauncher.ads.InterAdLoader.instance?.loadInterstitialAds(this@SplashActivity)
-            }
-            if (AdsConfigManager.config.canShowBanner && AdsConfigManager.config.preloadAdBanner) {
-                com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.loadBannerAdPreload(this@SplashActivity)
-            }
-            if (AdsConfigManager.config.canShowNative && AdsConfigManager.config.preloadAdNative) {
-                com.example.findmyphonebyclaplauncher.ads.NativeAdLoader.instance?.loadNativeAdPreload(this@SplashActivity)
+            if (com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(this@SplashActivity)) {
+                if (AdsConfigManager.config.canShowAppOpen && AdsConfigManager.config.preloadAdAppOpen) {
+                    com.example.findmyphonebyclaplauncher.ads.AppOpenAdLoader.instance?.preloadAppOpenAd(this@SplashActivity)
+                }
+                if (AdsConfigManager.config.canShowInter && AdsConfigManager.config.preloadAdInterstitial) {
+                    com.example.findmyphonebyclaplauncher.ads.InterAdLoader.instance?.loadInterstitialAds(this@SplashActivity)
+                }
+                if (AdsConfigManager.config.canShowBanner && AdsConfigManager.config.preloadAdBanner) {
+                    com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.loadBannerAdPreload(this@SplashActivity)
+                }
+                if (AdsConfigManager.config.canShowNative && AdsConfigManager.config.preloadAdNative) {
+                    com.example.findmyphonebyclaplauncher.ads.NativeAdLoader.instance?.loadNativeAdPreload(this@SplashActivity)
+                }
             }
 
             lifecycleScope.launch {

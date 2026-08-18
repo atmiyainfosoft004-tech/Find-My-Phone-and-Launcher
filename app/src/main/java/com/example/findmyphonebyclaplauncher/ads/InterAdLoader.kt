@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher
 import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper.logAds
+import com.example.findmyphonebyclaplauncher.util.NetworkUtil
 import com.example.findmyphonebyclaplauncher.util.SystemUiHelper
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
@@ -33,9 +34,14 @@ class InterAdLoader {
     }
 
     fun loadInterstitialAds(activity: Activity) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "loadInterstitialAds: Offline mode. Suppressing preload.")
+            return
+        }
+
         if (ads.canShowInter) {
             App.runWhenMobileAdsReady {
-                if (!activity.isFinishing && !activity.isDestroyed) {
+                if (!activity.isFinishing && !activity.isDestroyed && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
             }
@@ -46,6 +52,12 @@ class InterAdLoader {
         activity: Activity,
         onComplete: (() -> Unit)? = null
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "loadInterstitialAd: Offline mode. Aborting request.")
+            onComplete?.invoke()
+            return
+        }
+
         // Strict Guard: Never make an ad load network request if Interstitial is disabled or ID is missing
         if (!ads.canShowInter) {
             Log.d("InterstitialAd", "loadInterstitialAd: Aborted. is_inter_ad_enabled is false or ID is empty")
@@ -103,9 +115,15 @@ class InterAdLoader {
         isFromBack: Boolean,
         listener: FullScreenDismissListener
     ) {
+        if (!NetworkUtil.isNetworkAvailable(activity) || !ads.canShowInter || activity.isFinishing || activity.isDestroyed) {
+            Log.d("InterstitialAd", "showOrLoadInterstitial: Offline mode, activity finishing/destroyed, or canShowInter is false")
+            listener.onDismiss()
+            return
+        }
+
         App.runWhenMobileAdsReady {
-            if (activity.isFinishing || activity.isDestroyed || !ads.canShowInter) {
-                Log.d("InterstitialAd", "showOrLoadInterstitial: Activity finishing/destroyed or canShowInter is false")
+            if (activity.isFinishing || activity.isDestroyed || !ads.canShowInter || !NetworkUtil.isNetworkAvailable(activity)) {
+                Log.d("InterstitialAd", "showOrLoadInterstitial: Activity finishing/destroyed or canShowInter/network is false")
                 listener.onDismiss()
                 return@runWhenMobileAdsReady
             }
@@ -171,7 +189,7 @@ class InterAdLoader {
                 isInterstitialLoading = false
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
-                if (ads.canShowInter && ads.preloadAdInterstitial) {
+                if (ads.canShowInter && ads.preloadAdInterstitial && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
                 logAds(activity, "inter_dismissed")
@@ -185,7 +203,7 @@ class InterAdLoader {
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 logAds(activity, "inter_failed_to_show_" + adError.code)
-                if (ads.canShowInter && ads.preloadAdInterstitial) {
+                if (ads.canShowInter && ads.preloadAdInterstitial && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
                 listener.onDismiss()
@@ -207,8 +225,8 @@ class InterAdLoader {
     }
 
     fun showAppClickInterstitial(activity: Activity, listener: FullScreenDismissListener) {
-        if (!canShowAppClickInter()) {
-            Log.d("InterstitialAd", "showAppClickInterstitial: skipped, canShowAppClickInter is false")
+        if (!canShowAppClickInter() || !NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "showAppClickInterstitial: skipped, canShowAppClickInter or network is false")
             listener.onDismiss()
             return
         }
@@ -216,8 +234,8 @@ class InterAdLoader {
     }
 
     fun showSwipeInterstitial(activity: Activity, listener: FullScreenDismissListener) {
-        if (!canShowSwipeInter()) {
-            Log.d("InterstitialAd", "showSwipeInterstitial: skipped, canShowSwipeInter is false")
+        if (!canShowSwipeInter() || !NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "showSwipeInterstitial: skipped, canShowSwipeInter or network is false")
             listener.onDismiss()
             return
         }
@@ -225,8 +243,8 @@ class InterAdLoader {
     }
 
     fun showBackInterstitial(activity: Activity, listener: FullScreenDismissListener) {
-        if (!canShowBackAd()) {
-            Log.d("InterstitialAd", "showBackInterstitial: skipped, canShowBackAd is false")
+        if (!canShowBackAd() || !NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d("InterstitialAd", "showBackInterstitial: skipped, canShowBackAd or network is false")
             listener.onDismiss()
             return
         }

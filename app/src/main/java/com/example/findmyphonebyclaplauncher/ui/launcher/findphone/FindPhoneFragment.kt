@@ -67,6 +67,12 @@ class FindPhoneFragment : Fragment() {
         observeViewModel()
         loadBannerAd()
         com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.addConfigChangeListener(configChangeListener)
+        com.example.findmyphonebyclaplauncher.util.NetworkUtil.observeNetwork(
+            requireContext(),
+            viewLifecycleOwner,
+            onAvailable = { loadBannerAd() },
+            onLost = { loadBannerAd() }
+        )
     }
 
     private fun setupWindowInsets() {
@@ -92,17 +98,22 @@ class FindPhoneFragment : Fragment() {
     fun loadBannerAd() {
         val binding = _binding ?: return
         if (!isAdded) return
-        if (!com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.config.canShowBannerFindPhone) {
-            binding.findPhoneBanner.bannerAdFrameLayout.removeAllViews()
-            binding.findPhoneBanner.bannerAdFrameLayout.visibility = View.GONE
-            binding.findPhoneBanner.bannerAdShimmerFrameLayout.visibility = View.GONE
+        if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
+            !com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.config.canShowBannerFindPhone
+        ) {
+            com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.hideBannerContainer(
+                binding.findPhoneBanner.bannerAdFrameLayout,
+                binding.findPhoneBanner.bannerAdShimmerFrameLayout,
+                binding.findPhoneBanner.root
+            )
             return
         }
         if (binding.findPhoneBanner.bannerAdFrameLayout.childCount > 0) return
         com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showFindPhoneBanner(
             requireActivity(),
             binding.findPhoneBanner.bannerAdFrameLayout,
-            binding.findPhoneBanner.bannerAdShimmerFrameLayout
+            binding.findPhoneBanner.bannerAdShimmerFrameLayout,
+            binding.findPhoneBanner.root
         )
     }
 

@@ -82,6 +82,12 @@ class DashboardFragment : Fragment() {
         }
 
         AdsConfigManager.addConfigChangeListener(configChangeListener)
+        com.example.findmyphonebyclaplauncher.util.NetworkUtil.observeNetwork(
+            requireContext(),
+            viewLifecycleOwner,
+            onAvailable = { refreshNativeAd() },
+            onLost = { refreshNativeAd() }
+        )
 
         binding.root.alpha = 0f
         binding.root.animate().alpha(1f).setDuration(280).start()
@@ -96,14 +102,15 @@ class DashboardFragment : Fragment() {
     fun refreshNativeAd() {
         val binding = _binding ?: return
         if (!isAdded) return
-        if (!AdsConfigManager.config.canShowNativeDashboard) {
+        if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
+            !AdsConfigManager.config.canShowNativeDashboard
+        ) {
             binding.nativeAdFrameLayout.removeAllViews()
             binding.nativeAdFrameLayout.visibility = View.GONE
             binding.nativeAdShimmerFrameLayout.root.visibility = View.GONE
             binding.nativeAdCardView.visibility = View.GONE
             return
         }
-        binding.nativeAdCardView.visibility = View.VISIBLE
         if (binding.nativeAdFrameLayout.childCount == 0) {
             LauncherAdsHelper.showDashboardNative(
                 requireActivity(),

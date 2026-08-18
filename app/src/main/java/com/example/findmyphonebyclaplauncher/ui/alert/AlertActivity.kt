@@ -94,17 +94,22 @@ class AlertActivity : AppCompatActivity() {
     }
 
     private fun loadBannerAd() {
-        if (!AdsConfigManager.config.canShowBannerAlertScreen) {
-            binding.alertBanner.bannerAdFrameLayout.removeAllViews()
-            binding.alertBanner.bannerAdFrameLayout.visibility = View.GONE
-            binding.alertBanner.bannerAdShimmerFrameLayout.visibility = View.GONE
+        if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(this) ||
+            !AdsConfigManager.config.canShowBannerAlertScreen
+        ) {
+            com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.hideBannerContainer(
+                binding.alertBanner.bannerAdFrameLayout,
+                binding.alertBanner.bannerAdShimmerFrameLayout,
+                binding.alertBanner.root
+            )
             return
         }
         if (binding.alertBanner.bannerAdFrameLayout.childCount > 0) return
         LauncherAdsHelper.showAlertBanner(
             this,
             binding.alertBanner.bannerAdFrameLayout,
-            binding.alertBanner.bannerAdShimmerFrameLayout
+            binding.alertBanner.bannerAdShimmerFrameLayout,
+            binding.alertBanner.root
         )
     }
 

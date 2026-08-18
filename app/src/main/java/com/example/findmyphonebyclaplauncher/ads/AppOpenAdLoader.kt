@@ -14,6 +14,7 @@ import com.example.findmyphonebyclaplauncher.App
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.ads.listeners.ContactAppOpenAdsListener
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper
+import com.example.findmyphonebyclaplauncher.util.NetworkUtil
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -39,6 +40,12 @@ class AppOpenAdLoader(val app: App) :
     }
 
     fun preloadAppOpenAd(context: Context? = null) {
+        val ctx = context?.applicationContext ?: app.applicationContext
+        if (!NetworkUtil.isNetworkAvailable(ctx)) {
+            Log.d(TAG, "preloadAppOpenAd: Offline mode. Suppressing App Open preload.")
+            return
+        }
+
         val config = AdsConfigManager.config
         if (!config.canShowAppOpen || !config.preloadAdAppOpen) return
         val adId = config.appOpenAdId
@@ -50,7 +57,6 @@ class AppOpenAdLoader(val app: App) :
         }
 
         isLoadingAppOpenAd = true
-        val ctx = context?.applicationContext ?: app.applicationContext
 
         val requestAds = AdRequest.Builder().build()
         Log.d(TAG, "preloadAppOpenAd: Loading App Open Ad with ID $adId")
@@ -96,6 +102,12 @@ class AppOpenAdLoader(val app: App) :
             return
         }
 
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showAppOpenAd: Offline mode. Proceeding directly.")
+            onDone()
+            return
+        }
+
         currentActivity = activity
         val config = AdsConfigManager.config
         if (!config.canShowAppOpen) {
@@ -113,7 +125,7 @@ class AppOpenAdLoader(val app: App) :
                     AnalyticsHelper.logAds(activity, "appopen_dismissed")
                     appOpenAd = null
                     com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
-                    if (config.preloadAdAppOpen) {
+                    if (config.preloadAdAppOpen && NetworkUtil.isNetworkAvailable(activity)) {
                         preloadAppOpenAd(activity)
                     }
                     onDone()
@@ -127,7 +139,7 @@ class AppOpenAdLoader(val app: App) :
                         "appopen_failed_" + adError.code
                     )
                     com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
-                    if (config.preloadAdAppOpen) {
+                    if (config.preloadAdAppOpen && NetworkUtil.isNetworkAvailable(activity)) {
                         preloadAppOpenAd(activity)
                     }
                     onDone()
@@ -170,7 +182,7 @@ class AppOpenAdLoader(val app: App) :
                 requestAds,
                 object : AppOpenAdLoadCallback() {
                     override fun onAdLoaded(ad: AppOpenAd) {
-                        if (actionExecuted || activity.isFinishing || activity.isDestroyed) {
+                        if (actionExecuted || activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
                             if (config.preloadAdAppOpen) {
                                 appOpenAd = ad
                                 loadTimeLong = Date().time
@@ -184,7 +196,7 @@ class AppOpenAdLoader(val app: App) :
                                 AnalyticsHelper.logAds(activity, "appopen_dismissed")
                                 appOpenAd = null
                                 com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
-                                if (config.preloadAdAppOpen) {
+                                if (config.preloadAdAppOpen && NetworkUtil.isNetworkAvailable(activity)) {
                                     preloadAppOpenAd(activity)
                                 }
                                 safeDismissAndContinue()
@@ -195,7 +207,7 @@ class AppOpenAdLoader(val app: App) :
                                 AnalyticsHelper.logAds(activity, "appopen_failed_" + adError.code)
                                 appOpenAd = null
                                 com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(activity)
-                                if (config.preloadAdAppOpen) {
+                                if (config.preloadAdAppOpen && NetworkUtil.isNetworkAvailable(activity)) {
                                     preloadAppOpenAd(activity)
                                 }
                                 safeDismissAndContinue()

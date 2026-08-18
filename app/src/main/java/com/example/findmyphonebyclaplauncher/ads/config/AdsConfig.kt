@@ -153,7 +153,7 @@ data class AdsConfig(
     val canShowBannerFindPhone: Boolean get() = isBannerAdEnabled && bannerAdEnableFindPhone && bannerAdIdFindPhone.isNotBlank()
     val canShowBannerAlertScreen: Boolean get() = isBannerAdEnabled && bannerAdEnableAlertScreen && bannerAdIdAlertScreen.isNotBlank()
     val canShowBannerAlertActivity: Boolean get() = canShowBannerAlertScreen
-    val canShowBannerAfterCall: Boolean get() = isBannerAdEnabled && nativeAdEnableAfterCall && nativeAdIdAfterCall.isNotBlank()
+    val canShowBannerAfterCall: Boolean get() = isBannerAdEnabled && nativeAdEnableAfterCall && (bannerAdIdAfterCall.isNotBlank() || nativeAdIdAfterCall.isNotBlank())
 
     // Native visibility checks (Requires Master Switch AND Screen Switch AND Valid ID)
     val canShowNative: Boolean get() = isNativeAdEnabled

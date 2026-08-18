@@ -28,8 +28,8 @@ import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.AppIconAdapter
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
+import com.example.findmyphonebyclaplauncher.ads.BannerAdLoader
 import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
-
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 
 class AppDrawerFragment : Fragment() {
@@ -87,6 +87,12 @@ class AppDrawerFragment : Fragment() {
         setupSearch()
         observe()
         AdsConfigManager.addConfigChangeListener(configChangeListener)
+        com.example.findmyphonebyclaplauncher.util.NetworkUtil.observeNetwork(
+            requireContext(),
+            viewLifecycleOwner,
+            onAvailable = { loadBannerAd() },
+            onLost = { loadBannerAd() }
+        )
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
     }
@@ -94,17 +100,22 @@ class AppDrawerFragment : Fragment() {
     fun loadBannerAd() {
         val binding = _binding ?: return
         if (!isAdded) return
-        if (!AdsConfigManager.config.canShowBanner) {
-            binding.drawerBanner.bannerAdFrameLayout.removeAllViews()
-            binding.drawerBanner.bannerAdFrameLayout.visibility = View.GONE
-            binding.drawerBanner.bannerAdShimmerFrameLayout.visibility = View.GONE
+        if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
+            !AdsConfigManager.config.canShowBannerAppDrawer
+        ) {
+            BannerAdLoader.instance?.hideBannerContainer(
+                binding.drawerBanner.bannerAdFrameLayout,
+                binding.drawerBanner.bannerAdShimmerFrameLayout,
+                binding.drawerBanner.root
+            )
             return
         }
         if (binding.drawerBanner.bannerAdFrameLayout.childCount > 0) return
         LauncherAdsHelper.showDrawerBanner(
             requireActivity(),
             binding.drawerBanner.bannerAdFrameLayout,
-            binding.drawerBanner.bannerAdShimmerFrameLayout
+            binding.drawerBanner.bannerAdShimmerFrameLayout,
+            binding.drawerBanner.root
         )
     }
 
