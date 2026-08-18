@@ -111,6 +111,7 @@ class DashboardFragment : Fragment() {
             binding.nativeAdCardView.visibility = View.GONE
             return
         }
+
         if (binding.nativeAdFrameLayout.childCount == 0) {
             LauncherAdsHelper.showDashboardNative(
                 requireActivity(),
