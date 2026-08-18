@@ -51,15 +51,17 @@ class RemoteConfigManagerTest {
         assertTrue(defaultConfig.bannerAdEnableAppDrawer)
         assertTrue(defaultConfig.bannerAdEnableFindPhone)
         assertTrue(defaultConfig.bannerAdEnableAlertScreen)
+        assertTrue(defaultConfig.bannerAdEnableAfterCall)
 
         // Native screen toggles & interval
         assertTrue(defaultConfig.nativeAdEnableDashboard)
         assertTrue(defaultConfig.nativeAdEnableGoogleSearch)
         assertTrue(defaultConfig.nativeAdEnableLanguage)
-        assertTrue(defaultConfig.nativeAdEnableAfterCall)
+        assertTrue(defaultConfig.nativeAdEnableInstallUninstall)
         assertEquals(2, defaultConfig.nativeAdGoogleSearchItemInterval)
 
         // Unit IDs
+        assertTrue(defaultConfig.nativeAdIdInstallUninstall.isNotBlank())
         assertTrue(defaultConfig.interAdId.isNotBlank())
         assertTrue(defaultConfig.appOpenAdId.isNotBlank())
     }
@@ -132,6 +134,8 @@ class RemoteConfigManagerTest {
                 "banner_ad_id_contact_home": "test_home_id",
                 "banner_ad_enable_alert_activity": true,
                 "banner_ad_id_alert_activity": "test_alert_id",
+                "native_ad_enable_after_call": true,
+                "native_ad_id_after_call": "test_after_call_id",
                 "inter_count": 4,
                 "inter_back_count": 2,
                 "isAppClickInterOn": true,
@@ -145,6 +149,8 @@ class RemoteConfigManagerTest {
         assertEquals("test_home_id", parsed.bannerAdIdHome)
         assertTrue(parsed.bannerAdEnableAlertScreen)
         assertEquals("test_alert_id", parsed.bannerAdIdAlertScreen)
+        assertTrue(parsed.bannerAdEnableAfterCall)
+        assertEquals("test_after_call_id", parsed.bannerAdIdAfterCall)
         assertEquals(4, parsed.interAdCounterTrigger)
         assertEquals(2, parsed.interAdBackCounterTrigger)
         assertTrue(parsed.isClickAdInterstitial)
@@ -243,19 +249,21 @@ class RemoteConfigManagerTest {
           "banner_ad_enable_app_drawer": true,
           "banner_ad_enable_find_phone": true,
           "banner_ad_enable_alert_screen": true,
+          "banner_ad_enable_after_call": true,
           "banner_ad_id_splash": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_home_screen": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_app_drawer": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_find_phone": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_alert_screen": "ca-app-pub-3940256099942544/9214589741",
+          "banner_ad_id_after_call": "ca-app-pub-3940256099942544/9214589741",
           "native_ad_enable_dashboard": true,
           "native_ad_enable_google_search": true,
           "native_ad_enable_language": true,
-          "native_ad_enable_after_call": true,
+          "native_ad_enable_install_uninstall": true,
           "native_ad_id_dashboard": "ca-app-pub-3940256099942544/2247696110",
           "native_ad_id_google_search": "ca-app-pub-3940256099942544/2247696110",
           "native_ad_id_language": "ca-app-pub-3940256099942544/2247696110",
-          "native_ad_id_after_call": "ca-app-pub-3940256099942544/2247696110",
+          "native_ad_id_install_uninstall": "ca-app-pub-3940256099942544/2247696110",
           "native_ad_google_search_item_interval": 2,
           "inter_ad_id": "ca-app-pub-3940256099942544/1033173712",
           "app_open_ad_id": "ca-app-pub-3940256099942544/9257395921",
@@ -286,19 +294,21 @@ class RemoteConfigManagerTest {
         assertTrue(parsed.bannerAdEnableAppDrawer)
         assertTrue(parsed.bannerAdEnableFindPhone)
         assertTrue(parsed.bannerAdEnableAlertScreen)
+        assertTrue(parsed.bannerAdEnableAfterCall)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdSplash)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdHome)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAppDrawer)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdFindPhone)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAlertScreen)
+        assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAfterCall)
         assertTrue(parsed.nativeAdEnableDashboard)
         assertTrue(parsed.nativeAdEnableGoogleSearch)
         assertTrue(parsed.nativeAdEnableLanguage)
-        assertTrue(parsed.nativeAdEnableAfterCall)
+        assertTrue(parsed.nativeAdEnableInstallUninstall)
         assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdDashboard)
         assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdGoogleSearch)
         assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdLanguage)
-        assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdAfterCall)
+        assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdInstallUninstall)
         assertEquals(2, parsed.nativeAdGoogleSearchItemInterval)
         assertEquals("ca-app-pub-3940256099942544/1033173712", parsed.interAdId)
         assertEquals("ca-app-pub-3940256099942544/9257395921", parsed.appOpenAdId)

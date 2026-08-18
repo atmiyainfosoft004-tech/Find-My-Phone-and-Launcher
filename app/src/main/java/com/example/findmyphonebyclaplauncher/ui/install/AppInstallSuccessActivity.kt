@@ -145,7 +145,7 @@ class AppInstallSuccessActivity : AppCompatActivity() {
 
     private fun loadNativeAd() {
         if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(this) ||
-            !AdsConfigManager.config.canShowNativeAfterCall
+            !AdsConfigManager.config.canShowNativeInstallUninstall
         ) {
             binding.nativeAdCardView.visibility = View.GONE
             binding.nativeAdFrameLayout.removeAllViews()
@@ -153,7 +153,7 @@ class AppInstallSuccessActivity : AppCompatActivity() {
             binding.nativeAdShimmerFrameLayout.visibility = View.GONE
             return
         }
-        NativeAdLoader.instance?.showNativeLargeAfterCall(
+        NativeAdLoader.instance?.showNativeLargeInstallUninstall(
             this,
             binding.nativeAdFrameLayout,
             binding.nativeAdShimmerFrameLayout,

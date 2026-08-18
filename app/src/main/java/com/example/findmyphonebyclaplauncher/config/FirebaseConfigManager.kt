@@ -71,22 +71,24 @@ object FirebaseConfigManager {
                 "banner_ad_enable_app_drawer" to true,
                 "banner_ad_enable_find_phone" to true,
                 "banner_ad_enable_alert_screen" to true,
+                "banner_ad_enable_after_call" to true,
 
                 "banner_ad_id_splash" to AdsConfig.DEFAULT_BANNER_ID,
                 "banner_ad_id_home_screen" to AdsConfig.DEFAULT_BANNER_ID,
                 "banner_ad_id_app_drawer" to AdsConfig.DEFAULT_BANNER_ID,
                 "banner_ad_id_find_phone" to AdsConfig.DEFAULT_BANNER_ID,
                 "banner_ad_id_alert_screen" to AdsConfig.DEFAULT_BANNER_ID,
+                "banner_ad_id_after_call" to AdsConfig.DEFAULT_BANNER_ID,
 
                 "native_ad_enable_dashboard" to true,
                 "native_ad_enable_google_search" to true,
                 "native_ad_enable_language" to true,
-                "native_ad_enable_after_call" to true,
+                "native_ad_enable_install_uninstall" to true,
 
                 "native_ad_id_dashboard" to AdsConfig.DEFAULT_NATIVE_ID,
                 "native_ad_id_google_search" to AdsConfig.DEFAULT_NATIVE_ID,
                 "native_ad_id_language" to AdsConfig.DEFAULT_NATIVE_ID,
-                "native_ad_id_after_call" to AdsConfig.DEFAULT_NATIVE_ID,
+                "native_ad_id_install_uninstall" to AdsConfig.DEFAULT_NATIVE_ID,
                 "native_ad_google_search_item_interval" to 2,
 
                 "inter_ad_id" to AdsConfig.DEFAULT_INTER_ID,

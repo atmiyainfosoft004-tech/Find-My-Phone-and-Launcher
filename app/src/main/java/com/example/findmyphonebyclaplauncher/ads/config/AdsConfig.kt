@@ -63,6 +63,9 @@ data class AdsConfig(
     @SerializedName(value = "banner_ad_enable_alert_screen", alternate = ["banner_ad_enable_alert", "banner_ad_enable_alert_activity"])
     val bannerAdEnableAlertScreen: Boolean = true,
 
+    @SerializedName(value = "banner_ad_enable_after_call", alternate = ["banner_ad_enable_aftercall", "native_ad_enable_after_call"])
+    val bannerAdEnableAfterCall: Boolean = true,
+
     // Banner Ads - Unit IDs
     @SerializedName("banner_ad_id_splash")
     val bannerAdIdSplash: String = DEFAULT_BANNER_ID,
@@ -79,7 +82,7 @@ data class AdsConfig(
     @SerializedName(value = "banner_ad_id_alert_screen", alternate = ["banner_ad_id_alert", "banner_ad_id_alert_activity"])
     val bannerAdIdAlertScreen: String = DEFAULT_BANNER_ID,
 
-    @SerializedName(value = "banner_ad_id_after_call", alternate = ["banner_ad_id_aftercall"])
+    @SerializedName(value = "banner_ad_id_after_call", alternate = ["banner_ad_id_aftercall", "native_ad_id_after_call"])
     val bannerAdIdAfterCall: String = DEFAULT_BANNER_ID,
 
     // Native Ads - Screen Specific Enable/Disable
@@ -92,8 +95,8 @@ data class AdsConfig(
     @SerializedName("native_ad_enable_language")
     val nativeAdEnableLanguage: Boolean = true,
 
-    @SerializedName("native_ad_enable_after_call")
-    val nativeAdEnableAfterCall: Boolean = true,
+    @SerializedName(value = "native_ad_enable_install_uninstall", alternate = ["native_ad_enable_install", "native_ad_enable_app_install"])
+    val nativeAdEnableInstallUninstall: Boolean = true,
 
     // Native Ads - Unit IDs & Configuration
     @SerializedName("native_ad_id_dashboard")
@@ -105,8 +108,8 @@ data class AdsConfig(
     @SerializedName("native_ad_id_language")
     val nativeAdIdLanguage: String = DEFAULT_NATIVE_ID,
 
-    @SerializedName("native_ad_id_after_call")
-    val nativeAdIdAfterCall: String = DEFAULT_NATIVE_ID,
+    @SerializedName(value = "native_ad_id_install_uninstall", alternate = ["native_ad_id_install", "native_ad_id_app_install"])
+    val nativeAdIdInstallUninstall: String = DEFAULT_NATIVE_ID,
 
     @SerializedName("native_ad_google_search_item_interval")
     val nativeAdGoogleSearchItemInterval: Int = 2,
@@ -136,6 +139,9 @@ data class AdsConfig(
     val bannerAdEnableContactHome: Boolean get() = bannerAdEnableHome
     val bannerAdIdAlertActivity: String get() = bannerAdIdAlertScreen
     val bannerAdEnableAlertActivity: Boolean get() = bannerAdEnableAlertScreen
+    val nativeAdEnableAfterCall: Boolean get() = bannerAdEnableAfterCall
+    val nativeAdIdAfterCall: String get() = bannerAdIdAfterCall
+    val canShowNativeAfterCall: Boolean get() = canShowBannerAfterCall
     val interCount: Int get() = interAdCounterTrigger
     val interBackCount: Int get() = interAdBackCounterTrigger
     val clickCount: Int get() = clickAdCounterTrigger
@@ -153,14 +159,14 @@ data class AdsConfig(
     val canShowBannerFindPhone: Boolean get() = isBannerAdEnabled && bannerAdEnableFindPhone && bannerAdIdFindPhone.isNotBlank()
     val canShowBannerAlertScreen: Boolean get() = isBannerAdEnabled && bannerAdEnableAlertScreen && bannerAdIdAlertScreen.isNotBlank()
     val canShowBannerAlertActivity: Boolean get() = canShowBannerAlertScreen
-    val canShowBannerAfterCall: Boolean get() = isBannerAdEnabled && nativeAdEnableAfterCall && (bannerAdIdAfterCall.isNotBlank() || nativeAdIdAfterCall.isNotBlank())
+    val canShowBannerAfterCall: Boolean get() = isBannerAdEnabled && bannerAdEnableAfterCall && bannerAdIdAfterCall.isNotBlank()
 
     // Native visibility checks (Requires Master Switch AND Screen Switch AND Valid ID)
     val canShowNative: Boolean get() = isNativeAdEnabled
     val canShowNativeDashboard: Boolean get() = isNativeAdEnabled && nativeAdEnableDashboard && nativeAdIdDashboard.isNotBlank()
     val canShowNativeGoogleSearch: Boolean get() = isNativeAdEnabled && nativeAdEnableGoogleSearch && nativeAdIdGoogleSearch.isNotBlank()
     val canShowNativeLanguage: Boolean get() = isNativeAdEnabled && nativeAdEnableLanguage && nativeAdIdLanguage.isNotBlank()
-    val canShowNativeAfterCall: Boolean get() = isNativeAdEnabled && nativeAdEnableAfterCall && nativeAdIdAfterCall.isNotBlank()
+    val canShowNativeInstallUninstall: Boolean get() = isNativeAdEnabled && nativeAdEnableInstallUninstall && nativeAdIdInstallUninstall.isNotBlank()
 
     // Interstitial & App Open visibility checks (Requires Master Switch AND Valid ID)
     val canShowInter: Boolean get() = isInterAdEnabled && interAdId.isNotBlank()

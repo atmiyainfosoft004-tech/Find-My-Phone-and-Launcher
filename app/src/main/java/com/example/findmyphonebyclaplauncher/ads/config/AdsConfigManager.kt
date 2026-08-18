@@ -55,6 +55,8 @@ object AdsConfigManager {
     const val KEY_BANNER_ENABLE_FIND_PHONE = "banner_ad_enable_find_phone"
     const val KEY_BANNER_ENABLE_ALERT_SCREEN = "banner_ad_enable_alert_screen"
     const val KEY_BANNER_ENABLE_ALERT_ACTIVITY_LEGACY = "banner_ad_enable_alert_activity"
+    const val KEY_BANNER_ENABLE_AFTER_CALL = "banner_ad_enable_after_call"
+    const val KEY_BANNER_ENABLE_AFTER_CALL_LEGACY = "native_ad_enable_after_call"
 
     // Banner Ads - Unit IDs
     const val KEY_BANNER_ID_SPLASH = "banner_ad_id_splash"
@@ -65,18 +67,20 @@ object AdsConfigManager {
     const val KEY_BANNER_ID_FIND_PHONE = "banner_ad_id_find_phone"
     const val KEY_BANNER_ID_ALERT_SCREEN = "banner_ad_id_alert_screen"
     const val KEY_BANNER_ID_ALERT_ACTIVITY_LEGACY = "banner_ad_id_alert_activity"
+    const val KEY_BANNER_ID_AFTER_CALL = "banner_ad_id_after_call"
+    const val KEY_BANNER_ID_AFTER_CALL_LEGACY = "native_ad_id_after_call"
 
     // Native Ads - Screen Specific Enable/Disable
     const val KEY_NATIVE_ENABLE_DASHBOARD = "native_ad_enable_dashboard"
     const val KEY_NATIVE_ENABLE_GOOGLE_SEARCH = "native_ad_enable_google_search"
     const val KEY_NATIVE_ENABLE_LANGUAGE = "native_ad_enable_language"
-    const val KEY_NATIVE_ENABLE_AFTER_CALL = "native_ad_enable_after_call"
+    const val KEY_NATIVE_ENABLE_INSTALL_UNINSTALL = "native_ad_enable_install_uninstall"
 
     // Native Ads - Unit IDs & Configuration
     const val KEY_NATIVE_ID_DASHBOARD = "native_ad_id_dashboard"
     const val KEY_NATIVE_ID_GOOGLE_SEARCH = "native_ad_id_google_search"
     const val KEY_NATIVE_ID_LANGUAGE = "native_ad_id_language"
-    const val KEY_NATIVE_ID_AFTER_CALL = "native_ad_id_after_call"
+    const val KEY_NATIVE_ID_INSTALL_UNINSTALL = "native_ad_id_install_uninstall"
     const val KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL = "native_ad_google_search_item_interval"
 
     // Interstitial & Open Ad Controls
@@ -172,22 +176,24 @@ object AdsConfigManager {
             KEY_BANNER_ENABLE_APP_DRAWER to true,
             KEY_BANNER_ENABLE_FIND_PHONE to true,
             KEY_BANNER_ENABLE_ALERT_SCREEN to true,
+            KEY_BANNER_ENABLE_AFTER_CALL to true,
 
             KEY_BANNER_ID_SPLASH to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_HOME_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_APP_DRAWER to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_FIND_PHONE to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_ALERT_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
+            KEY_BANNER_ID_AFTER_CALL to AdsConfig.DEFAULT_BANNER_ID,
 
             KEY_NATIVE_ENABLE_DASHBOARD to true,
             KEY_NATIVE_ENABLE_GOOGLE_SEARCH to true,
             KEY_NATIVE_ENABLE_LANGUAGE to true,
-            KEY_NATIVE_ENABLE_AFTER_CALL to true,
+            KEY_NATIVE_ENABLE_INSTALL_UNINSTALL to true,
 
             KEY_NATIVE_ID_DASHBOARD to AdsConfig.DEFAULT_NATIVE_ID,
             KEY_NATIVE_ID_GOOGLE_SEARCH to AdsConfig.DEFAULT_NATIVE_ID,
             KEY_NATIVE_ID_LANGUAGE to AdsConfig.DEFAULT_NATIVE_ID,
-            KEY_NATIVE_ID_AFTER_CALL to AdsConfig.DEFAULT_NATIVE_ID,
+            KEY_NATIVE_ID_INSTALL_UNINSTALL to AdsConfig.DEFAULT_NATIVE_ID,
             KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL to 2,
 
             KEY_INTER_ID to AdsConfig.DEFAULT_INTER_ID,
@@ -310,6 +316,8 @@ object AdsConfigManager {
                 ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_FIND_PHONE, default = true),
             bannerAdEnableAlertScreen = fromJson?.bannerAdEnableAlertScreen
                 ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_ALERT_SCREEN, KEY_BANNER_ENABLE_ALERT_ACTIVITY_LEGACY, default = true),
+            bannerAdEnableAfterCall = fromJson?.bannerAdEnableAfterCall
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_AFTER_CALL, KEY_BANNER_ENABLE_AFTER_CALL_LEGACY, default = true),
 
             bannerAdIdSplash = fromJson?.bannerAdIdSplash
                 ?: remoteConfig.extractString(KEY_BANNER_ID_SPLASH, default = AdsConfig.DEFAULT_BANNER_ID),
@@ -321,6 +329,8 @@ object AdsConfigManager {
                 ?: remoteConfig.extractString(KEY_BANNER_ID_FIND_PHONE, default = AdsConfig.DEFAULT_BANNER_ID),
             bannerAdIdAlertScreen = fromJson?.bannerAdIdAlertScreen
                 ?: remoteConfig.extractString(KEY_BANNER_ID_ALERT_SCREEN, KEY_BANNER_ID_ALERT_ACTIVITY_LEGACY, default = AdsConfig.DEFAULT_BANNER_ID),
+            bannerAdIdAfterCall = fromJson?.bannerAdIdAfterCall
+                ?: remoteConfig.extractString(KEY_BANNER_ID_AFTER_CALL, KEY_BANNER_ID_AFTER_CALL_LEGACY, default = AdsConfig.DEFAULT_BANNER_ID),
 
             nativeAdEnableDashboard = fromJson?.nativeAdEnableDashboard
                 ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_DASHBOARD, default = true),
@@ -328,8 +338,8 @@ object AdsConfigManager {
                 ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_GOOGLE_SEARCH, default = true),
             nativeAdEnableLanguage = fromJson?.nativeAdEnableLanguage
                 ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_LANGUAGE, default = true),
-            nativeAdEnableAfterCall = fromJson?.nativeAdEnableAfterCall
-                ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_AFTER_CALL, default = true),
+            nativeAdEnableInstallUninstall = fromJson?.nativeAdEnableInstallUninstall
+                ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_INSTALL_UNINSTALL, default = true),
 
             nativeAdIdDashboard = fromJson?.nativeAdIdDashboard
                 ?: remoteConfig.extractString(KEY_NATIVE_ID_DASHBOARD, default = AdsConfig.DEFAULT_NATIVE_ID),
@@ -337,8 +347,8 @@ object AdsConfigManager {
                 ?: remoteConfig.extractString(KEY_NATIVE_ID_GOOGLE_SEARCH, default = AdsConfig.DEFAULT_NATIVE_ID),
             nativeAdIdLanguage = fromJson?.nativeAdIdLanguage
                 ?: remoteConfig.extractString(KEY_NATIVE_ID_LANGUAGE, default = AdsConfig.DEFAULT_NATIVE_ID),
-            nativeAdIdAfterCall = fromJson?.nativeAdIdAfterCall
-                ?: remoteConfig.extractString(KEY_NATIVE_ID_AFTER_CALL, default = AdsConfig.DEFAULT_NATIVE_ID),
+            nativeAdIdInstallUninstall = fromJson?.nativeAdIdInstallUninstall
+                ?: remoteConfig.extractString(KEY_NATIVE_ID_INSTALL_UNINSTALL, default = AdsConfig.DEFAULT_NATIVE_ID),
             nativeAdGoogleSearchItemInterval = fromJson?.nativeAdGoogleSearchItemInterval
                 ?: remoteConfig.extractInt(KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL, default = 2).coerceAtLeast(1),
 

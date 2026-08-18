@@ -310,10 +310,15 @@ class AdManagerGuardAndRoutingTest {
         assertTrue(defaultConfig.canShowBannerAppDrawer)
         assertTrue(defaultConfig.canShowBannerFindPhone)
         assertTrue(defaultConfig.canShowBannerAlertScreen)
+        assertTrue(defaultConfig.canShowBannerAfterCall)
 
         // Enable home banner dynamically
         val homeEnabledConfig = defaultConfig.copy(bannerAdEnableHome = true)
         assertTrue(homeEnabledConfig.canShowBannerHome)
+
+        // Disable after call banner dynamically
+        val afterCallDisabledConfig = defaultConfig.copy(bannerAdEnableAfterCall = false)
+        assertFalse(afterCallDisabledConfig.canShowBannerAfterCall)
     }
 
     @Test
@@ -322,12 +327,17 @@ class AdManagerGuardAndRoutingTest {
         assertTrue(defaultConfig.canShowNativeDashboard)
         assertTrue(defaultConfig.canShowNativeGoogleSearch)
         assertTrue(defaultConfig.canShowNativeLanguage)
-        assertTrue(defaultConfig.canShowNativeAfterCall)
+        assertTrue(defaultConfig.canShowNativeInstallUninstall)
 
         // Disable dashboard native dynamically
         val dashboardDisabledConfig = defaultConfig.copy(nativeAdEnableDashboard = false)
         assertFalse(dashboardDisabledConfig.canShowNativeDashboard)
         assertTrue(dashboardDisabledConfig.canShowNativeGoogleSearch)
+
+        // Disable install/uninstall native dynamically
+        val installDisabledConfig = defaultConfig.copy(nativeAdEnableInstallUninstall = false)
+        assertFalse(installDisabledConfig.canShowNativeInstallUninstall)
+        assertTrue(installDisabledConfig.canShowNativeDashboard)
     }
 
     // ─────────────────────────────────────────────────────────────────────────

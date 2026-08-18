@@ -78,6 +78,10 @@
         <key>banner_ad_enable_alert_screen</key>
         <value>true</value>
     </entry>
+    <entry>
+        <key>banner_ad_enable_after_call</key>
+        <value>true</value>
+    </entry>
 
     <entry>
         <key>banner_ad_id_splash</key>
@@ -99,6 +103,10 @@
         <key>banner_ad_id_alert_screen</key>
         <value>ca-app-pub-3940256099942544/9214589741</value>
     </entry>
+    <entry>
+        <key>banner_ad_id_after_call</key>
+        <value>ca-app-pub-3940256099942544/9214589741</value>
+    </entry>
 
     <entry>
         <key>native_ad_enable_dashboard</key>
@@ -113,7 +121,7 @@
         <value>true</value>
     </entry>
     <entry>
-        <key>native_ad_enable_after_call</key>
+        <key>native_ad_enable_install_uninstall</key>
         <value>true</value>
     </entry>
 
@@ -130,7 +138,7 @@
         <value>ca-app-pub-3940256099942544/2247696110</value>
     </entry>
     <entry>
-        <key>native_ad_id_after_call</key>
+        <key>native_ad_id_install_uninstall</key>
         <value>ca-app-pub-3940256099942544/2247696110</value>
     </entry>
 

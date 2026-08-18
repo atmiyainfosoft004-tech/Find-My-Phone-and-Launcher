@@ -32,7 +32,6 @@ class NativeAdLoader {
     private val ads get() = AdsConfigManager.config
     private var nativeAdPreload: NativeAd? = null
     private var nativeAdPreloadLanguage: NativeAd? = null
-    private var nativeAdPreloadAfterCall: NativeAd? = null
 
     private val isLoadingMap = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
     private val pendingCallbacks = java.util.concurrent.ConcurrentHashMap<String, MutableList<Pair<(NativeAd) -> Unit, () -> Unit>>>()
@@ -127,53 +126,6 @@ class NativeAdLoader {
         }
     }
 
-    fun showNativeLargeAfterCall(
-        activity: Activity,
-        ltNativeAds: FrameLayout,
-        ltNativeShimmerAds: FrameLayout,
-        nativeAdCardView: CardView
-    ) {
-        if (!NetworkUtil.isNetworkAvailable(activity)) {
-            Log.d(TAG, "showNativeLargeAfterCall: Offline mode. Hiding view completely.")
-            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
-            return
-        }
-
-        if (ads.canShowNativeAfterCall) {
-            Log.d(TAG, "Requesting After Call Native Ad")
-            if (ads.nativeAdPreload && nativeAdPreloadAfterCall != null) {
-                Log.d(TAG, "Inflating preloaded After Call Native Ad")
-                nativeAdCardView.visibility = View.VISIBLE
-                instance!!.inflateGoogleNativeAd(
-                    activity,
-                    ltNativeAds,
-                    ltNativeShimmerAds,
-                    nativeAdPreloadAfterCall!!,
-                    "Large",
-                    false,
-                    "AfterCall",
-                    nativeAdCardView
-                )
-                nativeAdPreloadAfterCall = null
-                loadNativeAdPreload(activity)
-            } else {
-                Log.d(TAG, "Loading on-demand After Call Native Ad (Unit ID: ${ads.nativeAdIdAfterCall})")
-                loadAndShowNativeAd(
-                    activity,
-                    ltNativeAds,
-                    ltNativeShimmerAds,
-                    "Large",
-                    ads.nativeAdIdAfterCall,
-                    "AfterCall",
-                    nativeAdCardView
-                )
-            }
-        } else {
-            Log.d(TAG, "After Call Native Ad disabled by Remote Config")
-            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
-        }
-    }
-
     fun showNativeLargeLanguage(
         activity: Activity,
         ltNativeAds: FrameLayout,
@@ -217,6 +169,35 @@ class NativeAdLoader {
             }
         } else {
             Log.d(TAG, "Language Native Ad disabled by Remote Config")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
+        }
+    }
+
+    fun showNativeLargeInstallUninstall(
+        activity: Activity,
+        ltNativeAds: FrameLayout,
+        ltNativeShimmerAds: FrameLayout,
+        nativeAdCardView: CardView? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showNativeLargeInstallUninstall: Offline mode. Hiding view completely.")
+            hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
+            return
+        }
+
+        if (ads.canShowNativeInstallUninstall) {
+            Log.d(TAG, "Requesting Install/Uninstall Native Ad (Unit ID: ${ads.nativeAdIdInstallUninstall})")
+            loadAndShowNativeAd(
+                activity,
+                ltNativeAds,
+                ltNativeShimmerAds,
+                "Large",
+                ads.nativeAdIdInstallUninstall,
+                "InstallUninstall",
+                nativeAdCardView
+            )
+        } else {
+            Log.d(TAG, "Install/Uninstall Native Ad disabled by Remote Config")
             hideNativeContainer(ltNativeAds, ltNativeShimmerAds, nativeAdCardView)
         }
     }
@@ -436,24 +417,6 @@ class NativeAdLoader {
                     }
                 }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
         }
-
-        if (ads.canShowNativeAfterCall && nativeAdPreloadAfterCall == null && isLoadingMap["preload_aftercall"] != true) {
-            isLoadingMap["preload_aftercall"] = true
-            Log.d(TAG, "Preloading After Call Native Ad with Unit ID: ${ads.nativeAdIdAfterCall}")
-            AdLoader.Builder(activity.applicationContext, ads.nativeAdIdAfterCall)
-                .forNativeAd { nativeAd ->
-                    isLoadingMap["preload_aftercall"] = false
-                    Log.d(TAG, "Preloaded After Call Native Ad loaded successfully")
-                    logAds(activity, "native_loaded_aftercall")
-                    nativeAdPreloadAfterCall = nativeAd
-                }.withAdListener(object : AdListener() {
-                    override fun onAdFailedToLoad(adError: LoadAdError) {
-                        isLoadingMap["preload_aftercall"] = false
-                        Log.e(TAG, "Preload After Call Native Ad failed: ${adError.message} (code ${adError.code})")
-                        logAds(activity, "native_failed_aftercall_" + adError.code)
-                    }
-                }).withNativeAdOptions(adOptions).build().loadAd(adRequest)
-        }
     }
 
     private fun loadAndShowNativeAd(
@@ -513,7 +476,6 @@ class NativeAdLoader {
                     if (ads.nativeAdPreload) {
                         when (type) {
                             "Language" -> nativeAdPreloadLanguage = nativeAd
-                            "AfterCall" -> nativeAdPreloadAfterCall = nativeAd
                             else -> nativeAdPreload = nativeAd
                         }
                     } else {
@@ -695,7 +657,6 @@ class NativeAdLoader {
             if (!isStatic) {
                 when (type) {
                     "Language" -> nativeAdPreloadLanguage = null
-                    "AfterCall" -> nativeAdPreloadAfterCall = null
                     else -> nativeAdPreload = null
                 }
                 loadNativeAdPreload(activity)
