@@ -4,6 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:paddingHorizontal="@dimen/_15sdp"
     android:paddingVertical="@dimen/_10sdp"
     android:background="@color/color_onboarding_background">
@@ -82,6 +84,7 @@
                     app:cardCornerRadius="@dimen/_14sdp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 
@@ -108,7 +111,9 @@
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/_14sdp"
         android:layout_marginBottom="@dimen/_14sdp"
-        app:cardBackgroundColor="#F1F5F9"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:cardBackgroundColor="#F8FAFC"
         app:cardCornerRadius="@dimen/_28sdp"
         app:cardElevation="0dp"
         app:strokeWidth="1.5dp"
@@ -120,7 +125,9 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <!-- Black Notch -->
             <View
@@ -140,25 +147,21 @@
                 android:layout_marginHorizontal="@dimen/_14sdp"
                 android:layout_marginTop="@dimen/_12sdp"
                 android:layout_marginBottom="@dimen/_14sdp"
-                app:cardBackgroundColor="@color/white"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                app:cardBackgroundColor="#F8FAFC"
                 app:cardCornerRadius="@dimen/_20sdp"
                 app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/color_onboarding_stroke">
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
                     android:padding="@dimen/_16sdp">
 
-                    <!-- Top Black Drag Bar Handle -->
-                    <View
-                        android:layout_width="@dimen/_36sdp"
-                        android:layout_height="@dimen/_5sdp"
-                        android:layout_gravity="center_horizontal"
-                        android:background="@drawable/bg_notch_pill"
-                        android:layout_marginBottom="@dimen/_16sdp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -168,13 +171,13 @@
                         android:textColor="@color/color_onboarding_text_primary"
                         android:textSize="@dimen/_14ssp"
                         android:fontFamily="@font/inter_bold"
-                        android:layout_marginBottom="@dimen/_20sdp" />
+                        android:layout_marginBottom="@dimen/_16sdp" />
 
                     <!-- Option 1: Other App -->
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:layout_marginBottom="@dimen/_8sdp"
                         app:cardBackgroundColor="@color/white"
                         app:cardCornerRadius="@dimen/_12sdp"
                         app:cardElevation="0dp"
@@ -206,16 +209,24 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Option 2: Find My Phone Launcher (Selected Blue Highlight) -->
+                    <!-- Option 2: Find My Phone Launcher (Popping out outside phone boundaries) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardFindMyPhoneOption"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_10sdp"
+                        android:layout_marginStart="-20dp"
+                        android:layout_marginEnd="-20dp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_12sdp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        android:translationZ="@dimen/_8sdp"
+                        app:cardElevation="@dimen/_8sdp"
+                        app:cardMaxElevation="0dp"
                         app:cardBackgroundColor="#EFF6FF"
-                        app:cardCornerRadius="@dimen/_12sdp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="2dp"
+                        app:cardCornerRadius="@dimen/_16sdp"
+                        app:strokeWidth="2.5dp"
                         app:strokeColor="@color/color_primary">
 
                         <LinearLayout
@@ -223,31 +234,48 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:padding="@dimen/_10sdp">
+                            android:paddingHorizontal="@dimen/_14sdp"
+                            android:paddingVertical="@dimen/_12sdp">
 
                             <!-- Radio Button Checked Dot -->
                             <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="@dimen/_18sdp"
-                                android:layout_height="@dimen/_18sdp"
+                                android:layout_width="@dimen/_20sdp"
+                                android:layout_height="@dimen/_20sdp"
                                 android:src="@drawable/ic_radio_checked"
                                 app:tint="@color/color_primary"
                                 android:layout_marginEnd="@dimen/_10sdp" />
 
                             <!-- App Icon -->
                             <ImageView
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
+                                android:layout_width="@dimen/_32sdp"
+                                android:layout_height="@dimen/_32sdp"
                                 android:src="@mipmap/ic_launcher"
                                 android:contentDescription="@string/app_name"
                                 android:layout_marginEnd="@dimen/_10sdp" />
 
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="@string/find_my_phone_launcher_name"
-                                android:textColor="@color/color_primary"
-                                android:textSize="@dimen/_11ssp"
-                                android:fontFamily="@font/inter_bold" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/find_my_phone_launcher_name"
+                                    android:textColor="@color/color_primary"
+                                    android:textSize="@dimen/_12ssp"
+                                    android:fontFamily="@font/inter_bold" />
+
+
+                            </LinearLayout>
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="@dimen/_16sdp"
+                                android:layout_height="@dimen/_16sdp"
+                                android:src="@drawable/ic_check_circle"
+                                app:tint="@color/color_primary"
+                                android:visibility="gone"/>
 
                         </LinearLayout>
 
@@ -301,7 +329,7 @@
         android:id="@+id/btnContinue"
         android:layout_width="match_parent"
         android:layout_height="@dimen/button_height"
-        android:text="@string/btn_continue"
+        android:text="@string/set_as_default"
         android:layout_marginBottom="@dimen/_10sdp"
         android:fontFamily="@font/inter_semibold"
         app:layout_constraintBottom_toBottomOf="parent"

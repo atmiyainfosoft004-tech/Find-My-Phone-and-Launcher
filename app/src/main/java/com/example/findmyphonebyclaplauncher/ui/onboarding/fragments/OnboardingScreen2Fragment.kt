@@ -57,10 +57,10 @@ class OnboardingScreen2Fragment : Fragment() {
             }
         }
 
-        binding.cardFindMyPhoneOption.setOnClickListener {
-            Log.d(TAG, "cardFindMyPhoneOption clicked")
-            requestDefaultLauncher()
-        }
+//        binding.cardFindMyPhoneOption.setOnClickListener {
+//            Log.d(TAG, "cardFindMyPhoneOption clicked")
+//            requestDefaultLauncher()
+//        }
     }
 
     override fun onResume() {

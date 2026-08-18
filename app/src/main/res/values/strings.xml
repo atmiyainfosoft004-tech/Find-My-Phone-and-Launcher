@@ -221,4 +221,5 @@
     <string name="app_install_success_title">App Install Successfully</string>
     <string name="app_updated_success_title">App Updated Successfully</string>
     <string name="app_uninstalled_success_title">App Uninstalled Successfully</string>
+    <string name="set_as_default">Set As Default</string>
 </resources>
