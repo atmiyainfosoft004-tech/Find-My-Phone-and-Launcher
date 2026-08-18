@@ -33,6 +33,37 @@ class LanguageActivity : BaseActivity() {
         setupHeader()
         setupRecyclerView()
         setupListeners()
+        loadBannerAd()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadBannerAd()
+    }
+
+    private fun loadBannerAd() {
+        val config = com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.config
+        val isNetworkAvailable = com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(this)
+        android.util.Log.d(
+            "LanguageActivity",
+            "loadBannerAd: NetworkAvailable=$isNetworkAvailable, isBannerAdEnabled=${config.isBannerAdEnabled}, bannerAdEnableLanguageRect=${config.bannerAdEnableLanguageRect}, bannerAdIdLanguageRect='${config.bannerAdIdLanguageRect}', canShowBannerLanguageRect=${config.canShowBannerLanguageRect}"
+        )
+        if (!isNetworkAvailable || !config.canShowBannerLanguageRect) {
+            android.util.Log.w(
+                "LanguageActivity",
+                "Suppressing Language rectangle banner ad. NetworkAvailable=$isNetworkAvailable, canShowBannerLanguageRect=${config.canShowBannerLanguageRect}"
+            )
+            com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.hideBannerContainer(
+                binding.bannerAdFrameLayout,
+                binding.shimmerFrameLayout.root
+            )
+            return
+        }
+        com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showLanguageRectBanner(
+            this,
+            binding.bannerAdFrameLayout,
+            binding.shimmerFrameLayout.root
+        )
     }
 
     private fun setupWindowInsets() {

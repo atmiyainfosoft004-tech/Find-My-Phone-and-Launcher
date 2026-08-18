@@ -44,6 +44,7 @@ object RemoteConfigRepository {
     const val KEY_BANNER_AD_ENABLE_FIND_PHONE = "banner_ad_enable_find_phone"
     const val KEY_BANNER_AD_ENABLE_ALERT_SCREEN = "banner_ad_enable_alert_screen"
     const val KEY_BANNER_AD_ENABLE_AFTER_CALL = "banner_ad_enable_after_call"
+    const val KEY_BANNER_AD_ENABLE_LANGUAGE_RECT = "banner_ad_enable_language_rect"
 
     const val KEY_BANNER_AD_ID_SPLASH = "banner_ad_id_splash"
     const val KEY_BANNER_AD_ID_HOME_SCREEN = "banner_ad_id_home_screen"
@@ -51,6 +52,7 @@ object RemoteConfigRepository {
     const val KEY_BANNER_AD_ID_FIND_PHONE = "banner_ad_id_find_phone"
     const val KEY_BANNER_AD_ID_ALERT_SCREEN = "banner_ad_id_alert_screen"
     const val KEY_BANNER_AD_ID_AFTER_CALL = "banner_ad_id_after_call"
+    const val KEY_BANNER_AD_ID_LANGUAGE_RECT = "banner_ad_id_language_rect"
 
     // Native Screen Enables & IDs
     const val KEY_NATIVE_AD_ENABLE_DASHBOARD = "native_ad_enable_dashboard"
@@ -115,12 +117,14 @@ object RemoteConfigRepository {
                 KEY_BANNER_AD_ENABLE_FIND_PHONE to true,
                 KEY_BANNER_AD_ENABLE_ALERT_SCREEN to true,
                 KEY_BANNER_AD_ENABLE_AFTER_CALL to true,
+                KEY_BANNER_AD_ENABLE_LANGUAGE_RECT to true,
                 KEY_BANNER_AD_ID_SPLASH to AdsConfig.DEFAULT_BANNER_ID,
                 KEY_BANNER_AD_ID_HOME_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
                 KEY_BANNER_AD_ID_APP_DRAWER to AdsConfig.DEFAULT_BANNER_ID,
                 KEY_BANNER_AD_ID_FIND_PHONE to AdsConfig.DEFAULT_BANNER_ID,
                 KEY_BANNER_AD_ID_ALERT_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
                 KEY_BANNER_AD_ID_AFTER_CALL to AdsConfig.DEFAULT_BANNER_ID,
+                KEY_BANNER_AD_ID_LANGUAGE_RECT to AdsConfig.DEFAULT_BANNER_ID,
                 KEY_NATIVE_AD_ENABLE_DASHBOARD to true,
                 KEY_NATIVE_AD_ENABLE_GOOGLE_SEARCH to true,
                 KEY_NATIVE_AD_ENABLE_LANGUAGE to true,
@@ -256,6 +260,7 @@ object RemoteConfigRepository {
     val bannerAdEnableFindPhone: Boolean get() = getBoolean(KEY_BANNER_AD_ENABLE_FIND_PHONE, true)
     val bannerAdEnableAlertScreen: Boolean get() = getBoolean(KEY_BANNER_AD_ENABLE_ALERT_SCREEN, true)
     val bannerAdEnableAfterCall: Boolean get() = getBoolean(KEY_BANNER_AD_ENABLE_AFTER_CALL, true)
+    val bannerAdEnableLanguageRect: Boolean get() = getBoolean(KEY_BANNER_AD_ENABLE_LANGUAGE_RECT, true)
 
     val bannerAdIdSplash: String get() = getString(KEY_BANNER_AD_ID_SPLASH, AdsConfig.DEFAULT_BANNER_ID)
     val bannerAdIdHome: String get() = getString(KEY_BANNER_AD_ID_HOME_SCREEN, AdsConfig.DEFAULT_BANNER_ID)
@@ -263,6 +268,7 @@ object RemoteConfigRepository {
     val bannerAdIdFindPhone: String get() = getString(KEY_BANNER_AD_ID_FIND_PHONE, AdsConfig.DEFAULT_BANNER_ID)
     val bannerAdIdAlertScreen: String get() = getString(KEY_BANNER_AD_ID_ALERT_SCREEN, AdsConfig.DEFAULT_BANNER_ID)
     val bannerAdIdAfterCall: String get() = getString(KEY_BANNER_AD_ID_AFTER_CALL, AdsConfig.DEFAULT_BANNER_ID)
+    val bannerAdIdLanguageRect: String get() = getString(KEY_BANNER_AD_ID_LANGUAGE_RECT, AdsConfig.DEFAULT_BANNER_ID)
 
     // Native Screen Enables & IDs
     val nativeAdEnableDashboard: Boolean get() = getBoolean(KEY_NATIVE_AD_ENABLE_DASHBOARD, true)

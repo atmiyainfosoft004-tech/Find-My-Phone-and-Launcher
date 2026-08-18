@@ -52,6 +52,7 @@ class RemoteConfigManagerTest {
         assertTrue(defaultConfig.bannerAdEnableFindPhone)
         assertTrue(defaultConfig.bannerAdEnableAlertScreen)
         assertTrue(defaultConfig.bannerAdEnableAfterCall)
+        assertTrue(defaultConfig.bannerAdEnableLanguageRect)
 
         // Native screen toggles & interval
         assertTrue(defaultConfig.nativeAdEnableDashboard)
@@ -174,6 +175,7 @@ class RemoteConfigManagerTest {
         assertFalse("canShowBannerHome should be false", config.canShowBannerHome)
         assertFalse("canShowBannerFindPhone should be false", config.canShowBannerFindPhone)
         assertFalse("canShowBannerAlertScreen should be false", config.canShowBannerAlertScreen)
+        assertFalse("canShowBannerLanguageRect should be false", config.canShowBannerLanguageRect)
     }
 
     @Test
@@ -250,12 +252,14 @@ class RemoteConfigManagerTest {
           "banner_ad_enable_find_phone": true,
           "banner_ad_enable_alert_screen": true,
           "banner_ad_enable_after_call": true,
+          "banner_ad_enable_language_rect": true,
           "banner_ad_id_splash": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_home_screen": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_app_drawer": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_find_phone": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_alert_screen": "ca-app-pub-3940256099942544/9214589741",
           "banner_ad_id_after_call": "ca-app-pub-3940256099942544/9214589741",
+          "banner_ad_id_language_rect": "ca-app-pub-3940256099942544/6300978111",
           "native_ad_enable_dashboard": true,
           "native_ad_enable_google_search": true,
           "native_ad_enable_language": true,
@@ -295,12 +299,14 @@ class RemoteConfigManagerTest {
         assertTrue(parsed.bannerAdEnableFindPhone)
         assertTrue(parsed.bannerAdEnableAlertScreen)
         assertTrue(parsed.bannerAdEnableAfterCall)
+        assertTrue(parsed.bannerAdEnableLanguageRect)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdSplash)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdHome)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAppDrawer)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdFindPhone)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAlertScreen)
         assertEquals("ca-app-pub-3940256099942544/9214589741", parsed.bannerAdIdAfterCall)
+        assertEquals("ca-app-pub-3940256099942544/6300978111", parsed.bannerAdIdLanguageRect)
         assertTrue(parsed.nativeAdEnableDashboard)
         assertTrue(parsed.nativeAdEnableGoogleSearch)
         assertTrue(parsed.nativeAdEnableLanguage)

@@ -82,6 +82,10 @@
         <key>banner_ad_enable_after_call</key>
         <value>true</value>
     </entry>
+    <entry>
+        <key>banner_ad_enable_language_rect</key>
+        <value>true</value>
+    </entry>
 
     <entry>
         <key>banner_ad_id_splash</key>
@@ -106,6 +110,10 @@
     <entry>
         <key>banner_ad_id_after_call</key>
         <value>ca-app-pub-3940256099942544/9214589741</value>
+    </entry>
+    <entry>
+        <key>banner_ad_id_language_rect</key>
+        <value>ca-app-pub-3940256099942544/6300978111</value>
     </entry>
 
     <entry>

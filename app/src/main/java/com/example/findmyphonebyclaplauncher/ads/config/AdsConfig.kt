@@ -66,6 +66,9 @@ data class AdsConfig(
     @SerializedName(value = "banner_ad_enable_after_call", alternate = ["banner_ad_enable_aftercall", "native_ad_enable_after_call"])
     val bannerAdEnableAfterCall: Boolean = true,
 
+    @SerializedName(value = "banner_ad_enable_language_rect", alternate = ["is_lang_rect_banner_enabled", "banner_ad_enable_language_rectangle"])
+    val bannerAdEnableLanguageRect: Boolean = true,
+
     // Banner Ads - Unit IDs
     @SerializedName("banner_ad_id_splash")
     val bannerAdIdSplash: String = DEFAULT_BANNER_ID,
@@ -84,6 +87,9 @@ data class AdsConfig(
 
     @SerializedName(value = "banner_ad_id_after_call", alternate = ["banner_ad_id_aftercall", "native_ad_id_after_call"])
     val bannerAdIdAfterCall: String = DEFAULT_BANNER_ID,
+
+    @SerializedName(value = "banner_ad_id_language_rect", alternate = ["banner_ad_id_language_rectangle"])
+    val bannerAdIdLanguageRect: String = DEFAULT_BANNER_ID,
 
     // Native Ads - Screen Specific Enable/Disable
     @SerializedName("native_ad_enable_dashboard")
@@ -160,6 +166,7 @@ data class AdsConfig(
     val canShowBannerAlertScreen: Boolean get() = isBannerAdEnabled && bannerAdEnableAlertScreen && bannerAdIdAlertScreen.isNotBlank()
     val canShowBannerAlertActivity: Boolean get() = canShowBannerAlertScreen
     val canShowBannerAfterCall: Boolean get() = isBannerAdEnabled && bannerAdEnableAfterCall && bannerAdIdAfterCall.isNotBlank()
+    val canShowBannerLanguageRect: Boolean get() = isBannerAdEnabled && bannerAdEnableLanguageRect && bannerAdIdLanguageRect.isNotBlank()
 
     // Native visibility checks (Requires Master Switch AND Screen Switch AND Valid ID)
     val canShowNative: Boolean get() = isNativeAdEnabled

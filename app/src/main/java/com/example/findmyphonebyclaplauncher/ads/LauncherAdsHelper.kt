@@ -472,4 +472,17 @@ object LauncherAdsHelper {
         }
         BannerAdLoader.instance?.showAlertBanner(activity, bannerFrame, shimmerFrame, rootContainer)
     }
+
+    fun showLanguageRectBanner(
+        activity: Activity,
+        bannerFrame: FrameLayout,
+        shimmerFrame: View,
+        rootContainer: View? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowBannerLanguageRect) {
+            BannerAdLoader.instance?.hideBannerContainer(bannerFrame, shimmerFrame, rootContainer)
+            return
+        }
+        BannerAdLoader.instance?.showLanguageRectBanner(activity, bannerFrame, shimmerFrame, rootContainer)
+    }
 }

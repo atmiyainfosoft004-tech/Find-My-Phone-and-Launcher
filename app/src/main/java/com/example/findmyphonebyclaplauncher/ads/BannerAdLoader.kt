@@ -319,6 +319,34 @@ class BannerAdLoader {
         }
     }
 
+    fun showLanguageRectBanner(
+        activity: Activity,
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: View,
+        rootContainer: View? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Language rect banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
+        if (ads.canShowBannerLanguageRect) {
+            Log.d(TAG, "Loading Medium Rectangle banner for Language screen")
+            val adUnitId = ads.bannerAdIdLanguageRect.ifBlank { ads.bannerAdIdHome.ifBlank { AdsConfig.DEFAULT_BANNER_ID } }
+            loadAndShowLanguageRectBanner(
+                activity,
+                frameLayout,
+                shimmerFrameLayout,
+                adUnitId,
+                rootContainer
+            )
+        } else {
+            Log.d(TAG, "Language rect banner disabled by Remote Config")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+        }
+    }
+
     fun loadAndShowBanner(
         activity: Activity,
         frameLayout: FrameLayout,
@@ -511,6 +539,111 @@ class BannerAdLoader {
                 Log.e(TAG, "After Call banner failed to load: ${loadAdError.message} (code ${loadAdError.code})")
                 logAds(activity, "banner_failed_to_load_" + loadAdError.code)
                 hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            }
+        }
+    }
+
+    fun loadAndShowLanguageRectBanner(
+        activity: Activity,
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: View,
+        adUnitID: String,
+        rootContainer: View? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "loadAndShowLanguageRectBanner: Offline mode. Suppressing request.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
+        val safeAdUnitId = if (adUnitID.contains("2247696110")) {
+            AdsConfig.DEFAULT_BANNER_ID
+        } else {
+            adUnitID.ifBlank { AdsConfig.DEFAULT_BANNER_ID }
+        }
+
+        val requestKey = "banner_lang_rect:$safeAdUnitId"
+        if (isLoadingMap[requestKey] == true) {
+            Log.d(TAG, "Language rect banner request is already in progress. Ignoring duplicate.")
+            return
+        }
+        isLoadingMap[requestKey] = true
+
+        Log.d(TAG, "loadAndShowLanguageRectBanner requested with Unit ID: $safeAdUnitId (Format: AdSize.MEDIUM_RECTANGLE 300x250)")
+        rootContainer?.visibility = View.VISIBLE
+        (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
+        startShimmerAnimation(shimmerFrameLayout)
+        frameLayout.visibility = View.GONE
+
+        App.runWhenMobileAdsReady {
+            if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
+                isLoadingMap[requestKey] = false
+                hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+                return@runWhenMobileAdsReady
+            }
+            frameLayout.post {
+                if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity)) {
+                    isLoadingMap[requestKey] = false
+                    hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+                    return@post
+                }
+
+                val adView = AdView(activity)
+                adView.adUnitId = safeAdUnitId
+                adView.setAdSize(AdSize.MEDIUM_RECTANGLE)
+                adView.adListener = object : AdListener() {
+                    override fun onAdLoaded() {
+                        super.onAdLoaded()
+                        isLoadingMap[requestKey] = false
+                        Log.d(TAG, "Language rect banner loaded successfully for Unit ID: $safeAdUnitId")
+                        logAds(activity, "banner_loaded")
+                        stopShimmerAnimation(shimmerFrameLayout)
+                        shimmerFrameLayout.visibility = View.GONE
+                        frameLayout.visibility = View.VISIBLE
+                        rootContainer?.visibility = View.VISIBLE
+                        (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
+
+                        if (adView.parent != null) {
+                            (adView.parent as ViewGroup).removeView(adView)
+                        }
+                        frameLayout.removeAllViews()
+                        logAds(activity, "banner_showed")
+                        frameLayout.addView(adView)
+                    }
+
+                    override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                        super.onAdFailedToLoad(loadAdError)
+                        isLoadingMap[requestKey] = false
+                        Log.e(TAG, "Language rect banner failed to load for Unit ID '$safeAdUnitId': code=${loadAdError.code}, message=${loadAdError.message}, domain=${loadAdError.domain}")
+                        logAds(activity, "banner_failed_to_load_" + loadAdError.code)
+                        hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+                    }
+
+                    override fun onAdImpression() {
+                        super.onAdImpression()
+                        Log.d(TAG, "Language rect banner impression recorded")
+                        logAds(activity, "banner_impression")
+                    }
+
+                    override fun onAdClicked() {
+                        super.onAdClicked()
+                        Log.d(TAG, "Language rect banner clicked")
+                        logAds(activity, "banner_clicked")
+                    }
+
+                    override fun onAdOpened() {
+                        super.onAdOpened()
+                        Log.d(TAG, "Language rect banner opened")
+                    }
+
+                    override fun onAdClosed() {
+                        super.onAdClosed()
+                        Log.d(TAG, "Language rect banner closed")
+                    }
+                }
+                val adRequest = AdRequest.Builder().build()
+                logAds(activity, "banner_req")
+                adView.loadAd(adRequest)
             }
         }
     }
