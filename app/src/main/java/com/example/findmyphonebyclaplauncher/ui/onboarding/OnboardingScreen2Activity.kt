@@ -77,7 +77,13 @@ class OnboardingScreen2Activity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        binding.shimmerBtnContinue.startShimmer()
         checkAndProceedIfDefault(source = "onResume")
+    }
+
+    override fun onPause() {
+        binding.shimmerBtnContinue.stopShimmer()
+        super.onPause()
     }
 
     private fun checkAndProceedIfDefault(source: String) {
