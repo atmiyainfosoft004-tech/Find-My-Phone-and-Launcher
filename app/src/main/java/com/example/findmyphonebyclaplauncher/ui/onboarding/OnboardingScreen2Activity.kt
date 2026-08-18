@@ -75,6 +75,8 @@ class OnboardingScreen2Activity : BaseActivity() {
         })
     }
 
+    private var isAppInBackground = false
+
     override fun onResume() {
         super.onResume()
         binding.shimmerBtnContinue.startShimmer()
@@ -84,6 +86,43 @@ class OnboardingScreen2Activity : BaseActivity() {
     override fun onPause() {
         binding.shimmerBtnContinue.stopShimmer()
         super.onPause()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (isDefaultLauncher() && !isNavigated && !isFinishing) {
+            redirectToHomeFragment("onUserLeaveHint")
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isDefaultLauncher() && !isNavigated && !isFinishing) {
+            isAppInBackground = true
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (isAppInBackground && isDefaultLauncher() && !isNavigated && !isFinishing) {
+            redirectToHomeFragment("onRestart")
+        }
+    }
+
+    private fun redirectToHomeFragment(source: String) {
+        if (isFinishing || isDestroyed || isNavigated) return
+        isNavigated = true
+        Log.d(TAG, "Redirecting to HomeFragment due to Home press / background resume (source: $source)")
+
+        val prefs = com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource(this)
+        prefs.isLanguageSelected = true
+        prefs.isOnboardingCompleted = true
+
+        val intent = Intent(this, com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun checkAndProceedIfDefault(source: String) {

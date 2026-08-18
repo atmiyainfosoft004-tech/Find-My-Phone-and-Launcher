@@ -16,6 +16,8 @@ class OnboardingActivity : BaseActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
     val viewModel: OnboardingViewModel by viewModels()
+    private var isAppInBackground = false
+    private var isNavigatingToMain = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +28,41 @@ class OnboardingActivity : BaseActivity() {
         setupViewPager()
         observeViewModel()
         setupBackPressedHandler()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (!isNavigatingToMain && !isFinishing) {
+            redirectToHomeFragment("onUserLeaveHint")
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!isNavigatingToMain && !isFinishing) {
+            isAppInBackground = true
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (isAppInBackground && !isNavigatingToMain) {
+            redirectToHomeFragment("onRestart")
+        }
+    }
+
+    private fun redirectToHomeFragment(source: String) {
+        if (isFinishing || isDestroyed || isNavigatingToMain) return
+        android.util.Log.d("OnboardingActivity", "Redirecting to HomeFragment due to Home press / background resume (source: $source)")
+
+        val prefs = com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource(this)
+        prefs.isOnboardingCompleted = true
+
+        val intent = Intent(this, FindPhoneActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun setupWindowInsets() {
@@ -80,6 +117,7 @@ class OnboardingActivity : BaseActivity() {
     }
 
     private fun navigateToMain() {
+        isNavigatingToMain = true
         val intent = Intent(this, FindPhoneActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }

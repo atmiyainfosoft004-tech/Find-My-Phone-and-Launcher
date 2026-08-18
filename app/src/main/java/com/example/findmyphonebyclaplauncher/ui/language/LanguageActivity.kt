@@ -22,6 +22,9 @@ class LanguageActivity : BaseActivity() {
     private var isFirstTime: Boolean = false
     private lateinit var adapter: LanguageAdapter
 
+    private var isAppInBackground = false
+    private var isNavigatingToNextScreen = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLanguageBinding.inflate(layoutInflater)
@@ -39,6 +42,42 @@ class LanguageActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         loadBannerAd()
+    }
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (isFirstTime && !isNavigatingToNextScreen && !isFinishing) {
+            redirectToHomeFragment("onUserLeaveHint")
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isFirstTime && !isNavigatingToNextScreen && !isFinishing) {
+            isAppInBackground = true
+        }
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        if (isFirstTime && isAppInBackground && !isNavigatingToNextScreen) {
+            redirectToHomeFragment("onRestart")
+        }
+    }
+
+    private fun redirectToHomeFragment(source: String) {
+        if (isFinishing || isDestroyed || isNavigatingToNextScreen) return
+        android.util.Log.d("LanguageActivity", "Redirecting to HomeFragment due to Home press / background resume (source: $source)")
+
+        val prefs = UserPreferencesDataSource(this)
+        prefs.isLanguageSelected = true
+        prefs.isOnboardingCompleted = true
+
+        val intent = Intent(this, com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     private fun loadBannerAd() {
@@ -148,13 +187,21 @@ class LanguageActivity : BaseActivity() {
         binding.btnApplyLanguage.setOnClickListener {
             val selectedItem = adapter.getSelectedItem() ?: return@setOnClickListener
 
-            // 1. Mark language as selected in UserPreferencesDataSource
-            UserPreferencesDataSource(this).isLanguageSelected = true
+            isNavigatingToNextScreen = true
 
-            // 2. Persist the chosen language via LocaleHelper / SharedPreferences and update locale
+            // 1. Mark language as selected in UserPreferencesDataSource
+            val prefs = UserPreferencesDataSource(this)
+            prefs.isLanguageSelected = true
+
+            // 2. Ensure onboarding is NOT completed yet for initial setup flow
+            if (isFirstTime) {
+                prefs.isOnboardingCompleted = false
+            }
+
+            // 3. Persist the chosen language via LocaleHelper / SharedPreferences and update locale
             LocaleHelper.setLocale(this, selectedItem.code)
 
-            // 3. Perform navigation
+            // 4. Perform navigation
             if (isFirstTime) {
                 // If first time launch, navigate explicitly to OnboardingActivity and clear stack
                 val intent = Intent(this@LanguageActivity, OnboardingActivity::class.java).apply {

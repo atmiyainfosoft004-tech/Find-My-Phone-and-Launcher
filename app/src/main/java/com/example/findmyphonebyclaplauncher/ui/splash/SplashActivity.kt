@@ -12,6 +12,7 @@ import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSourc
 import com.example.findmyphonebyclaplauncher.databinding.ActivitySplashBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
+import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
 import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingScreen2Activity
 import com.example.findmyphonebyclaplauncher.utils.LauncherHelper
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
@@ -56,7 +57,7 @@ class SplashActivity : BaseActivity() {
         val userPrefs = UserPreferencesDataSource(applicationContext)
         val isCompleted = userPrefs.isOnboardingCompleted
         val isSkipped = userPrefs.isOnboardingSkipped
-        val hasPermission = PermissionManager.hasRecordAudioPermission(applicationContext)
+        val isLanguageSelected = userPrefs.isLanguageSelected
         val isDefaultLauncher = LauncherHelper.isDefaultLauncher(applicationContext)
 
         fun proceedToNextScreen(reason: String) {
@@ -66,16 +67,25 @@ class SplashActivity : BaseActivity() {
 
             Log.d("SplashActivity", "Proceeding to next screen (trigger: $reason)")
 
-            // New Flow Sequence:
-            // If default launcher is already set AND onboarding is completed/skipped with permissions: Go to FindPhoneActivity
-            // Otherwise: Go directly to OnboardingScreen2Activity
-            val targetClass = if (isDefaultLauncher && (hasPermission || isCompleted || isSkipped)) {
-                FindPhoneActivity::class.java
-            } else {
-                OnboardingScreen2Activity::class.java
+            val targetClass = when {
+                !isLanguageSelected -> {
+                    if (isDefaultLauncher) {
+                        com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity::class.java
+                    } else {
+                        OnboardingScreen2Activity::class.java
+                    }
+                }
+                !isCompleted && !isSkipped -> OnboardingActivity::class.java
+                else -> FindPhoneActivity::class.java
             }
 
-            startActivity(Intent(this@SplashActivity, targetClass))
+            val intent = Intent(this@SplashActivity, targetClass).apply {
+                if (targetClass == com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity::class.java) {
+                    putExtra(com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity.EXTRA_IS_FIRST_TIME, true)
+                    putExtra("isFirstTime", true)
+                }
+            }
+            startActivity(intent)
             finish()
         }
 
