@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+import com.example.findmyphonebyclaplauncher.ads.config.RemoteConfigRepository
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
 class GoogleSearchViewModel(application: Application) : AndroidViewModel(application) {
 
     private val searchHistory = SearchHistoryPreferences(application)
@@ -24,7 +28,7 @@ class GoogleSearchViewModel(application: Application) : AndroidViewModel(applica
     private val _suggestions = MutableStateFlow<List<String>>(emptyList())
     val suggestions: StateFlow<List<String>> = _suggestions.asStateFlow()
 
-    private val _feed = MutableStateFlow(buildFeed(MOCK_BLOGS))
+    private val _feed = MutableStateFlow<List<GoogleSearchFeedItem>>(emptyList())
     val feed: StateFlow<List<GoogleSearchFeedItem>> = _feed.asStateFlow()
 
     private val configListener = AdsConfigManager.OnConfigChangeListener { config ->
@@ -33,11 +37,25 @@ class GoogleSearchViewModel(application: Application) : AndroidViewModel(applica
 
     init {
         AdsConfigManager.addConfigChangeListener(configListener)
+        refreshFeed()
     }
 
     private fun refreshFeed(config: AdsConfig = AdsConfigManager.config) {
+        val primaryJson = RemoteConfigRepository.getString("google_search_feed_item", "")
+        val feedlistJson = RemoteConfigRepository.feedlistConfigJson
+
+        var blogs = parseFeedListConfig(feedlistJson)
+
+        if (primaryJson.isNotBlank()) {
+            val primaryItem = parseSingleFeedItem(primaryJson)
+            if (primaryItem != null && primaryItem.heading.isNotBlank()) {
+                val head = primaryItem.heading
+                blogs = listOf(primaryItem) + blogs.filter { it.heading != head && it.title != head }
+            }
+        }
+
         _feed.value = buildFeed(
-            blogs = MOCK_BLOGS,
+            blogs = blogs,
             insertAds = config.canShowNativeGoogleSearch,
             interval = config.nativeAdGoogleSearchItemInterval
         )
@@ -79,20 +97,69 @@ class GoogleSearchViewModel(application: Application) : AndroidViewModel(applica
     }
 
     companion object {
+        fun parseSingleFeedItem(jsonStr: String): BlogPost? {
+            if (jsonStr.isBlank()) return null
+            return runCatching {
+                val gson = Gson()
+                val trimmed = jsonStr.trim()
+                if (trimmed.startsWith("{")) {
+                    gson.fromJson(trimmed, BlogPost::class.java)
+                } else if (trimmed.startsWith("[")) {
+                    val list: List<BlogPost>? = gson.fromJson(trimmed, object : TypeToken<List<BlogPost>>() {}.type)
+                    list?.firstOrNull()
+                } else null
+            }.getOrNull()
+        }
+
+        fun parseFeedListConfig(jsonStr: String): List<BlogPost> {
+            if (jsonStr.isBlank()) return MOCK_BLOGS
+            return runCatching {
+                val gson = Gson()
+                val trimmed = jsonStr.trim()
+                if (trimmed.startsWith("{")) {
+                    val response = gson.fromJson(trimmed, com.example.findmyphonebyclaplauncher.data.model.FeedConfigResponse::class.java)
+                    if (!response.feedlist.isNullOrEmpty()) response.feedlist else MOCK_BLOGS
+                } else if (trimmed.startsWith("[")) {
+                    val type = object : TypeToken<List<BlogPost>>() {}.type
+                    val list: List<BlogPost>? = gson.fromJson(trimmed, type)
+                    if (!list.isNullOrEmpty()) list else MOCK_BLOGS
+                } else {
+                    MOCK_BLOGS
+                }
+            }.getOrElse {
+                MOCK_BLOGS
+            }
+        }
+
         fun buildFeed(
             blogs: List<BlogPost>,
             insertAds: Boolean = AdsConfigManager.config.canShowNativeGoogleSearch,
             interval: Int = AdsConfigManager.config.nativeAdGoogleSearchItemInterval.coerceAtLeast(1)
         ): List<GoogleSearchFeedItem> {
             val items = mutableListOf<GoogleSearchFeedItem>()
+            if (blogs.isEmpty()) return items
+
             val safeInterval = interval.coerceAtLeast(1)
             var adIndex = 1
-            blogs.forEachIndexed { index, post ->
-                items += GoogleSearchFeedItem.Blog(post)
-                if (insertAds && (index + 1) % safeInterval == 0) {
-                    items += GoogleSearchFeedItem.AdPlaceholder(adIndex++)
+
+            // Position 0: Primary Feed Item
+            items.add(GoogleSearchFeedItem.FeedItem(blogs[0]))
+
+            // Requirement A: Mandatory Initial Native Ad immediately after 1st item (Index 1)
+            if (insertAds) {
+                items.add(GoogleSearchFeedItem.NativeAd(adIndex++))
+            }
+
+            // Requirement B: Interval counter for remaining feed items
+            var counter = 0
+            for (i in 1 until blogs.size) {
+                items.add(GoogleSearchFeedItem.FeedItem(blogs[i]))
+                counter++
+                if (insertAds && counter % safeInterval == 0) {
+                    items.add(GoogleSearchFeedItem.NativeAd(adIndex++))
                 }
             }
+
             return items
         }
 

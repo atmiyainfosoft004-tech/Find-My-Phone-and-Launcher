@@ -36,6 +36,92 @@ object RemoteConfigRepository {
     const val KEY_INTER_AD_BACK_COUNTER_TRIGGER = "inter_ad_back_counter_trigger"
     const val KEY_CLICK_AD_COUNTER_TRIGGER = "click_ad_counter_trigger"
     const val KEY_NATIVE_AD_GOOGLE_SEARCH_ITEM_INTERVAL = "native_ad_google_search_item_interval"
+    const val KEY_FEEDLIST_CONFIG = "feedlist_config"
+    const val DEFAULT_FEEDLIST_CONFIG_JSON = """{
+  "feedlist": [
+    {
+      "id": "1",
+      "heading": "Forget chatbot training. AI's next big data grab is about learning how humans work.",
+      "description": "Discover top trending topics and updates from Google Search",
+      "source": "businessinsider.com",
+      "timeLabel": "2:30pm, Wed",
+      "feedurl": "https://www.businessinsider.com",
+      "img_url": ""
+    },
+    {
+      "id": "2",
+      "heading": "Inflation is expected to cool again in today's July CPI report",
+      "description": "Financial news and updates",
+      "source": "businessinsider.com",
+      "timeLabel": "2:30pm, Wed",
+      "feedurl": "https://www.businessinsider.com",
+      "img_url": ""
+    },
+    {
+      "id": "3",
+      "heading": "FBI touts 6,000 arrests, 44% homicide drop one year into Trump's DC crime crackdown",
+      "description": "National news updates",
+      "source": "foxnews.com",
+      "timeLabel": "2:30pm, Wed",
+      "feedurl": "https://www.foxnews.com",
+      "img_url": ""
+    },
+    {
+      "id": "4",
+      "heading": "How new Android launchers are changing the home screen experience in 2026",
+      "description": "Tech news and mobile launcher trends",
+      "source": "androidauthority.com",
+      "timeLabel": "1:10pm, Wed",
+      "feedurl": "https://www.androidauthority.com",
+      "img_url": ""
+    },
+    {
+      "id": "5",
+      "heading": "5 ways to cut phone screen time without deleting your favorite apps",
+      "description": "Productivity tips and app balance",
+      "source": "techcrunch.com",
+      "timeLabel": "11:45am, Wed",
+      "feedurl": "https://techcrunch.com",
+      "img_url": ""
+    },
+    {
+      "id": "6",
+      "heading": "Call blocking tips that actually reduce spam without missing important numbers",
+      "description": "Phone security and spam call protection",
+      "source": "theverge.com",
+      "timeLabel": "10:20am, Wed",
+      "feedurl": "https://www.theverge.com",
+      "img_url": ""
+    },
+    {
+      "id": "7",
+      "heading": "Why privacy-first dialers are gaining popularity on Google Play",
+      "description": "Android app market trends",
+      "source": "9to5google.com",
+      "timeLabel": "9:05am, Wed",
+      "feedurl": "https://9to5google.com",
+      "img_url": ""
+    },
+    {
+      "id": "8",
+      "heading": "Smart search features users expect from a modern Android launcher",
+      "description": "UI/UX launcher features",
+      "source": "androidpolice.com",
+      "timeLabel": "8:40am, Wed",
+      "feedurl": "https://www.androidpolice.com",
+      "img_url": ""
+    },
+    {
+      "id": "9",
+      "heading": "Battery myths that still waste hours of phone life every week",
+      "description": "Hardware and battery performance tips",
+      "source": "wired.com",
+      "timeLabel": "7:15am, Wed",
+      "feedurl": "https://www.wired.com",
+      "img_url": ""
+    }
+  ]
+}"""
 
     // Banner Screen Enables & IDs
     const val KEY_BANNER_AD_ENABLE_SPLASH = "banner_ad_enable_splash"
@@ -140,7 +226,8 @@ object RemoteConfigRepository {
                 KEY_PRELOAD_AD_INTERSTITIAL to false,
                 KEY_PRELOAD_AD_APP_OPEN to false,
                 KEY_PRIVACY_POLICY_URL to DEFAULT_PRIVACY_POLICY_URL,
-                KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL
+                KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL,
+                KEY_FEEDLIST_CONFIG to DEFAULT_FEEDLIST_CONFIG_JSON
             )
             config.setDefaultsAsync(defaultMap)
 
@@ -292,7 +379,8 @@ object RemoteConfigRepository {
     val preloadAdInterstitial: Boolean get() = getBoolean(KEY_PRELOAD_AD_INTERSTITIAL, false)
     val preloadAdAppOpen: Boolean get() = getBoolean(KEY_PRELOAD_AD_APP_OPEN, false)
 
-    // Dynamic Policy URLs
+    // Dynamic Policy & Feed URLs
     val privacyPolicyUrl: String get() = getString(KEY_PRIVACY_POLICY_URL, DEFAULT_PRIVACY_POLICY_URL)
     val termsAndConditionsUrl: String get() = getString(KEY_TERMS_AND_CONDITIONS_URL, DEFAULT_TERMS_AND_CONDITIONS_URL)
+    val feedlistConfigJson: String get() = getString(KEY_FEEDLIST_CONFIG, DEFAULT_FEEDLIST_CONFIG_JSON)
 }

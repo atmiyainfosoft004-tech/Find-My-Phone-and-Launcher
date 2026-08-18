@@ -57,6 +57,7 @@
             tools:text="businessinsider.com" />
 
         <ImageView
+            android:id="@+id/ivClock"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_marginStart="10dp"

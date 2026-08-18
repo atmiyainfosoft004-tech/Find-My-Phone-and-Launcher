@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.firebase.config)
     implementation(libs.play.services.ads)
     implementation(libs.shimmer)
+    implementation(libs.glide)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.core)

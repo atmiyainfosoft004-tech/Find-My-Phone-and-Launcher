@@ -5,6 +5,7 @@ import android.util.Log
 import com.example.findmyphonebyclaplauncher.BuildConfig
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
+import com.example.findmyphonebyclaplauncher.ads.config.RemoteConfigRepository
 import com.google.firebase.FirebaseApp
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
@@ -100,7 +101,8 @@ object FirebaseConfigManager {
                 "preload_ad_app_open" to false,
 
                 KEY_PRIVACY_POLICY_URL to DEFAULT_PRIVACY_POLICY_URL,
-                KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL
+                KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL,
+                "feedlist_config" to RemoteConfigRepository.DEFAULT_FEEDLIST_CONFIG_JSON
             )
             remoteConfig.setDefaultsAsync(defaultParams)
 
