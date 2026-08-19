@@ -23,6 +23,7 @@ import com.example.findmyphonebyclaplauncher.utils.Constants
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.initialization.InitializationStatus
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 class App : Application() {
 
@@ -39,6 +40,7 @@ class App : Application() {
         Log.d(Constants.TAG, "Application created")
         com.example.findmyphonebyclaplauncher.data.repository.AppRepository.init(this)
         com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.initialize(this)
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
         AnalyticsHelper.init(this)
         createNotificationChannels()
 
