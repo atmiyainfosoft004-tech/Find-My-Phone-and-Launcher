@@ -118,6 +118,7 @@
     <FrameLayout
         android:id="@+id/bannerAdFrameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/_50sdp"
+        android:foregroundGravity="center"
         android:visibility="gone" />
 </LinearLayout>

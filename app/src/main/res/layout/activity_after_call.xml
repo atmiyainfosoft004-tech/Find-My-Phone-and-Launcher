@@ -216,9 +216,9 @@
     <FrameLayout
         android:id="@+id/bannerAdFrameLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="250dp"
         android:layout_margin="16dp"
-        android:gravity="center"
+        android:foregroundGravity="center"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <include
