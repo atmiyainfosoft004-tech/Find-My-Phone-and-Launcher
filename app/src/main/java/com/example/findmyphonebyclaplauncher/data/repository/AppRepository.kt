@@ -6,7 +6,10 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.MediaStore
 import android.provider.Settings
+import android.provider.Telephony
+import android.telecom.TelecomManager
 import android.util.Log
 import com.example.findmyphonebyclaplauncher.data.model.AppCategory
 import com.example.findmyphonebyclaplauncher.data.model.AppInfo
@@ -98,11 +101,23 @@ class AppRepositoryImpl(private val context: Context) {
         }
 
     fun launchApp(app: AppInfo) {
-        val intent = Intent(Intent.ACTION_MAIN)
-            .addCategory(Intent.CATEGORY_LAUNCHER)
-            .setClassName(app.packageName, app.activityName)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val intent = if (app.activityName.isNotBlank()) {
+            Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setClassName(app.packageName, app.activityName)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        } else {
+            context.packageManager.getLaunchIntentForPackage(app.packageName)
+                ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                ?: Intent(Intent.ACTION_DIAL).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
         runCatching { context.startActivity(intent) }
+            .recoverCatching {
+                val fallback = context.packageManager.getLaunchIntentForPackage(app.packageName)
+                    ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    ?: Intent(Intent.ACTION_DIAL).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(fallback)
+            }
     }
 
     fun openAppInfo(app: AppInfo) {
@@ -158,34 +173,267 @@ class AppRepositoryImpl(private val context: Context) {
 
     fun getDockApps(): Flow<List<AppInfo>> =
         apps.map { list ->
-            val slots = listOf(
-                listOf("com.google.android.dialer", "com.samsung.android.dialer", "com.android.dialer"),
-                listOf("com.google.android.apps.messaging", "com.samsung.android.messaging", "com.android.mms"),
-                listOf("com.google.android.GoogleCamera", "com.sec.android.app.camera", "com.android.camera2"),
-                listOf("com.android.settings"),
-                listOf("com.android.chrome", "com.chrome.beta")
-            )
-            val labelFallbacks = listOf("phone", "message", "camera", "settings", "chrome")
-            val picked = mutableListOf<AppInfo>()
-            val used = mutableSetOf<String>()
+            resolveDockApps(list)
+        }
 
-            slots.forEachIndexed { index, packages ->
-                val byPackage = packages.firstNotNullOfOrNull { pkg ->
-                    list.firstOrNull { it.packageName.equals(pkg, true) }
+    private fun resolveDockApps(list: List<AppInfo>): List<AppInfo> {
+        val pm = context.packageManager
+        val myPkg = context.packageName
+        val picked = mutableListOf<AppInfo>()
+        val used = mutableSetOf<String>()
+
+        // 1. Phone App (Slot 0)
+        val phoneApp = resolvePhoneApp(pm, list, myPkg)
+        if (phoneApp != null) {
+            picked += phoneApp
+            used += phoneApp.packageName
+        }
+
+        // 2. Messaging App (Slot 1)
+        val messagingApp = resolveMessagingApp(pm, list, myPkg, used)
+        if (messagingApp != null) {
+            picked += messagingApp
+            used += messagingApp.packageName
+        }
+
+        // 3. Camera App (Slot 2)
+        val cameraApp = resolveCameraApp(pm, list, myPkg, used)
+        if (cameraApp != null) {
+            picked += cameraApp
+            used += cameraApp.packageName
+        }
+
+        // 4. Settings App (Slot 3)
+        val settingsApp = resolveSettingsApp(pm, list, myPkg, used)
+        if (settingsApp != null) {
+            picked += settingsApp
+            used += settingsApp.packageName
+        }
+
+        // 5. Browser App (Slot 4)
+        val browserApp = resolveBrowserApp(pm, list, myPkg, used)
+        if (browserApp != null) {
+            picked += browserApp
+            used += browserApp.packageName
+        }
+
+        // Fill remaining slots up to 5 if needed, strictly excluding myPkg
+        if (picked.size < 5) {
+            val fill = list.filter { it.packageName !in used && it.packageName != myPkg }
+            for (app in fill) {
+                if (picked.size >= 5) break
+                picked += app
+                used += app.packageName
+            }
+        }
+
+        return picked.take(5)
+    }
+
+    private fun resolvePhoneApp(pm: PackageManager, list: List<AppInfo>, myPkg: String): AppInfo? {
+        // Step 1: Query TelecomManager default dialer package (Android 6.0+)
+        var candidatePkg: String? = null
+        try {
+            val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as? TelecomManager
+            candidatePkg = telecomManager?.defaultDialerPackage
+        } catch (_: Exception) {}
+
+        // Step 2: Intent resolution for ACTION_DIAL or ACTION_CALL_BUTTON
+        if (candidatePkg.isNullOrBlank() || candidatePkg == myPkg) {
+            runCatching {
+                val dialIntent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:")
                 }
-                val byLabel = list.firstOrNull { app ->
-                    app.packageName !in used &&
-                        app.label.contains(labelFallbacks[index], ignoreCase = true)
-                }
-                val match = byPackage ?: byLabel
-                if (match != null && match.packageName !in used) {
-                    picked += match
-                    used += match.packageName
+                val resolved = pm.resolveActivity(dialIntent, PackageManager.MATCH_DEFAULT_ONLY)
+                    ?: pm.resolveActivity(Intent(Intent.ACTION_DIAL), PackageManager.MATCH_DEFAULT_ONLY)
+                    ?: pm.resolveActivity(Intent(Intent.ACTION_CALL_BUTTON), PackageManager.MATCH_DEFAULT_ONLY)
+                val pkg = resolved?.activityInfo?.packageName
+                if (!pkg.isNullOrBlank() && pkg != myPkg) {
+                    candidatePkg = pkg
                 }
             }
-            if (picked.size >= 5) picked.take(5)
-            else (picked + list.filter { it.packageName !in used }).distinctBy { it.packageName }.take(5)
         }
+
+        // Check if candidatePkg matches an AppInfo in list or create AppInfo for candidatePkg
+        if (!candidatePkg.isNullOrBlank() && candidatePkg != myPkg) {
+            val appInList = list.firstOrNull { it.packageName.equals(candidatePkg, ignoreCase = true) }
+            if (appInList != null) return appInList
+
+            val customAppInfo = createAppInfoForPackage(pm, candidatePkg!!)
+            if (customAppInfo != null) return customAppInfo
+        }
+
+        // Step 3: Known Dialer Package names fallback across major Android OEMs
+        val knownPackages = listOf(
+            "com.google.android.dialer",
+            "com.samsung.android.dialer",
+            "com.android.dialer",
+            "com.miui.dialer",
+            "com.coloros.selectpage",
+            "com.oneplus.dialer",
+            "com.vivo.phone",
+            "com.transsion.phone",
+            "com.asus.dialer",
+            "com.sh.smartdialer",
+            "com.android.incallui",
+            "com.samsung.android.incallui",
+            "com.huawei.contacts",
+            "com.android.contacts",
+            "com.lge.dialer"
+        )
+        for (pkg in knownPackages) {
+            val match = list.firstOrNull { it.packageName.equals(pkg, ignoreCase = true) }
+            if (match != null && match.packageName != myPkg) return match
+        }
+
+        // Step 4: Label matching (STRICTLY exclude myPkg!)
+        val labelExact = listOf("phone", "dialer", "telephone", "calls", "phone call")
+        val exactMatch = list.firstOrNull { app ->
+            app.packageName != myPkg && labelExact.any { app.label.equals(it, ignoreCase = true) }
+        }
+        if (exactMatch != null) return exactMatch
+
+        val substringMatch = list.firstOrNull { app ->
+            app.packageName != myPkg &&
+                (app.label.contains("phone", ignoreCase = true) || app.label.contains("dialer", ignoreCase = true)) &&
+                !app.packageName.equals(myPkg, ignoreCase = true)
+        }
+        return substringMatch
+    }
+
+    private fun resolveMessagingApp(pm: PackageManager, list: List<AppInfo>, myPkg: String, used: Set<String>): AppInfo? {
+        var candidatePkg: String? = null
+        runCatching {
+            candidatePkg = Telephony.Sms.getDefaultSmsPackage(context)
+        }
+        if (candidatePkg.isNullOrBlank() || candidatePkg == myPkg) {
+            runCatching {
+                val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:"))
+                val resolved = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+                val pkg = resolved?.activityInfo?.packageName
+                if (!pkg.isNullOrBlank() && pkg != myPkg) candidatePkg = pkg
+            }
+        }
+        if (!candidatePkg.isNullOrBlank() && candidatePkg != myPkg && candidatePkg !in used) {
+            val match = list.firstOrNull { it.packageName.equals(candidatePkg, true) }
+            if (match != null) return match
+            val custom = createAppInfoForPackage(pm, candidatePkg!!)
+            if (custom != null) return custom
+        }
+
+        val knownPackages = listOf("com.google.android.apps.messaging", "com.samsung.android.messaging", "com.android.mms", "com.miui.mms", "com.coloros.mms", "com.vivo.mms", "com.oneplus.mms", "com.transsion.messaging")
+        for (pkg in knownPackages) {
+            val match = list.firstOrNull { it.packageName.equals(pkg, true) && it.packageName !in used }
+            if (match != null && match.packageName != myPkg) return match
+        }
+
+        return list.firstOrNull { app ->
+            app.packageName !in used && app.packageName != myPkg &&
+                listOf("message", "messaging", "sms").any { app.label.contains(it, ignoreCase = true) }
+        }
+    }
+
+    private fun resolveCameraApp(pm: PackageManager, list: List<AppInfo>, myPkg: String, used: Set<String>): AppInfo? {
+        var candidatePkg: String? = null
+        runCatching {
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val resolved = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            val pkg = resolved?.activityInfo?.packageName
+            if (!pkg.isNullOrBlank() && pkg != myPkg) candidatePkg = pkg
+        }
+        if (!candidatePkg.isNullOrBlank() && candidatePkg != myPkg && candidatePkg !in used) {
+            val match = list.firstOrNull { it.packageName.equals(candidatePkg, true) }
+            if (match != null) return match
+            val custom = createAppInfoForPackage(pm, candidatePkg!!)
+            if (custom != null) return custom
+        }
+
+        val knownPackages = listOf("com.google.android.GoogleCamera", "com.sec.android.app.camera", "com.android.camera", "com.android.camera2", "com.miui.camera", "com.oppo.camera", "com.oneplus.camera", "com.vivo.camera", "com.transsion.camera")
+        for (pkg in knownPackages) {
+            val match = list.firstOrNull { it.packageName.equals(pkg, true) && it.packageName !in used }
+            if (match != null && match.packageName != myPkg) return match
+        }
+
+        return list.firstOrNull { app ->
+            app.packageName !in used && app.packageName != myPkg &&
+                app.label.contains("camera", ignoreCase = true)
+        }
+    }
+
+    private fun resolveSettingsApp(pm: PackageManager, list: List<AppInfo>, myPkg: String, used: Set<String>): AppInfo? {
+        var candidatePkg: String? = null
+        runCatching {
+            val intent = Intent(Settings.ACTION_SETTINGS)
+            val resolved = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            val pkg = resolved?.activityInfo?.packageName
+            if (!pkg.isNullOrBlank() && pkg != myPkg) candidatePkg = pkg
+        }
+        if (!candidatePkg.isNullOrBlank() && candidatePkg != myPkg && candidatePkg !in used) {
+            val match = list.firstOrNull { it.packageName.equals(candidatePkg, true) }
+            if (match != null) return match
+            val custom = createAppInfoForPackage(pm, candidatePkg!!)
+            if (custom != null) return custom
+        }
+
+        val knownPackages = listOf("com.android.settings", "com.miui.securitycenter")
+        for (pkg in knownPackages) {
+            val match = list.firstOrNull { it.packageName.equals(pkg, true) && it.packageName !in used }
+            if (match != null && match.packageName != myPkg) return match
+        }
+
+        return list.firstOrNull { app ->
+            app.packageName !in used && app.packageName != myPkg &&
+                app.label.contains("setting", ignoreCase = true)
+        }
+    }
+
+    private fun resolveBrowserApp(pm: PackageManager, list: List<AppInfo>, myPkg: String, used: Set<String>): AppInfo? {
+        var candidatePkg: String? = null
+        runCatching {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"))
+            val resolved = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
+            val pkg = resolved?.activityInfo?.packageName
+            if (!pkg.isNullOrBlank() && pkg != myPkg) candidatePkg = pkg
+        }
+        if (!candidatePkg.isNullOrBlank() && candidatePkg != myPkg && candidatePkg !in used) {
+            val match = list.firstOrNull { it.packageName.equals(candidatePkg, true) }
+            if (match != null) return match
+            val custom = createAppInfoForPackage(pm, candidatePkg!!)
+            if (custom != null) return custom
+        }
+
+        val knownPackages = listOf("com.android.chrome", "com.chrome.beta", "org.mozilla.firefox", "com.opera.browser", "com.sec.android.app.sbrowser", "com.mi.globalbrowser", "com.heytap.browser", "com.vivo.browser")
+        for (pkg in knownPackages) {
+            val match = list.firstOrNull { it.packageName.equals(pkg, true) && it.packageName !in used }
+            if (match != null && match.packageName != myPkg) return match
+        }
+
+        return list.firstOrNull { app ->
+            app.packageName !in used && app.packageName != myPkg &&
+                listOf("chrome", "browser", "internet").any { app.label.contains(it, ignoreCase = true) }
+        }
+    }
+
+    private fun createAppInfoForPackage(pm: PackageManager, packageName: String): AppInfo? {
+        return try {
+            val launchIntent = pm.getLaunchIntentForPackage(packageName)
+            val activityName = launchIntent?.component?.className.orEmpty()
+            val appInfo = pm.getApplicationInfo(packageName, 0)
+            val label = pm.getApplicationLabel(appInfo).toString()
+            val icon = pm.getApplicationIcon(appInfo)
+            AppInfo(
+                packageName = packageName,
+                activityName = activityName,
+                label = label.ifBlank { packageName },
+                icon = icon,
+                category = AppCategory.OTHERS,
+                isFavorite = false,
+                canUninstall = false
+            )
+        } catch (_: Exception) {
+            null
+        }
+    }
 
     fun getRecentApps(): Flow<List<AppInfo>> =
         apps.map { list ->

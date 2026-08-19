@@ -58,11 +58,12 @@ class HomeViewModel : ViewModel() {
 
     private fun pickWorkspace(apps: List<AppInfo>): List<AppInfo> {
         val keys = listOf("clock", "calculator", "calendar", "files", "gallery", "documents")
+        val filtered = apps.filter { !it.packageName.contains("findmyphone", ignoreCase = true) }
         val picked = keys.mapNotNull { key ->
-            apps.firstOrNull {
+            filtered.firstOrNull {
                 it.label.contains(key, true) || it.packageName.contains(key, true)
             }
         }.distinctBy { it.packageName }
-        return if (picked.size >= 4) picked.take(4) else (picked + apps).distinctBy { it.packageName }.take(4)
+        return if (picked.size >= 4) picked.take(4) else (picked + filtered).distinctBy { it.packageName }.take(4)
     }
 }
