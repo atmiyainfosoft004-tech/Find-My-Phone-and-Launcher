@@ -23,8 +23,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.ads.BannerAdLoader
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
-import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
-import com.example.findmyphonebyclaplauncher.ui.search.GoogleSearchActivity
+import com.example.findmyphonebyclaplauncher.ui.settings.AlertSensitivityActivity
+import com.example.findmyphonebyclaplauncher.ui.settings.AlertSoundActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -78,34 +78,37 @@ class AfterCallActivity : BaseActivity() {
     }
 
     private fun setupViews() {
-        val btnFindPhone = findViewById<LinearLayout>(R.id.btn_scan_qr)
+        val btnAlertSound = findViewById<LinearLayout>(R.id.btn_alert_sound)
         val btnShare = findViewById<LinearLayout>(R.id.btn_share)
-        val btnSearch = findViewById<LinearLayout>(R.id.btn_scan_barcode)
+        val btnAlertSensitivity = findViewById<LinearLayout>(R.id.btn_alert_sensitivity)
         val rvHistory = findViewById<RecyclerView>(R.id.rv_call_history)
         val ivBack = findViewById<ImageView>(R.id.iv_back)
 
-        ivBack.setOnClickListener {
+        ivBack?.setOnClickListener {
             finish()
         }
 
         adapter = CallHistoryAdapter { item ->
             viewModel.formatTime(item.date)
         }
-        rvHistory.layoutManager = LinearLayoutManager(this)
-        rvHistory.adapter = adapter
+        rvHistory?.layoutManager = LinearLayoutManager(this)
+        rvHistory?.adapter = adapter
 
-        btnFindPhone.setOnClickListener {
-            val intent = Intent(this, FindPhoneActivity::class.java).apply {
+        btnAlertSound?.setOnClickListener {
+            val intent = Intent(this, AlertSoundActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
             startActivity(intent)
         }
 
-        btnSearch.setOnClickListener {
-            startActivity(Intent(this, GoogleSearchActivity::class.java))
+        btnAlertSensitivity?.setOnClickListener {
+            val intent = Intent(this, AlertSensitivityActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+            startActivity(intent)
         }
 
-        btnShare.setOnClickListener {
+        btnShare?.setOnClickListener {
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = "text/plain"
                 putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))

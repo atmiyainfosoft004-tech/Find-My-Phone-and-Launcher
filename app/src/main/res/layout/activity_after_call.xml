@@ -97,9 +97,9 @@
             android:paddingVertical="12dp"
             android:weightSum="3">
 
-            <!-- Find Phone / Dashboard Button -->
+            <!-- Alert Sound Button -->
             <LinearLayout
-                android:id="@+id/btn_scan_qr"
+                android:id="@+id/btn_alert_sound"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -113,14 +113,14 @@
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_scan_callend"
+                    android:src="@drawable/ic_volume_high"
                     app:tint="@color/white" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/find_phone"
+                    android:text="@string/alert_sound"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:textSize="12sp" />
@@ -155,9 +155,9 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Search Button -->
+            <!-- Alert Sensitivity Button -->
             <LinearLayout
-                android:id="@+id/btn_scan_barcode"
+                android:id="@+id/btn_alert_sensitivity"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -171,14 +171,14 @@
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_barcode_callend"
+                    android:src="@drawable/ic_settings"
                     app:tint="@color/white" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/search"
+                    android:text="@string/alert_sensitivity"
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:textSize="12sp" />
@@ -216,7 +216,7 @@
     <FrameLayout
         android:id="@+id/bannerAdFrameLayout"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:foregroundGravity="center"
         app:layout_constraintBottom_toBottomOf="parent">
