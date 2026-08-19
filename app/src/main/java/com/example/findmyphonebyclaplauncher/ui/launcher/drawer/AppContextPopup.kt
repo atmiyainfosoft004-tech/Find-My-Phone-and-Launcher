@@ -54,7 +54,8 @@ class AppContextPopup(
         val arrowHeight = (7 * density).roundToInt()
         val edgeInset = (10 * density).roundToInt()
 
-        val isSelfApp = app.packageName == context.packageName
+        val cleanPackage = app.packageName.trim().substringBefore('/')
+        val isSelfApp = cleanPackage == context.packageName
         if (isSelfApp) {
             binding.tvAppInfo.setText(R.string.app_is_already_installed)
         } else {
@@ -69,7 +70,7 @@ class AppContextPopup(
             binding.ivFavorite.setImageResource(R.drawable.ic_star_outline)
         }
 
-        val showUninstall = app.canUninstall
+        val showUninstall = app.canUninstall && !isSelfApp
         binding.dividerUninstall.visibility = if (showUninstall) View.VISIBLE else View.GONE
         binding.rowUninstall.visibility = if (showUninstall) View.VISIBLE else View.GONE
 
