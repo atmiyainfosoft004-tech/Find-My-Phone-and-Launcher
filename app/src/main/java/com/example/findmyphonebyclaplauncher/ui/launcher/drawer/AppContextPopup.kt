@@ -54,7 +54,8 @@ class AppContextPopup(
         val arrowHeight = (7 * density).roundToInt()
         val edgeInset = (10 * density).roundToInt()
 
-        if (app.packageName == context.packageName) {
+        val isSelfApp = app.packageName == context.packageName
+        if (isSelfApp) {
             binding.tvAppInfo.setText(R.string.app_is_already_installed)
         } else {
             binding.tvAppInfo.setText(R.string.app_info)
@@ -74,7 +75,9 @@ class AppContextPopup(
 
         binding.rowAppInfo.setOnClickListener {
             dismiss()
-            onAppInfo(app)
+            if (!isSelfApp) {
+                onAppInfo(app)
+            }
         }
         binding.rowFavorite.setOnClickListener {
             dismiss()

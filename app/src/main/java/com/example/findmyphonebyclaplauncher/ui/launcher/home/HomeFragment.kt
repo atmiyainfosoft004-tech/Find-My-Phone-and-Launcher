@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -36,7 +37,6 @@ import com.example.findmyphonebyclaplauncher.databinding.FragmentHomeBinding
 import com.example.findmyphonebyclaplauncher.ui.launcher.LauncherViewModel
 import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.DockAdapter
 import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.WorkspaceIconAdapter
-import com.example.findmyphonebyclaplauncher.ui.launcher.drawer.AppContextPopup
 import com.example.findmyphonebyclaplauncher.ui.search.GoogleSearchActivity
 import kotlinx.coroutines.launch
 
@@ -49,7 +49,6 @@ class HomeFragment : Fragment() {
 
     private lateinit var workspaceAdapter: WorkspaceIconAdapter
     private lateinit var dockAdapter: DockAdapter
-    private var contextPopup: AppContextPopup? = null
     private var packageRemovedReceiver: BroadcastReceiver? = null
     private var pendingUninstallLabel: String? = null
     private var pendingUninstallPackage: String? = null
@@ -87,19 +86,13 @@ class HomeFragment : Fragment() {
             }
         })
 
-        contextPopup = AppContextPopup(
-            onAppInfo = viewModel::onOpenAppInfo,
-            onToggleFavorite = viewModel::onToggleFavorite,
-            onUninstall = ::startUninstall
-        )
-
         workspaceAdapter = WorkspaceIconAdapter(
             onClick = { app ->
                 LauncherAdsHelper.showAppClickAd(requireActivity(), app.packageName) {
                     viewModel.openApp(app)
                 }
             },
-            onLongClick = { app, anchor -> contextPopup?.show(anchor, app) }
+            onLongClick = { app, anchor -> showLongPressMenu(anchor, app) }
         )
         binding.rvWorkspace.layoutManager = GridLayoutManager(requireContext(), 4)
         binding.rvWorkspace.adapter = workspaceAdapter
@@ -114,7 +107,7 @@ class HomeFragment : Fragment() {
                     viewModel.openApp(app)
                 }
             },
-            onLongClick = { app, anchor -> contextPopup?.show(anchor, app) }
+            onLongClick = { app, anchor -> showLongPressMenu(anchor, app) }
         )
         binding.rvDock.layoutManager = GridLayoutManager(requireContext(), 5)
         binding.rvDock.adapter = dockAdapter
@@ -167,7 +160,6 @@ class HomeFragment : Fragment() {
         val packageName = app.packageName.trim().substringBefore('/')
         if (!app.canUninstall || uninstallInProgress) return
         uninstallInProgress = true
-        contextPopup?.dismiss()
 
         pendingUninstallPackage = packageName
         pendingUninstallLabel = app.label
@@ -190,6 +182,32 @@ class HomeFragment : Fragment() {
                 Toast.LENGTH_SHORT
             ).show()
         }
+    }
+
+    private fun showLongPressMenu(anchor: View, app: AppInfo) {
+        val popup = PopupMenu(requireContext(), anchor)
+        popup.menu.add(0, 1, 0, "Already app installed")
+        popup.menu.add(0, 2, 1, "App Details")
+
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                1 -> {
+                    // Option 1: "Already app installed" (No-op / empty click action)
+                    true
+                }
+                2 -> {
+                    // Option 2: "App Details" (Toast message placeholder for future custom actions)
+                    Toast.makeText(
+                        requireContext(),
+                        "App Details placeholder clicked for ${app.label}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
     }
 
     private fun registerPackageRemovedReceiver() {
@@ -275,8 +293,6 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         unregisterPackageRemovedReceiver()
-        contextPopup?.dismiss()
-        contextPopup = null
         clockHandler.removeCallbacks(clockTick)
         super.onDestroyView()
         _binding = null
