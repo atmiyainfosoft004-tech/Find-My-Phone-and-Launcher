@@ -11,12 +11,12 @@ import com.example.findmyphonebyclaplauncher.databinding.ActivityOnboardingBindi
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter
+import com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen4Fragment
 
 class OnboardingActivity : BaseActivity() {
 
     private lateinit var binding: ActivityOnboardingBinding
     val viewModel: OnboardingViewModel by viewModels()
-    private var isAppInBackground = false
     private var isNavigatingToMain = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,40 +56,7 @@ class OnboardingActivity : BaseActivity() {
         )
     }
 
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        if (!isNavigatingToMain && !isFinishing) {
-            redirectToHomeFragment("onUserLeaveHint")
-        }
-    }
 
-    override fun onStop() {
-        super.onStop()
-        if (!isNavigatingToMain && !isFinishing) {
-            isAppInBackground = true
-        }
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        if (isAppInBackground && !isNavigatingToMain) {
-            redirectToHomeFragment("onRestart")
-        }
-    }
-
-    private fun redirectToHomeFragment(source: String) {
-        if (isFinishing || isDestroyed || isNavigatingToMain) return
-        android.util.Log.d("OnboardingActivity", "Redirecting to HomeFragment due to Home press / background resume (source: $source)")
-
-        val prefs = com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource(this)
-        prefs.isOnboardingCompleted = true
-
-        val intent = Intent(this, FindPhoneActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        finish()
-    }
 
     private fun setupWindowInsets() {
         WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
@@ -110,6 +77,21 @@ class OnboardingActivity : BaseActivity() {
         binding.vpOnboarding.adapter = adapter
         binding.vpOnboarding.isUserInputEnabled = false
 
+        binding.vpOnboarding.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                for (fragment in supportFragmentManager.fragments) {
+                    if (fragment is OnboardingScreen4Fragment) {
+                        if (position == OnboardingPagerAdapter.PAGE_SCREEN_4) {
+                            fragment.onPageVisible()
+                        } else {
+                            fragment.onPageInvisible()
+                        }
+                    }
+                }
+            }
+        })
+
         binding.vpOnboarding.setCurrentItem(OnboardingPagerAdapter.PAGE_SCREEN_1, false)
     }
 
@@ -127,10 +109,12 @@ class OnboardingActivity : BaseActivity() {
         })
     }
 
+    fun getCurrentPage(): Int = binding.vpOnboarding.currentItem
+
     fun goToNextPage() {
         val next = binding.vpOnboarding.currentItem + 1
         if (next < OnboardingPagerAdapter.PAGE_COUNT) {
-            binding.vpOnboarding.currentItem = next
+            binding.vpOnboarding.setCurrentItem(next, true)
         } else {
             viewModel.completeOnboarding()
         }
@@ -138,7 +122,7 @@ class OnboardingActivity : BaseActivity() {
 
     fun navigateToPage(pageIndex: Int) {
         if (pageIndex in 0 until OnboardingPagerAdapter.PAGE_COUNT) {
-            binding.vpOnboarding.currentItem = pageIndex
+            binding.vpOnboarding.setCurrentItem(pageIndex, true)
         }
     }
 

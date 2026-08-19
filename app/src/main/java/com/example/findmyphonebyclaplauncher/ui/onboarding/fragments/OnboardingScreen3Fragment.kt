@@ -11,14 +11,17 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.databinding.FragmentOnboardingScreen3Binding
 import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
+import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
 
 /**
  * Screen 3: Permission Request (Audio Access Needed)
  * Tapping Continue checks/requests runtime RECORD_AUDIO permission.
- * If granted -> advances to the next page.
+ * If granted -> advances to Screen 4 (OnboardingScreen4Fragment).
  * If denied  -> stays on this page, enabling the user to tap Continue again to re-request.
  */
 class OnboardingScreen3Fragment : Fragment() {
@@ -28,19 +31,8 @@ class OnboardingScreen3Fragment : Fragment() {
 
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        val micGranted = results[Manifest.permission.RECORD_AUDIO] == true ||
-                PermissionManager.hasRecordAudioPermission(requireContext())
-
-        if (micGranted) {
-            (activity as? OnboardingActivity)?.goToNextPage()
-        } else {
-            Toast.makeText(
-                requireContext(),
-                "Microphone permission is required to proceed",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+    ) { _ ->
+        navigateToNextScreen()
     }
 
     override fun onCreateView(
@@ -60,27 +52,42 @@ class OnboardingScreen3Fragment : Fragment() {
     }
 
     private fun handleContinueClick() {
-        if (PermissionManager.hasRecordAudioPermission(requireContext())) {
-            (activity as? OnboardingActivity)?.goToNextPage()
+        val ctx = context ?: return
+        if (PermissionManager.hasRecordAudioPermission(ctx)) {
+            navigateToNextScreen()
         } else {
             requestPermissions()
         }
     }
 
     private fun requestPermissions() {
+        val ctx = context ?: return
         val permissions = mutableListOf(Manifest.permission.RECORD_AUDIO)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
 
         val missing = permissions.filter {
-            ContextCompat.checkSelfPermission(requireContext(), it) != PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(ctx, it) != PackageManager.PERMISSION_GRANTED
         }
 
         if (missing.isNotEmpty()) {
             requestPermissionsLauncher.launch(missing.toTypedArray())
         } else {
-            (activity as? OnboardingActivity)?.goToNextPage()
+            navigateToNextScreen()
+        }
+    }
+
+    private fun navigateToNextScreen() {
+        val onboardingActivity = activity as? OnboardingActivity
+        if (onboardingActivity != null) {
+            onboardingActivity.navigateToPage(OnboardingPagerAdapter.PAGE_SCREEN_4)
+        } else {
+            try {
+                findNavController().navigate(R.id.action_onboardingScreen3_to_onboardingScreen4)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -89,3 +96,4 @@ class OnboardingScreen3Fragment : Fragment() {
         _binding = null
     }
 }
+

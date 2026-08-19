@@ -49,9 +49,40 @@ class OnboardingScreen4Fragment : Fragment() {
         setupRecyclerView()
         setupVolumeSlider(prefs)
         setupButtons()
+    }
 
-        // Auto-play preview of selected sound on screen load
-        playPreview()
+    override fun onResume() {
+        super.onResume()
+        val activity = activity as? OnboardingActivity
+        if (activity != null && activity.getCurrentPage() == OnboardingPagerAdapter.PAGE_SCREEN_4) {
+            playPreview()
+        }
+    }
+
+    fun onPageVisible() {
+        if (_binding != null && isResumed) {
+            playPreview()
+        }
+    }
+
+    fun onPageInvisible() {
+        stopPreview()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopPreview()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopPreview()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        stopPreview()
+        _binding = null
     }
 
     private fun getSoundList(): List<SoundItem> {
@@ -190,16 +221,5 @@ class OnboardingScreen4Fragment : Fragment() {
         } finally {
             previewPlayer = null
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        stopPreview()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        stopPreview()
-        _binding = null
     }
 }

@@ -120,7 +120,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_10sdp"
             android:fontFamily="@font/inter_regular"
-            android:text="@string/label_search_apps"
             android:textColor="@color/color_text_subtitle"
             android:textSize="@dimen/_11ssp" />
 
