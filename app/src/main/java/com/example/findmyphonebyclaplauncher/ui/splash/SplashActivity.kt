@@ -27,6 +27,8 @@ class SplashActivity : BaseActivity() {
     private var hasNavigated = false
     private var timeoutJob: Job? = null
 
+    private val TAG = "SplashActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
@@ -70,13 +72,25 @@ class SplashActivity : BaseActivity() {
             val targetClass = when {
                 !isLanguageSelected -> {
                     if (isDefaultLauncher) {
+                        Log.e(TAG, "proceedToNextScreen: LanguageActivity", )
                         com.example.findmyphonebyclaplauncher.ui.language.LanguageActivity::class.java
                     } else {
+                        Log.e(TAG, "proceedToNextScreen: OnboardingScreen2Activity", )
+
                         OnboardingScreen2Activity::class.java
                     }
                 }
-                !isCompleted && !isSkipped -> OnboardingActivity::class.java
-                else -> FindPhoneActivity::class.java
+                !isCompleted && !isSkipped -> {
+                    Log.e(TAG, "proceedToNextScreen: OnboardingActivity", )
+
+                    OnboardingActivity::class.java
+                }
+
+                else -> {
+                    Log.e(TAG, "proceedToNextScreen: FindPhoneActivity", )
+
+                    FindPhoneActivity::class.java
+                }
             }
 
             val intent = Intent(this@SplashActivity, targetClass).apply {
