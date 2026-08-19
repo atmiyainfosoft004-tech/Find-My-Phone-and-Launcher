@@ -30,8 +30,10 @@ googleServices = "4.4.2"
 glide = "4.16.0"
 firebaseCrashlytics = "20.1.0"
 googleFirebaseCrashlytics = "3.0.7"
+onesignal = "5.9.8"
 
 [libraries]
+onesignal = { group = "com.onesignal", name = "OneSignal", version.ref = "onesignal" }
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }

@@ -25,6 +25,9 @@ object FirebaseConfigManager {
     const val DEFAULT_PRIVACY_POLICY_URL = "https://example.com/privacy-policy"
     const val DEFAULT_TERMS_AND_CONDITIONS_URL = "https://example.com/terms-of-service"
 
+    const val KEY_ONESIGNAL_APP_ID = "onesignal_app_id"
+    const val DEFAULT_ONESIGNAL_APP_ID = ""
+
     @Volatile
     var isInitialized: Boolean = false
         private set
@@ -102,8 +105,10 @@ object FirebaseConfigManager {
 
                 KEY_PRIVACY_POLICY_URL to DEFAULT_PRIVACY_POLICY_URL,
                 KEY_TERMS_AND_CONDITIONS_URL to DEFAULT_TERMS_AND_CONDITIONS_URL,
+                KEY_ONESIGNAL_APP_ID to DEFAULT_ONESIGNAL_APP_ID,
                 "feedlist_config" to RemoteConfigRepository.DEFAULT_FEEDLIST_CONFIG_JSON
             )
+
             remoteConfig.setDefaultsAsync(defaultParams)
 
             isInitialized = true
@@ -191,4 +196,6 @@ object FirebaseConfigManager {
     fun getPrivacyPolicyUrl(): String = getString(KEY_PRIVACY_POLICY_URL, DEFAULT_PRIVACY_POLICY_URL)
 
     fun getTermsAndConditionsUrl(): String = getString(KEY_TERMS_AND_CONDITIONS_URL, DEFAULT_TERMS_AND_CONDITIONS_URL)
+
+    fun getOneSignalAppId(): String = getString(KEY_ONESIGNAL_APP_ID, DEFAULT_ONESIGNAL_APP_ID)
 }

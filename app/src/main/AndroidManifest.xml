@@ -103,6 +103,14 @@
             android:value="false"
             tools:replace="android:value" />
 
+        <meta-data
+            android:name="com.onesignal.NotificationIcon.small"
+            android:resource="@mipmap/ic_launcher" />
+
+        <meta-data
+            android:name="com.onesignal.NotificationAccentColor.argb"
+            android:value="@color/colorPrimary" />
+
         <!-- ===================== ACTIVITIES ===================== -->
 
         <!-- Splash screen (Main entry point) -->

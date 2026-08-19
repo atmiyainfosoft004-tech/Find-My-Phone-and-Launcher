@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.play.services.ads)
     implementation(libs.shimmer)
     implementation(libs.glide)
+    implementation(libs.onesignal)
 
     // Import the BoM for the Firebase platform
     implementation(platform(libs.firebase.bom))

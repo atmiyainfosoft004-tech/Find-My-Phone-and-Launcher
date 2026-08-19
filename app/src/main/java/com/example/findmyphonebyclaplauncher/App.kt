@@ -25,6 +25,9 @@ import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.initialization.InitializationStatus
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 
+import com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager
+import com.onesignal.OneSignal
+
 class App : Application() {
 
     /**
@@ -39,8 +42,11 @@ class App : Application() {
         instance = this
         Log.d(Constants.TAG, "Application created")
         com.example.findmyphonebyclaplauncher.data.repository.AppRepository.init(this)
-        com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.initialize(this)
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+        FirebaseConfigManager.initialize(this) { _ ->
+            val oneSignalAppId = FirebaseConfigManager.getOneSignalAppId()
+            initOneSignal(oneSignalAppId)
+        }
+        FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = !BuildConfig.DEBUG
         AnalyticsHelper.init(this)
         createNotificationChannels()
 
@@ -53,6 +59,19 @@ class App : Application() {
         registerCallStateReceiver()
         registerPackageInstallerCallback()
         registerGlobalSystemUiController()
+    }
+
+    private fun initOneSignal(appId: String) {
+        if (appId.isNotBlank()) {
+            try {
+                OneSignal.initWithContext(this, appId)
+                Log.d(Constants.TAG, "OneSignal initialized with App ID: $appId")
+            } catch (e: Exception) {
+                Log.e(Constants.TAG, "Failed to initialize OneSignal", e)
+            }
+        } else {
+            Log.w(Constants.TAG, "OneSignal App ID is blank; skipping initialization")
+        }
     }
 
     private fun registerCallStateReceiver() {
