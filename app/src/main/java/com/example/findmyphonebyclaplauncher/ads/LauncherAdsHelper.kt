@@ -485,4 +485,17 @@ object LauncherAdsHelper {
         }
         BannerAdLoader.instance?.showLanguageRectBanner(activity, bannerFrame, shimmerFrame, rootContainer)
     }
+
+    fun showOnboardingBanner(
+        activity: Activity,
+        bannerFrame: FrameLayout,
+        shimmerFrame: FrameLayout,
+        rootContainer: View? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowBannerOnboarding) {
+            BannerAdLoader.instance?.hideBannerContainer(bannerFrame, shimmerFrame, rootContainer)
+            return
+        }
+        BannerAdLoader.instance?.showOnboardingBanner(activity, bannerFrame, shimmerFrame, rootContainer)
+    }
 }

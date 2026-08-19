@@ -93,15 +93,18 @@ class LanguageActivity : BaseActivity() {
                 "Suppressing Language rectangle banner ad. NetworkAvailable=$isNetworkAvailable, canShowBannerLanguageRect=${config.canShowBannerLanguageRect}"
             )
             com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.hideBannerContainer(
-                binding.bannerAdFrameLayout,
-                binding.shimmerFrameLayout.root
+                binding.languageBanner.bannerAdFrameLayout,
+                binding.languageBanner.bannerAdShimmerFrameLayout,
+                binding.languageBanner.root
             )
             return
         }
+        if (binding.languageBanner.bannerAdFrameLayout.childCount > 0) return
         com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showLanguageRectBanner(
             this,
-            binding.bannerAdFrameLayout,
-            binding.shimmerFrameLayout.root
+            binding.languageBanner.bannerAdFrameLayout,
+            binding.languageBanner.bannerAdShimmerFrameLayout,
+            binding.languageBanner.root
         )
     }
 

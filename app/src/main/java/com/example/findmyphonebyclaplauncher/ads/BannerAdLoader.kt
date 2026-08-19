@@ -347,6 +347,33 @@ class BannerAdLoader {
         }
     }
 
+    fun showOnboardingBanner(
+        activity: Activity,
+        frameLayout: FrameLayout,
+        shimmerFrameLayout: FrameLayout,
+        rootContainer: View? = null
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "Onboarding banner: Offline mode. Hiding view completely.")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+            return
+        }
+
+        if (ads.canShowBannerOnboarding) {
+            Log.d(TAG, "Loading banner for Onboarding screen")
+            loadAndShowBanner(
+                activity,
+                frameLayout,
+                shimmerFrameLayout,
+                ads.bannerAdIdOnboarding.ifBlank { ads.bannerAdIdHome },
+                rootContainer
+            )
+        } else {
+            Log.d(TAG, "Onboarding banner disabled by Remote Config")
+            hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
+        }
+    }
+
     fun loadAndShowBanner(
         activity: Activity,
         frameLayout: FrameLayout,

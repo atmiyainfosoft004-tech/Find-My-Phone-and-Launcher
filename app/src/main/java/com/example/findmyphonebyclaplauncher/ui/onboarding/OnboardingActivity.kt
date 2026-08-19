@@ -28,6 +28,32 @@ class OnboardingActivity : BaseActivity() {
         setupViewPager()
         observeViewModel()
         setupBackPressedHandler()
+        loadBannerAd()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadBannerAd()
+    }
+
+    private fun loadBannerAd() {
+        if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(this) ||
+            !com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.config.canShowBannerOnboarding
+        ) {
+            com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.hideBannerContainer(
+                binding.onboardingBanner.bannerAdFrameLayout,
+                binding.onboardingBanner.bannerAdShimmerFrameLayout,
+                binding.onboardingBanner.root
+            )
+            return
+        }
+        if (binding.onboardingBanner.bannerAdFrameLayout.childCount > 0) return
+        com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showOnboardingBanner(
+            this,
+            binding.onboardingBanner.bannerAdFrameLayout,
+            binding.onboardingBanner.bannerAdShimmerFrameLayout,
+            binding.onboardingBanner.root
+        )
     }
 
     override fun onUserLeaveHint() {

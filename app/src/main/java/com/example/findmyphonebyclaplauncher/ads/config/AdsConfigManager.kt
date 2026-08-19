@@ -59,6 +59,7 @@ object AdsConfigManager {
     const val KEY_BANNER_ENABLE_AFTER_CALL_LEGACY = "native_ad_enable_after_call"
     const val KEY_BANNER_ENABLE_LANGUAGE_RECT = "banner_ad_enable_language_rect"
     const val KEY_BANNER_ENABLE_LANG_RECT_ALT = "is_lang_rect_banner_enabled"
+    const val KEY_BANNER_ENABLE_ONBOARDING = "banner_ad_enable_onboarding"
 
     // Banner Ads - Unit IDs
     const val KEY_BANNER_ID_SPLASH = "banner_ad_id_splash"
@@ -72,6 +73,7 @@ object AdsConfigManager {
     const val KEY_BANNER_ID_AFTER_CALL = "banner_ad_id_after_call"
     const val KEY_BANNER_ID_AFTER_CALL_LEGACY = "native_ad_id_after_call"
     const val KEY_BANNER_ID_LANGUAGE_RECT = "banner_ad_id_language_rect"
+    const val KEY_BANNER_ID_ONBOARDING = "banner_ad_id_onboarding"
 
     // Native Ads - Screen Specific Enable/Disable
     const val KEY_NATIVE_ENABLE_DASHBOARD = "native_ad_enable_dashboard"
@@ -181,6 +183,7 @@ object AdsConfigManager {
             KEY_BANNER_ENABLE_ALERT_SCREEN to true,
             KEY_BANNER_ENABLE_AFTER_CALL to true,
             KEY_BANNER_ENABLE_LANGUAGE_RECT to true,
+            KEY_BANNER_ENABLE_ONBOARDING to true,
 
             KEY_BANNER_ID_SPLASH to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_HOME_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
@@ -189,6 +192,7 @@ object AdsConfigManager {
             KEY_BANNER_ID_ALERT_SCREEN to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_AFTER_CALL to AdsConfig.DEFAULT_BANNER_ID,
             KEY_BANNER_ID_LANGUAGE_RECT to AdsConfig.DEFAULT_BANNER_ID,
+            KEY_BANNER_ID_ONBOARDING to AdsConfig.DEFAULT_BANNER_ID,
 
             KEY_NATIVE_ENABLE_DASHBOARD to true,
             KEY_NATIVE_ENABLE_GOOGLE_SEARCH to true,
@@ -325,6 +329,8 @@ object AdsConfigManager {
                 ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_AFTER_CALL, KEY_BANNER_ENABLE_AFTER_CALL_LEGACY, default = true),
             bannerAdEnableLanguageRect = fromJson?.bannerAdEnableLanguageRect
                 ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_LANGUAGE_RECT, KEY_BANNER_ENABLE_LANG_RECT_ALT, default = true),
+            bannerAdEnableOnboarding = fromJson?.bannerAdEnableOnboarding
+                ?: remoteConfig.extractBoolean(KEY_BANNER_ENABLE_ONBOARDING, default = true),
 
             bannerAdIdSplash = fromJson?.bannerAdIdSplash
                 ?: remoteConfig.extractString(KEY_BANNER_ID_SPLASH, default = AdsConfig.DEFAULT_BANNER_ID),
@@ -340,6 +346,8 @@ object AdsConfigManager {
                 ?: remoteConfig.extractString(KEY_BANNER_ID_AFTER_CALL, KEY_BANNER_ID_AFTER_CALL_LEGACY, default = AdsConfig.DEFAULT_BANNER_ID),
             bannerAdIdLanguageRect = fromJson?.bannerAdIdLanguageRect
                 ?: remoteConfig.extractString(KEY_BANNER_ID_LANGUAGE_RECT, default = AdsConfig.DEFAULT_BANNER_ID),
+            bannerAdIdOnboarding = fromJson?.bannerAdIdOnboarding
+                ?: remoteConfig.extractString(KEY_BANNER_ID_ONBOARDING, default = AdsConfig.DEFAULT_BANNER_ID),
 
             nativeAdEnableDashboard = fromJson?.nativeAdEnableDashboard
                 ?: remoteConfig.extractBoolean(KEY_NATIVE_ENABLE_DASHBOARD, default = true),
