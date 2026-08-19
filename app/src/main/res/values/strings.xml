@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Find My Phone</string>
     <string name="launcher_title">Find My Phone</string>
+<!--    <string name="launcher_title">FindMyPhone</string>-->
 
     <!-- ── Onboarding ─────────────────────────────────────────────────── -->
     <string name="onboarding_title_1"><![CDATA[Just <font color="#2563EB">clap</font> or whistle]]></string>

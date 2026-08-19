@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 android {
@@ -65,12 +66,19 @@ dependencies {
     implementation(libs.androidx.browser)
     implementation(libs.gson)
 
-    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.config)
     implementation(libs.play.services.ads)
     implementation(libs.shimmer)
     implementation(libs.glide)
+
+    // Import the BoM for the Firebase platform
+    implementation(platform(libs.firebase.bom))
+
+    // dependencies for the Crashlytics and Analytics libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.google.firebase.analytics)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.core)

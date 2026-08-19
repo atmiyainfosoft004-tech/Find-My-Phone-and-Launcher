@@ -23,14 +23,17 @@ browser = "1.8.0"
 
 blurview = "version-2.0.6"
 gson = "2.11.0"
-firebaseBom = "34.0.0"
+firebaseBom = "34.17.0"
 playServicesAds = "24.3.0"
 shimmer = "0.5.0"
 googleServices = "4.4.2"
 glide = "4.16.0"
+firebaseCrashlytics = "20.1.0"
+googleFirebaseCrashlytics = "3.0.7"
 
 [libraries]
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
@@ -61,8 +64,10 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "googleFirebaseCrashlytics" }
