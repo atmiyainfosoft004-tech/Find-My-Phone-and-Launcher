@@ -10,9 +10,11 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.facebook.shimmer.Shimmer
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.databinding.FragmentOnboardingScreen2Binding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
@@ -39,6 +41,7 @@ class OnboardingScreen2Activity : BaseActivity() {
 
         setupWindowInsets()
         setupBackPressedHandler()
+        setupShimmerAnimation()
 
         binding.btnContinue.setOnClickListener {
             if (isDefaultLauncher()) {
@@ -73,6 +76,19 @@ class OnboardingScreen2Activity : BaseActivity() {
                 finishAffinity()
             }
         })
+    }
+
+    private fun setupShimmerAnimation() {
+        val shimmer = Shimmer.AlphaHighlightBuilder()
+            .setBaseAlpha(1.0f) // Keeps full solid background & crisp white text visible at 100% opacity
+            .setHighlightAlpha(0.4f) // Smooth high-contrast shimmer sweep
+            .setDuration(1500L) // Smooth shimmer sweep duration
+            .setDirection(Shimmer.Direction.LEFT_TO_RIGHT)
+            .setTilt(45f)
+            .setDropoff(0.5f)
+            .build()
+
+        binding.shimmerBtnContinue.setShimmer(shimmer)
     }
 
     private var isAppInBackground = false
