@@ -52,6 +52,12 @@ class SettingsActivity : BaseActivity() {
         }
     }
 
+    override fun updateLocalizedTexts() {
+        binding.toolbar.title = getString(R.string.settings)
+        refreshBatteryStatus()
+        setupOemSection()
+    }
+
     override fun onResume() {
         super.onResume()
         refreshBatteryStatus()

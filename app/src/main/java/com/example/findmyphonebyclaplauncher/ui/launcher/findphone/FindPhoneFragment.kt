@@ -29,7 +29,12 @@ import com.google.android.material.snackbar.Snackbar
 
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.findmyphonebyclaplauncher.util.startActivityWithSlideAnimation
+import com.example.findmyphonebyclaplauncher.utils.LocaleHelper
+import kotlinx.coroutines.launch
 
 class FindPhoneFragment : Fragment() {
 
@@ -65,6 +70,7 @@ class FindPhoneFragment : Fragment() {
         setupWindowInsets()
         setupListeners()
         observeViewModel()
+        observeLanguageChanges()
         loadBannerAd()
         com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.addConfigChangeListener(configChangeListener)
         com.example.findmyphonebyclaplauncher.util.NetworkUtil.observeNetwork(
@@ -88,8 +94,50 @@ class FindPhoneFragment : Fragment() {
         }
     }
 
+    private fun observeLanguageChanges() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                LocaleHelper.languageFlow.collect { lang ->
+                    context?.let { ctx ->
+                        LocaleHelper.applyLocaleToContext(ctx, lang)
+                    }
+                    updateLocalizedTexts()
+                }
+            }
+        }
+    }
+
+    private fun updateLocalizedTexts() {
+        val binding = _binding ?: return
+        val ctx = context ?: return
+        LocaleHelper.applyLocaleToContext(ctx, LocaleHelper.getLocale(ctx))
+
+        binding.txtTitle.text = ctx.getString(R.string.find_my_phone_launcher_title)
+        binding.txtMasterTitle.text = ctx.getString(R.string.clap_and_whistle_detection)
+        binding.txtMasterSubtitle.text = ctx.getString(R.string.always_watching_background)
+        binding.txtClapTitle.text = ctx.getString(R.string.find_phone_with_3_claps)
+        binding.txtClapSubtitle.text = ctx.getString(R.string.alerts_on_double_triple_clap)
+        binding.txtWhistleTitle.text = ctx.getString(R.string.find_phone_by_whistle)
+        binding.txtWhistleSubtitle.text = ctx.getString(R.string.alerts_on_sharp_whistle)
+        binding.txtSoundTitle.text = ctx.getString(R.string.label_alert_sound)
+        binding.txtVolumeLabel.text = ctx.getString(R.string.volume)
+        binding.txtSensitivityTitle.text = ctx.getString(R.string.alert_sensitivity)
+        binding.txtSensitivitySubtitle.text = ctx.getString(R.string.set_how_easily_alert_triggers)
+        binding.txtDurationTitle.text = ctx.getString(R.string.label_alert_duration)
+        binding.txtDurationSubtitle.text = ctx.getString(R.string.how_long_alert_plays)
+        binding.txtFlashTitle.text = ctx.getString(R.string.flashlight)
+        binding.txtFlashSubtitle.text = ctx.getString(R.string.strobe_flash_on_alert)
+        binding.txtVibTitle.text = ctx.getString(R.string.vibration)
+        binding.txtVibSubtitle.text = ctx.getString(R.string.vibrate_together_with_alert_sound)
+        refreshSettingsUI()
+    }
+
     override fun onResume() {
         super.onResume()
+        context?.let { ctx ->
+            LocaleHelper.applyLocaleToContext(ctx, LocaleHelper.getLocale(ctx))
+        }
+        updateLocalizedTexts()
         viewModel.refreshState(requireContext())
         refreshSettingsUI()
         loadBannerAd()
@@ -118,17 +166,20 @@ class FindPhoneFragment : Fragment() {
     }
 
     private fun refreshSettingsUI() {
+        val ctx = context ?: return
+        LocaleHelper.applyLocaleToContext(ctx, LocaleHelper.getLocale(ctx))
+
         val soundName = when (prefs.selectedAlertSound.lowercase()) {
-            "whistle"   -> getString(R.string.your_ringtone_single)
-            "airhorn"   -> getString(R.string.air_horn).replace("\n", " ")
-            "babylaugh" -> getString(R.string.baby_laugh).replace("\n", " ")
-            "cat"       -> getString(R.string.cat)
-            "dog"       -> getString(R.string.dog)
-            "doorbell"  -> getString(R.string.door_bell).replace("\n", " ")
-            "train"     -> getString(R.string.train)
-            "hello"     -> getString(R.string.hello)
-            "horn"      -> getString(R.string.horn)
-            else        -> getString(R.string.your_ringtone_single)
+            "whistle"   -> ctx.getString(R.string.your_ringtone_single)
+            "airhorn"   -> ctx.getString(R.string.air_horn).replace("\n", " ")
+            "babylaugh" -> ctx.getString(R.string.baby_laugh).replace("\n", " ")
+            "cat"       -> ctx.getString(R.string.cat)
+            "dog"       -> ctx.getString(R.string.dog)
+            "doorbell"  -> ctx.getString(R.string.door_bell).replace("\n", " ")
+            "train"     -> ctx.getString(R.string.train)
+            "hello"     -> ctx.getString(R.string.hello)
+            "horn"      -> ctx.getString(R.string.horn)
+            else        -> ctx.getString(R.string.your_ringtone_single)
         }
         binding.txtSelectedSound.text = soundName
 
@@ -137,7 +188,12 @@ class FindPhoneFragment : Fragment() {
         binding.seekBarVolumePreview.progress = vol
         binding.seekBarVolumePreview.isEnabled = false
 
-        binding.txtSelectedSensitivity.text = prefs.alertSensitivity
+        val sensitivityText = when (prefs.alertSensitivity.lowercase()) {
+            "low"  -> ctx.getString(R.string.sensitivity_low)
+            "high" -> ctx.getString(R.string.sensitivity_high)
+            else   -> ctx.getString(R.string.sensitivity_medium)
+        }
+        binding.txtSelectedSensitivity.text = sensitivityText
         binding.txtSelectedDuration.text = "${prefs.selectedAlertDuration} Sec"
     }
 

@@ -45,11 +45,18 @@ class AlertSoundActivity : BaseActivity() {
         tempVolume = prefs.alertSoundVolume
 
         setupWindowInsets()
+        updateLocalizedTexts()
         setupVolumeSlider()
-        setupRecyclerView()
         setupListeners()
 
         playPreview()
+    }
+
+    override fun updateLocalizedTexts() {
+        binding.txtTitle.text = getString(R.string.label_alert_sound)
+        binding.txtTapToPlayLabel.text = getString(R.string.tap_to_play_sound_label)
+        binding.btnSave.text = getString(R.string.btn_save)
+        setupRecyclerView()
     }
 
     private fun setupWindowInsets() {

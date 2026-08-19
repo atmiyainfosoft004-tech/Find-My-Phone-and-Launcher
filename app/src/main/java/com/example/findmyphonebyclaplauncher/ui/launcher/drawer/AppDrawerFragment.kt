@@ -352,6 +352,11 @@ class AppDrawerFragment : Fragment() {
                         if (!open) hideKeyboard()
                     }
                 }
+                launch {
+                    com.example.findmyphonebyclaplauncher.utils.LocaleHelper.languageFlow.collect {
+                        setupTabs(showFavorites = favoritesTabVisible)
+                    }
+                }
             }
         }
     }

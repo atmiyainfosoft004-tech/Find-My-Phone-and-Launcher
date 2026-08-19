@@ -41,6 +41,7 @@ class App : Application() {
         super.onCreate()
         instance = this
         Log.d(Constants.TAG, "Application created")
+        com.example.findmyphonebyclaplauncher.utils.LocaleHelper.applyLocaleToContext(this, com.example.findmyphonebyclaplauncher.utils.LocaleHelper.getLocale(this))
         com.example.findmyphonebyclaplauncher.data.repository.AppRepository.init(this)
         FirebaseConfigManager.initialize(this) { _ ->
             val oneSignalAppId = FirebaseConfigManager.getOneSignalAppId()

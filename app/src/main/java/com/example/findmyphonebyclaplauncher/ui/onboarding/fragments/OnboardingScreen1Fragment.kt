@@ -14,6 +14,9 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.text.HtmlCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.databinding.FragmentOnboardingScreen1Binding
 import com.example.findmyphonebyclaplauncher.ui.onboarding.OnboardingActivity
@@ -53,6 +56,13 @@ class OnboardingScreen1Fragment : Fragment() {
         )
 
         updateLocalizedTexts()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                com.example.findmyphonebyclaplauncher.utils.LocaleHelper.languageFlow.collect {
+                    updateLocalizedTexts()
+                }
+            }
+        }
         setupVideoPlayer()
 
         binding.btnContinue.setOnClickListener {

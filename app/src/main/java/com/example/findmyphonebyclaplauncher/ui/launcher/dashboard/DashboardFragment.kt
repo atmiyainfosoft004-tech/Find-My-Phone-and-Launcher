@@ -78,6 +78,11 @@ class DashboardFragment : Fragment() {
                 launch { viewModel.suggestedApps.collect { suggestedAdapter.submitList(it) } }
                 launch { viewModel.recentApps.collect { recentAdapter.submitList(it) } }
                 launch { viewModel.usageCard.collect { bindUsageCard(it) } }
+                launch {
+                    com.example.findmyphonebyclaplauncher.utils.LocaleHelper.languageFlow.collect {
+                        updateLocalizedTexts()
+                    }
+                }
             }
         }
 
@@ -120,6 +125,13 @@ class DashboardFragment : Fragment() {
                 binding.nativeAdCardView
             )
         }
+    }
+
+    private fun updateLocalizedTexts() {
+        val binding = _binding ?: return
+        binding.tvGreeting.text = GreetingHelper.greeting()
+        binding.tvDate.text = GreetingHelper.formattedDate()
+        bindUsageCard(viewModel.usageCard.value)
     }
 
     private fun bindUsageCard(state: UsageCardState) {

@@ -125,9 +125,17 @@ class LanguageActivity : BaseActivity() {
         }
     }
 
-    private fun setupHeader() {
+    override fun updateLocalizedTexts() {
         if (isFirstTime) {
             binding.txtTitle.text = getString(R.string.select_your_language)
+        } else {
+            binding.txtTitle.text = getString(R.string.change_language)
+        }
+    }
+
+    private fun setupHeader() {
+        updateLocalizedTexts()
+        if (isFirstTime) {
             binding.btnBack.isVisible = false
             (binding.txtTitle.layoutParams as? androidx.constraintlayout.widget.ConstraintLayout.LayoutParams)?.apply {
                 startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
@@ -135,7 +143,6 @@ class LanguageActivity : BaseActivity() {
                 marginStart = 0
             }
         } else {
-            binding.txtTitle.text = getString(R.string.change_language)
             binding.btnBack.isVisible = true
             (binding.txtTitle.layoutParams as? androidx.constraintlayout.widget.ConstraintLayout.LayoutParams)?.apply {
                 startToStart = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET

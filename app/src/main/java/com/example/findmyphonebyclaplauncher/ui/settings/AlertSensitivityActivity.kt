@@ -28,8 +28,18 @@ class AlertSensitivityActivity : BaseActivity() {
         selectedSensitivity = prefs.alertSensitivity
 
         setupWindowInsets()
+        updateLocalizedTexts()
         updateSelectionUI(selectedSensitivity)
         setupListeners()
+    }
+
+    override fun updateLocalizedTexts() {
+        binding.txtTitle.text = getString(R.string.alert_sensitivity)
+        binding.txtDescription.text = getString(R.string.alert_sensitivity_desc)
+        binding.txtLow.text = getString(R.string.sensitivity_low)
+        binding.txtMedium.text = getString(R.string.sensitivity_medium)
+        binding.txtHigh.text = getString(R.string.sensitivity_high)
+        binding.btnSave.text = getString(R.string.btn_save)
     }
 
     private fun setupWindowInsets() {
