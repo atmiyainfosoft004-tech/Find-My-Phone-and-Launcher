@@ -32,6 +32,7 @@ class OnboardingScreen3Fragment : Fragment() {
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { _ ->
+        (activity as? OnboardingActivity)?.isRequestingPermission = false
         navigateToNextScreen()
     }
 
@@ -72,8 +73,10 @@ class OnboardingScreen3Fragment : Fragment() {
         }
 
         if (missing.isNotEmpty()) {
+            (activity as? OnboardingActivity)?.isRequestingPermission = true
             requestPermissionsLauncher.launch(missing.toTypedArray())
         } else {
+            (activity as? OnboardingActivity)?.isRequestingPermission = false
             navigateToNextScreen()
         }
     }

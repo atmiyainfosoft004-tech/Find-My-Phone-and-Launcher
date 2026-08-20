@@ -27,10 +27,15 @@ class OnboardingScreen2Activity : BaseActivity() {
     @Volatile
     private var isNavigated = false
 
+    private var isUserLeaving = false
+    private var isAppInBackground = false
+    private var isRequestingRole = false
+
     private val defaultRoleLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         Log.d(TAG, "defaultRoleLauncher result received: resultCode=${result.resultCode}")
+        isRequestingRole = false
         checkAndProceedIfDefault(source = "ActivityResultCallback")
     }
 
@@ -91,10 +96,9 @@ class OnboardingScreen2Activity : BaseActivity() {
         binding.shimmerBtnContinue.setShimmer(shimmer)
     }
 
-    private var isAppInBackground = false
-
     override fun onResume() {
         super.onResume()
+        isUserLeaving = false
         binding.shimmerBtnContinue.startShimmer()
         checkAndProceedIfDefault(source = "onResume")
     }
@@ -106,27 +110,28 @@ class OnboardingScreen2Activity : BaseActivity() {
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
-        if (isDefaultLauncher() && !isNavigated && !isFinishing) {
+        if (isDefaultLauncher() && !isNavigated && !isFinishing && !isRequestingRole) {
+            isUserLeaving = true
             redirectToHomeFragment("onUserLeaveHint")
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if (isDefaultLauncher() && !isNavigated && !isFinishing) {
+        if (isUserLeaving && isDefaultLauncher() && !isNavigated && !isFinishing && !isRequestingRole) {
             isAppInBackground = true
         }
     }
 
     override fun onRestart() {
         super.onRestart()
-        if (isAppInBackground && isDefaultLauncher() && !isNavigated && !isFinishing) {
+        if (isUserLeaving && isAppInBackground && isDefaultLauncher() && !isNavigated && !isFinishing && !isRequestingRole) {
             redirectToHomeFragment("onRestart")
         }
     }
 
     private fun redirectToHomeFragment(source: String) {
-        if (isFinishing || isDestroyed || isNavigated) return
+        if (isFinishing || isDestroyed || isNavigated || isRequestingRole) return
         isNavigated = true
         Log.d(TAG, "Redirecting to HomeFragment due to Home press / background resume (source: $source)")
 
@@ -159,6 +164,8 @@ class OnboardingScreen2Activity : BaseActivity() {
             navigateToLanguageScreen()
             return
         }
+
+        isRequestingRole = true
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val roleManager = getSystemService(Context.ROLE_SERVICE) as? RoleManager

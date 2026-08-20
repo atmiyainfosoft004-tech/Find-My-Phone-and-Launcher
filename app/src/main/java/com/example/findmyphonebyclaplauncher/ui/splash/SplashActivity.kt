@@ -31,6 +31,10 @@ class SplashActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (!isTaskRoot && intent.hasCategory(Intent.CATEGORY_LAUNCHER) && Intent.ACTION_MAIN == intent.action) {
+            finish()
+            return
+        }
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

@@ -22,6 +22,7 @@ class LanguageActivity : BaseActivity() {
     private var isFirstTime: Boolean = false
     private lateinit var adapter: LanguageAdapter
 
+    private var isUserLeaving = false
     private var isAppInBackground = false
     private var isNavigatingToNextScreen = false
 
@@ -41,26 +42,28 @@ class LanguageActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        isUserLeaving = false
         loadBannerAd()
     }
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (isFirstTime && !isNavigatingToNextScreen && !isFinishing) {
+            isUserLeaving = true
             redirectToHomeFragment("onUserLeaveHint")
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if (isFirstTime && !isNavigatingToNextScreen && !isFinishing) {
+        if (isFirstTime && isUserLeaving && !isNavigatingToNextScreen && !isFinishing) {
             isAppInBackground = true
         }
     }
 
     override fun onRestart() {
         super.onRestart()
-        if (isFirstTime && isAppInBackground && !isNavigatingToNextScreen) {
+        if (isFirstTime && isUserLeaving && isAppInBackground && !isNavigatingToNextScreen) {
             redirectToHomeFragment("onRestart")
         }
     }
