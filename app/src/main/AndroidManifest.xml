@@ -117,6 +117,7 @@
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -128,11 +129,13 @@
         <activity
             android:name=".ui.onboarding.OnboardingScreen2Activity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <activity
             android:name=".ui.onboarding.OnboardingActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Find Phone Main Dashboard / Default Home Launcher Activity -->
@@ -141,6 +144,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:stateNotNeeded="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -154,6 +158,7 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
 
         <!-- Menu Activity -->
@@ -161,6 +166,7 @@
             android:name=".ui.menu.MenuActivity"
             android:exported="false"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Language Activity -->
@@ -168,6 +174,7 @@
             android:name=".ui.language.LanguageActivity"
             android:exported="false"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Alert Sensitivity Activity -->
@@ -175,6 +182,7 @@
             android:name=".ui.settings.AlertSensitivityActivity"
             android:exported="false"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Alert Sound Activity -->
@@ -182,6 +190,7 @@
             android:name=".ui.settings.AlertSoundActivity"
             android:exported="false"
             android:launchMode="singleTop"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher.Light" />
 
         <!-- Alert (lock-screen capable) -->
@@ -199,6 +208,7 @@
         <activity
             android:name=".ui.search.GoogleSearchActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher"
             android:windowSoftInputMode="adjustResize" />
 
@@ -206,12 +216,14 @@
         <activity
             android:name=".ui.search.WebViewActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher" />
 
         <!-- App Install Success Activity -->
         <activity
             android:name=".ui.install.AppInstallSuccessActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.FindMyPhoneByClapLauncher"
             android:launchMode="singleTask" />
 
