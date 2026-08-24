@@ -18,8 +18,11 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
+
 
 class BannerAdLoader {
     private val ads get() = AdsConfigManager.config
@@ -122,6 +125,22 @@ class BannerAdLoader {
                         Log.d(TAG, "Preloaded banner ad loaded successfully")
                         logAds(activity, "banner_loaded")
                         bannerAdPreload = adView
+
+                        adView.setOnPaidEventListener(object : OnPaidEventListener {
+                            override fun onPaidEvent(adValue: AdValue) {
+                                val valueMicros = adValue.getValueMicros()
+
+                                val revenue = valueMicros / 1000000.0
+
+                                val currency = adValue.getCurrencyCode()
+
+                                val precision = adValue.getPrecisionType()
+
+                                Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                                App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                            }
+                        })
                     }
 
                     override fun onAdClicked() {
@@ -474,6 +493,22 @@ class BannerAdLoader {
                 rootContainer?.visibility = View.VISIBLE
                 (frameLayout.parent as? View)?.let { if (it.id == R.id.llBannerRoot) it.visibility = View.VISIBLE }
                 logAds(activity, "banner_showed")
+
+                adView.setOnPaidEventListener(object : OnPaidEventListener {
+                    override fun onPaidEvent(adValue: AdValue) {
+                        val valueMicros = adValue.getValueMicros()
+
+                        val revenue = valueMicros / 1000000.0
+
+                        val currency = adValue.getCurrencyCode()
+
+                        val precision = adValue.getPrecisionType()
+
+
+                        Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+                        App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                    }
+                })
             }
 
             override fun onAdClicked() {
@@ -552,6 +587,22 @@ class BannerAdLoader {
                 frameLayout.removeAllViews()
                 logAds(activity, "banner_showed")
                 frameLayout.addView(adView)
+
+                adView.setOnPaidEventListener(object : OnPaidEventListener {
+                    override fun onPaidEvent(adValue: AdValue) {
+                        val valueMicros = adValue.getValueMicros()
+
+                        val revenue = valueMicros / 1000000.0
+
+                        val currency = adValue.getCurrencyCode()
+
+                        val precision = adValue.getPrecisionType()
+
+                        Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                        App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                    }
+                })
             }
 
             override fun onAdClicked() {
@@ -636,6 +687,23 @@ class BannerAdLoader {
                         frameLayout.removeAllViews()
                         logAds(activity, "banner_showed")
                         frameLayout.addView(adView)
+
+                        adView.setOnPaidEventListener(object : OnPaidEventListener {
+                            override fun onPaidEvent(adValue: AdValue) {
+                                val valueMicros = adValue.getValueMicros()
+
+                                val revenue = valueMicros / 1000000.0
+
+                                val currency = adValue.getCurrencyCode()
+
+                                val precision = adValue.getPrecisionType()
+
+                                Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+
+                                App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                            }
+                        })
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {

@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.example.findmyphonebyclaplauncher.ads.AppOpenAdLoader
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager
 import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper
+import com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager
 import com.example.findmyphonebyclaplauncher.domain.manager.FindPhoneManager
 import com.example.findmyphonebyclaplauncher.receiver.AppInstallReceiver
 import com.example.findmyphonebyclaplauncher.ui.install.AppInstallSuccessActivity
@@ -23,10 +24,10 @@ import com.example.findmyphonebyclaplauncher.utils.Constants
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.initialization.InitializationStatus
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-
-import com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager
 import com.onesignal.OneSignal
+
 
 class App : Application() {
 
@@ -73,6 +74,18 @@ class App : Application() {
         } else {
             Log.w(Constants.TAG, "OneSignal App ID is blank; skipping initialization")
         }
+    }
+
+
+    fun sendRevenueToAnalytics(revenue: Double, currency: String?, precision: Int) {
+        val analytics = FirebaseAnalytics.getInstance(instance)
+
+        val bundle = Bundle()
+        bundle.putString("ad_platform", "Google Ad Manager")
+        bundle.putDouble("value", revenue)
+        bundle.putString("currency", currency)
+        bundle.putInt("precision", precision)
+        analytics.logEvent("ad_impression", bundle)
     }
 
     private fun registerCallStateReceiver() {

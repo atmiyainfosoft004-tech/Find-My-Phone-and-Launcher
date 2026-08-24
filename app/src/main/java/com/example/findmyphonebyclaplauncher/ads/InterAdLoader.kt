@@ -13,15 +13,21 @@ import com.example.findmyphonebyclaplauncher.util.NetworkUtil
 import com.example.findmyphonebyclaplauncher.util.SystemUiHelper
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+
 
 class InterAdLoader {
     private val ads get() = AdsConfigManager.config
     var isInterstitialLoading: Boolean = false
     var isInterstitialShowing: Boolean = false
+
+    private val TAG = "InterAd"
+
     private var interstitialAd: InterstitialAd? = null
 
     val isInterstitialReady: Boolean
@@ -91,6 +97,22 @@ class InterAdLoader {
                     Log.d("InterstitialAd", "loadInterstitialAd: SUCCESS -> Ad loaded")
                     resetFailedCountInterstitial()
                     flushLoadCallbacks()
+
+                    interstitialAd.setOnPaidEventListener(object : OnPaidEventListener {
+                        override fun onPaidEvent(adValue: AdValue) {
+                            val valueMicros = adValue.getValueMicros()
+
+                            val revenue = valueMicros / 1000000.0
+
+                            val currency = adValue.getCurrencyCode()
+                            val precision = adValue.getPrecisionType()
+
+                            Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+
+                            App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                        }
+                    })
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {

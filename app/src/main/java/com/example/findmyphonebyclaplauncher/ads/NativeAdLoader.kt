@@ -20,7 +20,9 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.VideoController
 import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.nativead.MediaView
@@ -238,6 +240,23 @@ class NativeAdLoader {
             .forNativeAd { nativeAd ->
                 Log.d(TAG, "Native Ad ($type) loaded successfully")
                 logAds(activity, "native_loaded_$type")
+
+                nativeAd.setOnPaidEventListener(object : OnPaidEventListener {
+                    override fun onPaidEvent(adValue: AdValue) {
+                        val valueMicros = adValue.getValueMicros()
+
+                        val revenue = valueMicros / 1000000.0
+
+                        val currency = adValue.getCurrencyCode()
+
+                        val precision = adValue.getPrecisionType()
+
+                        Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                        App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                    }
+                })
+
                 resetFailedCountNative()
                 isLoadingMap[requestKey] = false
                 val callbacks = pendingCallbacks.remove(requestKey) ?: emptyList()
@@ -261,6 +280,8 @@ class NativeAdLoader {
                     Log.d(TAG, "Native Ad ($type) clicked")
                     logAds(activity, "native_clicked_$type")
                 }
+
+
             }).withNativeAdOptions(adOptions).build()
         val adRequest = AdRequest.Builder().build()
         logAds(activity, "native_req_$type")
@@ -390,6 +411,23 @@ class NativeAdLoader {
                     Log.d(TAG, "Preloaded Dashboard Native Ad loaded successfully")
                     logAds(activity, "native_loaded_default")
                     nativeAdPreload = nativeAd
+
+                    nativeAd.setOnPaidEventListener(object : OnPaidEventListener {
+                        override fun onPaidEvent(adValue: AdValue) {
+                            val valueMicros = adValue.getValueMicros()
+
+                            val revenue = valueMicros / 1000000.0
+
+                            val currency = adValue.getCurrencyCode()
+
+                            val precision = adValue.getPrecisionType()
+
+                            Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                            App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                        }
+                    })
+
                 }.withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
                         isLoadingMap["preload_default"] = false
@@ -409,6 +447,22 @@ class NativeAdLoader {
                     Log.d(TAG, "Preloaded Language Native Ad loaded successfully")
                     logAds(activity, "native_loaded_language")
                     nativeAdPreloadLanguage = nativeAd
+
+                    nativeAd.setOnPaidEventListener(object : OnPaidEventListener {
+                        override fun onPaidEvent(adValue: AdValue) {
+                            val valueMicros = adValue.getValueMicros()
+
+                            val revenue = valueMicros / 1000000.0
+
+                            val currency = adValue.getCurrencyCode()
+
+                            val precision = adValue.getPrecisionType()
+
+                            Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                            App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                        }
+                    })
                 }.withAdListener(object : AdListener() {
                     override fun onAdFailedToLoad(adError: LoadAdError) {
                         isLoadingMap["preload_language"] = false
@@ -460,6 +514,8 @@ class NativeAdLoader {
                 isLoadingMap[requestKey] = false
                 Log.d(TAG, "Native Ad ($type) loaded successfully. Inflating view and hiding shimmer.")
                 logAds(activity, "native_loaded_$type")
+
+
                 resetFailedCountNative()
                 if (!activity.isDestroyed && !activity.isFinishing) {
                     instance!!.inflateGoogleNativeAd(
@@ -482,6 +538,23 @@ class NativeAdLoader {
                         nativeAd.destroy()
                     }
                 }
+
+                nativeAd.setOnPaidEventListener(object : OnPaidEventListener {
+                    override fun onPaidEvent(adValue: AdValue) {
+                        val valueMicros = adValue.getValueMicros()
+
+                        val revenue = valueMicros / 1000000.0
+
+                        val currency = adValue.getCurrencyCode()
+
+                        val precision = adValue.getPrecisionType()
+
+                        Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                        App.getInstance().sendRevenueToAnalytics(revenue, currency, precision)
+                    }
+                })
+
             }.withAdListener(object : AdListener() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     isLoadingMap[requestKey] = false

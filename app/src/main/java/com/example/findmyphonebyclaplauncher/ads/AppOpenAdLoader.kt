@@ -17,8 +17,10 @@ import com.example.findmyphonebyclaplauncher.analytics.AnalyticsHelper
 import com.example.findmyphonebyclaplauncher.util.NetworkUtil
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.OnPaidEventListener
 import com.google.android.gms.ads.appopen.AppOpenAd
 import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback
 import java.util.Date
@@ -70,6 +72,20 @@ class AppOpenAdLoader(val app: App) :
                     this@AppOpenAdLoader.isLoadingAppOpenAd = false
                     this@AppOpenAdLoader.loadTimeLong = Date().time
                     Log.d(TAG, "App Open Ad successfully loaded.")
+
+                    ad!!.setOnPaidEventListener(
+                        object : OnPaidEventListener {
+                            override fun onPaidEvent(adValue: AdValue) {
+                                val valueMicros = adValue.getValueMicros()
+                                val revenue = valueMicros / 1000000.0
+                                val currency = adValue.getCurrencyCode()
+                                val precision = adValue.getPrecisionType()
+
+                                Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                                app.sendRevenueToAnalytics(revenue, currency, precision)
+                            }
+                        })
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
@@ -224,6 +240,19 @@ class AppOpenAdLoader(val app: App) :
                             }
                         }
                         ad.show(activity)
+                        ad!!.setOnPaidEventListener(
+                            object : OnPaidEventListener {
+                                override fun onPaidEvent(adValue: AdValue) {
+                                    val valueMicros = adValue.getValueMicros()
+                                    val revenue = valueMicros / 1000000.0
+                                    val currency = adValue.getCurrencyCode()
+                                    val precision = adValue.getPrecisionType()
+
+                                    Log.e(TAG, "onPaidEvent: revenue = $revenue, currency = $currency, precision = $precision", )
+
+                                    app.sendRevenueToAnalytics(revenue, currency, precision)
+                                }
+                            })
                     }
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
