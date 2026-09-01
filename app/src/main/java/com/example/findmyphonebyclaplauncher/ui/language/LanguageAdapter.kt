@@ -12,10 +12,22 @@ class LanguageAdapter(
     private val onLanguageSelected: (LanguageItem) -> Unit
 ) : RecyclerView.Adapter<LanguageAdapter.LanguageViewHolder>() {
 
-    private var selectedPosition: Int = languages.indexOfFirst { it.isSelected }.let { if (it == -1) 0 else it }
+    private var selectedPosition: Int = languages.indexOfFirst { it.isSelected }
 
     fun getSelectedItem(): LanguageItem? {
         return if (selectedPosition in languages.indices) languages[selectedPosition] else null
+    }
+
+    fun setSelectedPosition(position: Int) {
+        if (position in languages.indices) {
+            val prev = selectedPosition
+            selectedPosition = position
+            if (prev != RecyclerView.NO_POSITION && prev in languages.indices) {
+                notifyItemChanged(prev)
+            }
+            notifyItemChanged(selectedPosition)
+            onLanguageSelected(languages[selectedPosition])
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LanguageViewHolder {
@@ -37,7 +49,6 @@ class LanguageAdapter(
         private val binding: ItemLanguageBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        @SuppressLint("NotifyDataSetChanged")
         fun bind(item: LanguageItem, isSelected: Boolean) {
             binding.txtLanguageName.text = item.name
 
@@ -59,8 +70,12 @@ class LanguageAdapter(
             binding.root.setOnClickListener {
                 val currentPos = bindingAdapterPosition
                 if (currentPos != RecyclerView.NO_POSITION && currentPos != selectedPosition) {
+                    val prev = selectedPosition
                     selectedPosition = currentPos
-                    notifyDataSetChanged()
+                    if (prev != RecyclerView.NO_POSITION && prev in languages.indices) {
+                        notifyItemChanged(prev)
+                    }
+                    notifyItemChanged(selectedPosition)
                     onLanguageSelected(languages[selectedPosition])
                 }
             }

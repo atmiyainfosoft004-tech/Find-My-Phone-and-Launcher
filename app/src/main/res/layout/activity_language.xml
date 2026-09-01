@@ -60,6 +60,7 @@
             android:id="@+id/btnApplyLanguage"
             android:layout_width="@dimen/_40sdp"
             android:layout_height="@dimen/_25sdp"
+            android:visibility="gone"
             app:cardBackgroundColor="@color/color_primary"
             app:cardCornerRadius="@dimen/_10sdp"
             app:cardElevation="0dp"

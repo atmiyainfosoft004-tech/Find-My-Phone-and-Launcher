@@ -37,17 +37,25 @@ class LanguageActivity : BaseActivity() {
 
         setupWindowInsets()
         setupHeader()
-        setupRecyclerView()
+        setupRecyclerView(savedInstanceState)
         setupListeners()
         loadBannerAd()
         LauncherAdsHelper.preloadLanguageInterstitial(this)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::adapter.isInitialized) {
+            adapter.getSelectedItem()?.let {
+                outState.putString(KEY_SAVED_SELECTED_LANGUAGE_CODE, it.code)
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
         isUserLeaving = false
         loadBannerAd()
-        LauncherAdsHelper.preloadLanguageInterstitial(this)
     }
 
     override fun onUserLeaveHint() {
@@ -159,34 +167,43 @@ class LanguageActivity : BaseActivity() {
         }
     }
 
-    private fun setupRecyclerView() {
-        val currentLocale = LocaleHelper.getLocale(this)
-        val languageList = getSupportedLanguages(currentLocale)
+    private fun setupRecyclerView(savedInstanceState: Bundle? = null) {
+        val languageList = getSupportedLanguages()
 
         adapter = LanguageAdapter(languageList) { _ ->
-            // Tapping a language card item ONLY updates selection state in memory.
-            // NO navigation or activity reload is triggered on item tap.
+            updateDoneButtonState()
         }
         binding.rvLanguages.layoutManager = LinearLayoutManager(this)
         binding.rvLanguages.adapter = adapter
+
+        val savedCode = savedInstanceState?.getString(KEY_SAVED_SELECTED_LANGUAGE_CODE)
+        if (savedCode != null) {
+            val index = languageList.indexOfFirst { it.code.equals(savedCode, ignoreCase = true) }
+            if (index != -1) {
+                adapter.setSelectedPosition(index)
+            }
+        }
+
+        updateDoneButtonState()
     }
 
-    private fun getSupportedLanguages(currentCode: String): List<LanguageItem> {
-        val rawList = listOf(
-            LanguageItem("en", "English", "English"),
-            LanguageItem("hi", "Hindi", "हिन्दी"),
-            LanguageItem("es", "Spanish", "Español"),
-            LanguageItem("fr", "French", "Français"),
-            LanguageItem("de", "German", "Deutsch"),
-            LanguageItem("in", "Indonesian", "Bahasa Indonesia"),
-            LanguageItem("ru", "Russian", "Русский"),
-            LanguageItem("zh", "Chinese", "中文")
-        )
+    private fun updateDoneButtonState() {
+        val hasSelection = adapter.getSelectedItem() != null
+        binding.btnApplyLanguage.isVisible = hasSelection
+        binding.btnApplyLanguage.isEnabled = hasSelection
+    }
 
-        return rawList.map { item ->
-            val isSelected = item.code.equals(currentCode, ignoreCase = true)
-            item.copy(isSelected = isSelected)
-        }
+    private fun getSupportedLanguages(): List<LanguageItem> {
+        return listOf(
+            LanguageItem("en", "English", "English", isSelected = false),
+            LanguageItem("hi", "Hindi", "हिन्दी", isSelected = false),
+            LanguageItem("es", "Spanish", "Español", isSelected = false),
+            LanguageItem("fr", "French", "Français", isSelected = false),
+            LanguageItem("de", "German", "Deutsch", isSelected = false),
+            LanguageItem("in", "Indonesian", "Bahasa Indonesia", isSelected = false),
+            LanguageItem("ru", "Russian", "Русский", isSelected = false),
+            LanguageItem("zh", "Chinese", "中文", isSelected = false)
+        )
     }
 
     private fun setupListeners() {
@@ -253,5 +270,6 @@ class LanguageActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_IS_FIRST_TIME = "extra_is_first_time"
+        private const val KEY_SAVED_SELECTED_LANGUAGE_CODE = "key_saved_selected_language_code"
     }
 }
