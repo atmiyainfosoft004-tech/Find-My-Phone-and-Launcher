@@ -95,6 +95,7 @@ object FirebaseConfigManager {
                 "native_ad_id_install_uninstall" to AdsConfig.DEFAULT_NATIVE_ID,
                 "native_ad_google_search_item_interval" to 2,
 
+                "inter_ad_enable_language" to true,
                 "inter_ad_id" to AdsConfig.DEFAULT_INTER_ID,
                 "app_open_ad_id" to AdsConfig.DEFAULT_APP_OPEN_ID,
 

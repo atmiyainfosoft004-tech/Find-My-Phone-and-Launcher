@@ -126,7 +126,10 @@ data class AdsConfig(
     @SerializedName("native_ad_google_search_item_interval")
     val nativeAdGoogleSearchItemInterval: Int = 2,
 
-    // Interstitial & Open Ad Unit IDs
+    // Interstitial & Open Ad Unit IDs & Screen Switches
+    @SerializedName(value = "inter_ad_enable_language", alternate = ["is_language_inter_ad_enabled", "inter_ad_enable_language_screen"])
+    val interAdEnableLanguage: Boolean = true,
+
     @SerializedName("inter_ad_id")
     val interAdId: String = DEFAULT_INTER_ID,
 
@@ -184,6 +187,7 @@ data class AdsConfig(
 
     // Interstitial & App Open visibility checks (Requires Master Switch AND Valid ID)
     val canShowInter: Boolean get() = isInterAdEnabled && interAdId.isNotBlank()
+    val canShowInterLanguage: Boolean get() = isInterAdEnabled && interAdEnableLanguage && interAdId.isNotBlank()
     val canShowAppOpen: Boolean get() = isAppOpenAdEnabled && appOpenAdId.isNotBlank()
 
     // Action-level visibility checks

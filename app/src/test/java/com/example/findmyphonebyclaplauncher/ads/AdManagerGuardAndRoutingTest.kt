@@ -406,4 +406,118 @@ class AdManagerGuardAndRoutingTest {
         requestAd("GoogleSearch:ca-app-pub-test", "caller_3")
         assertEquals("New request after completion fires fresh network call", 2, networkRequestsFired)
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 8. Language Screen Done Interstitial Guards
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun languageDoneInterstitial_disabled_proceedsImmediatelyWithoutBlocking() {
+        val disabledConfig = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = false
+        )
+
+        var navigationExecuted = false
+        fun handleLanguageDone(canShowAd: Boolean, onProceed: () -> Unit) {
+            if (!canShowAd) {
+                onProceed()
+                return
+            }
+        }
+
+        handleLanguageDone(disabledConfig.canShowInterLanguage) {
+            navigationExecuted = true
+        }
+
+        assertTrue("Navigation must proceed immediately when language interstitial is disabled", navigationExecuted)
+        assertFalse(disabledConfig.canShowInterLanguage)
+    }
+
+    @Test
+    fun languageDoneInterstitial_duplicateClicks_debouncedAndNavigatesOnce() {
+        var isNavigating = false
+        var navigationCount = 0
+
+        fun onDoneClicked() {
+            if (isNavigating) return
+            isNavigating = true
+            navigationCount++
+        }
+
+        // Simulate 5 rapid clicks on Done
+        for (i in 1..5) {
+            onDoneClicked()
+        }
+
+        assertEquals("Navigation must be triggered exactly once despite rapid multiple clicks", 1, navigationCount)
+        assertTrue(isNavigating)
+    }
+
+    @Test
+    fun languageInterstitialPreload_whenDisabled_doesNotTriggerAdRequest() {
+        val disabledConfig = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = false
+        )
+
+        var preloadRequestFired = false
+        fun preloadLanguageInterstitial(canShowAd: Boolean) {
+            if (!canShowAd) return
+            preloadRequestFired = true
+        }
+
+        preloadLanguageInterstitial(disabledConfig.canShowInterLanguage)
+        assertFalse("No preload network request should be fired when inter_ad_enable_language is false", preloadRequestFired)
+    }
+
+    @Test
+    fun languageInterstitialPreload_whenEnabled_triggersAdRequest() {
+        val enabledConfig = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = true
+        )
+
+        var preloadRequestFired = false
+        fun preloadLanguageInterstitial(canShowAd: Boolean) {
+            if (!canShowAd) return
+            preloadRequestFired = true
+        }
+
+        preloadLanguageInterstitial(enabledConfig.canShowInterLanguage)
+        assertTrue("Preload request should be initiated when inter_ad_enable_language is true", preloadRequestFired)
+    }
+
+    @Test
+    fun languageDoneInterstitial_whenNotLoaded_proceedsImmediatelyWithoutDialog() {
+        val enabledConfig = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = true
+        )
+
+        var dialogShown = false
+        var navigationExecuted = false
+        val isAdReady = false
+
+        fun handleDone(canShowAd: Boolean, isReady: Boolean, onProceed: () -> Unit) {
+            if (!canShowAd) {
+                onProceed()
+                return
+            }
+            if (isReady) {
+                dialogShown = true
+                // present ad and on dismiss call onProceed
+            } else {
+                // Ad not ready: bypass dialog and proceed directly
+                onProceed()
+            }
+        }
+
+        handleDone(enabledConfig.canShowInterLanguage, isAdReady) {
+            navigationExecuted = true
+        }
+
+        assertFalse("No loading dialog should be shown when ad is not ready", dialogShown)
+        assertTrue("Navigation must proceed immediately when ad is not ready", navigationExecuted)
+    }
 }

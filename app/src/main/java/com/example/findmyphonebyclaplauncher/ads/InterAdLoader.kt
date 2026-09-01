@@ -211,10 +211,10 @@ class InterAdLoader {
                 isInterstitialLoading = false
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
-                if (ads.canShowInter && ads.preloadAdInterstitial && NetworkUtil.isNetworkAvailable(activity)) {
+                logAds(activity, "inter_dismissed")
+                if (ads.canShowInter && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
-                logAds(activity, "inter_dismissed")
                 listener.onDismiss()
             }
 
@@ -225,7 +225,7 @@ class InterAdLoader {
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 logAds(activity, "inter_failed_to_show_" + adError.code)
-                if (ads.canShowInter && ads.preloadAdInterstitial && NetworkUtil.isNetworkAvailable(activity)) {
+                if (ads.canShowInter && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
                 listener.onDismiss()
@@ -244,6 +244,60 @@ class InterAdLoader {
             }
         }
         ad.show(activity)
+    }
+
+    fun showLanguageDoneInterstitial(
+        activity: Activity,
+        listener: FullScreenDismissListener
+    ) {
+        if (!NetworkUtil.isNetworkAvailable(activity) || !ads.canShowInterLanguage || activity.isFinishing || activity.isDestroyed) {
+            Log.d("InterstitialAd", "showLanguageDoneInterstitial: Offline mode, activity finishing/destroyed, or canShowInterLanguage is false -> proceeding immediately without dialog")
+            listener.onDismiss()
+            return
+        }
+
+        App.runWhenMobileAdsReady {
+            if (activity.isFinishing || activity.isDestroyed || !ads.canShowInterLanguage || !NetworkUtil.isNetworkAvailable(activity)) {
+                Log.d("InterstitialAd", "showLanguageDoneInterstitial: Activity finishing/destroyed or canShowInterLanguage/network is false -> proceeding immediately without dialog")
+                listener.onDismiss()
+                return@runWhenMobileAdsReady
+            }
+
+            if (isInterstitialReady) {
+                Log.d("InterstitialAd", "showLanguageDoneInterstitial: Preloaded ad ready -> presenting ad")
+                val loadingDialog = AdLoadingDialog(activity)
+                var isActionHandled = false
+
+                fun safeDismissAndPresent() {
+                    if (isActionHandled) return
+                    isActionHandled = true
+                    loadingDialog.dismiss()
+                    if (!ads.canShowInterLanguage || activity.isFinishing || activity.isDestroyed) {
+                        Log.d("InterstitialAd", "showLanguageDoneInterstitial: canShowInterLanguage is false before ad display -> bypassing ad")
+                        listener.onDismiss()
+                        return
+                    }
+                    presentInterstitial(activity, isFromBack = false, listener)
+                }
+
+                loadingDialog.show(timeoutMs = 1200L) {
+                    Log.d("InterstitialAd", "showLanguageDoneInterstitial: Loading dialog timeout -> presenting ad")
+                    safeDismissAndPresent()
+                }
+
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    if (!activity.isFinishing && !activity.isDestroyed) {
+                        safeDismissAndPresent()
+                    } else {
+                        loadingDialog.dismiss()
+                        listener.onDismiss()
+                    }
+                }, 350L)
+            } else {
+                Log.d("InterstitialAd", "showLanguageDoneInterstitial: Ad not loaded -> continuing directly without dialog")
+                listener.onDismiss()
+            }
+        }
     }
 
     fun showAppClickInterstitial(activity: Activity, listener: FullScreenDismissListener) {
@@ -288,6 +342,7 @@ class InterAdLoader {
         showOrLoadInterstitial(activity, isFromBack = false, listener)
     }
 
+    fun canShowInterLanguage(): Boolean = ads.canShowInterLanguage
     fun canShowAppClickInter(): Boolean = ads.canShowAppClickInter
     fun canShowSwipeInter(): Boolean = ads.canShowSwipeInter
     fun canShowBackAd(): Boolean = ads.canShowBackAd

@@ -9,6 +9,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.findmyphonebyclaplauncher.R
+import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ads.config.RemoteConfigRepository
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.databinding.ActivityLanguageBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
@@ -38,12 +40,14 @@ class LanguageActivity : BaseActivity() {
         setupRecyclerView()
         setupListeners()
         loadBannerAd()
+        LauncherAdsHelper.preloadLanguageInterstitial(this)
     }
 
     override fun onResume() {
         super.onResume()
         isUserLeaving = false
         loadBannerAd()
+        LauncherAdsHelper.preloadLanguageInterstitial(this)
     }
 
     override fun onUserLeaveHint() {
@@ -198,6 +202,7 @@ class LanguageActivity : BaseActivity() {
 
         // Done / Checkmark action button (Top Right): Saves preference and navigates
         binding.btnApplyLanguage.setOnClickListener {
+            if (isNavigatingToNextScreen) return@setOnClickListener
             val selectedItem = adapter.getSelectedItem() ?: return@setOnClickListener
 
             isNavigatingToNextScreen = true
@@ -214,27 +219,34 @@ class LanguageActivity : BaseActivity() {
             // 3. Persist the chosen language via LocaleHelper / SharedPreferences and update locale
             LocaleHelper.setLocale(this, selectedItem.code)
 
-            // 4. Perform navigation
-            if (isFirstTime) {
-                // If first time launch, navigate explicitly to OnboardingActivity and clear stack
-                val intent = Intent(this@LanguageActivity, OnboardingActivity::class.java).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                }
-                startActivity(intent)
-                finish()
-            } else {
-                // If opened from Menu screen, finish and return seamlessly to the Menu screen
-                finishWithSlideAnimation()
+            // 4. Show Interstitial Ad then navigate to next screen
+            LauncherAdsHelper.showLanguageDoneInterstitial(this) {
+                proceedToNextScreen()
             }
         }
     }
 
-    private fun handleBackPress() {
+    private fun proceedToNextScreen() {
+        if (isFinishing || isDestroyed) return
         if (isFirstTime) {
-            // Block back press when launched for first time in onboarding flow
+            // If first time launch, navigate explicitly to OnboardingActivity and clear stack
+            val intent = Intent(this@LanguageActivity, OnboardingActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+            startActivity(intent)
+            finish()
+        } else {
+            // If opened from Menu screen, finish and return seamlessly to the Menu screen
+            finishWithSlideAnimation()
+        }
+    }
+
+    private fun handleBackPress() {
+        if (isFirstTime || isNavigatingToNextScreen) {
+            // Block back press when launched for first time in onboarding flow or during navigation
             return
         }
-        com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showBackAd(this) {
+        LauncherAdsHelper.showBackAd(this) {
             finishWithSlideAnimation()
         }
     }

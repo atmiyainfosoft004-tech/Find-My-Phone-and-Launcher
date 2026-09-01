@@ -34,6 +34,14 @@ object LauncherAdsHelper {
         }
     }
 
+    fun preloadLanguageInterstitial(activity: Activity) {
+        if (!NetworkUtil.isNetworkAvailable(activity)) return
+        val config = AdsConfigManager.config
+        if (config.canShowInterLanguage) {
+            InterAdLoader.instance?.loadInterstitialAds(activity)
+        }
+    }
+
     fun preloadAppOpen(activity: Activity) {
         if (!NetworkUtil.isNetworkAvailable(activity)) return
         if (RemoteConfigRepository.isAppOpenAdEnabled && RemoteConfigRepository.appOpenAdId.isNotBlank()) {
@@ -350,6 +358,30 @@ object LauncherAdsHelper {
     fun showBlogReturnInter(activity: Activity) {
         if (activity.isFinishing || activity.isDestroyed || !NetworkUtil.isNetworkAvailable(activity) || !AdsConfigManager.config.canShowInter) return
         InterAdLoader.instance?.showInterstitialImmediate(activity) {}
+    }
+
+    fun showLanguageDoneInterstitial(activity: Activity, onDone: () -> Unit) {
+        if (activity.isFinishing || activity.isDestroyed) {
+            onDone()
+            return
+        }
+        if (!NetworkUtil.isNetworkAvailable(activity)) {
+            Log.d(TAG, "showLanguageDoneInterstitial: Offline mode -> proceeding immediately")
+            onDone()
+            return
+        }
+        val config = AdsConfigManager.config
+        if (!config.canShowInterLanguage) {
+            Log.d(TAG, "showLanguageDoneInterstitial: canShowInterLanguage is false -> proceeding immediately")
+            onDone()
+            return
+        }
+        InterAdLoader.instance?.showLanguageDoneInterstitial(activity) {
+            SystemUiHelper.applyStickyImmersiveMode(activity)
+            if (!activity.isFinishing && !activity.isDestroyed) {
+                onDone()
+            }
+        } ?: onDone()
     }
 
     fun showAdForAction(

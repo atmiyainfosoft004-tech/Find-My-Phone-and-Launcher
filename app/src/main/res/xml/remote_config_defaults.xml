@@ -151,6 +151,11 @@
     </entry>
 
     <entry>
+        <key>inter_ad_enable_language</key>
+        <value>true</value>
+    </entry>
+
+    <entry>
         <key>inter_ad_id</key>
         <value>ca-app-pub-3940256099942544/1033173712</value>
     </entry>

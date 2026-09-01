@@ -89,6 +89,8 @@ object AdsConfigManager {
     const val KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL = "native_ad_google_search_item_interval"
 
     // Interstitial & Open Ad Controls
+    const val KEY_INTER_ENABLE_LANGUAGE = "inter_ad_enable_language"
+    const val KEY_INTER_ENABLE_LANGUAGE_ALT = "is_language_inter_ad_enabled"
     const val KEY_INTER_ID = "inter_ad_id"
     const val KEY_APP_OPEN_ID = "app_open_ad_id"
 
@@ -136,6 +138,8 @@ object AdsConfigManager {
     val isBannerAdEnabled: Boolean get() = config.isBannerAdEnabled
     val isNativeAdEnabled: Boolean get() = config.isNativeAdEnabled
     val isInterAdEnabled: Boolean get() = config.isInterAdEnabled
+    val interAdEnableLanguage: Boolean get() = config.interAdEnableLanguage
+    val canShowInterLanguage: Boolean get() = config.canShowInterLanguage
     val isAppOpenAdEnabled: Boolean get() = config.isAppOpenAdEnabled
 
     val isClickAdEnabled: Boolean get() = config.isClickAdEnabled
@@ -205,6 +209,7 @@ object AdsConfigManager {
             KEY_NATIVE_ID_INSTALL_UNINSTALL to AdsConfig.DEFAULT_NATIVE_ID,
             KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL to 2,
 
+            KEY_INTER_ENABLE_LANGUAGE to true,
             KEY_INTER_ID to AdsConfig.DEFAULT_INTER_ID,
             KEY_APP_OPEN_ID to AdsConfig.DEFAULT_APP_OPEN_ID,
 
@@ -369,6 +374,8 @@ object AdsConfigManager {
             nativeAdGoogleSearchItemInterval = fromJson?.nativeAdGoogleSearchItemInterval
                 ?: remoteConfig.extractInt(KEY_NATIVE_GOOGLE_SEARCH_ITEM_INTERVAL, default = 2).coerceAtLeast(1),
 
+            interAdEnableLanguage = fromJson?.interAdEnableLanguage
+                ?: remoteConfig.extractBoolean(KEY_INTER_ENABLE_LANGUAGE, KEY_INTER_ENABLE_LANGUAGE_ALT, default = true),
             interAdId = fromJson?.interAdId
                 ?: remoteConfig.extractString(KEY_INTER_ID, default = AdsConfig.DEFAULT_INTER_ID),
             appOpenAdId = fromJson?.appOpenAdId

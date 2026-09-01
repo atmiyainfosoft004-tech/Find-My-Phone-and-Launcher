@@ -154,6 +154,7 @@ object RemoteConfigRepository {
     const val KEY_NATIVE_AD_ID_INSTALL_UNINSTALL = "native_ad_id_install_uninstall"
 
     // Global Ad IDs & Preload Flags
+    const val KEY_INTER_AD_ENABLE_LANGUAGE = "inter_ad_enable_language"
     const val KEY_INTER_AD_ID = "inter_ad_id"
     const val KEY_APP_OPEN_ID = "app_open_ad_id"
     const val KEY_APP_OPEN_AD_ID = "app_open_ad_id"
@@ -223,6 +224,7 @@ object RemoteConfigRepository {
                 KEY_NATIVE_AD_ID_GOOGLE_SEARCH to AdsConfig.DEFAULT_NATIVE_ID,
                 KEY_NATIVE_AD_ID_LANGUAGE to AdsConfig.DEFAULT_NATIVE_ID,
                 KEY_NATIVE_AD_ID_INSTALL_UNINSTALL to AdsConfig.DEFAULT_NATIVE_ID,
+                KEY_INTER_AD_ENABLE_LANGUAGE to true,
                 KEY_INTER_AD_ID to AdsConfig.DEFAULT_INTER_ID,
                 KEY_APP_OPEN_ID to AdsConfig.DEFAULT_APP_OPEN_ID,
                 KEY_PRELOAD_AD_BANNER to false,
@@ -377,6 +379,8 @@ object RemoteConfigRepository {
     val nativeAdIdAfterCall: String get() = bannerAdIdAfterCall
 
     // Global Ad IDs & Preload
+    val interAdEnableLanguage: Boolean get() = getBoolean(KEY_INTER_AD_ENABLE_LANGUAGE, true)
+    val canShowInterLanguage: Boolean get() = isInterAdEnabled && interAdEnableLanguage && interAdId.isNotBlank()
     val interAdId: String get() = getString(KEY_INTER_AD_ID, AdsConfig.DEFAULT_INTER_ID)
     val appOpenAdId: String get() = getString(KEY_APP_OPEN_ID, AdsConfig.DEFAULT_APP_OPEN_ID)
 

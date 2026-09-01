@@ -61,6 +61,10 @@ class RemoteConfigManagerTest {
         assertTrue(defaultConfig.nativeAdEnableInstallUninstall)
         assertEquals(2, defaultConfig.nativeAdGoogleSearchItemInterval)
 
+        // Interstitial screen toggles
+        assertTrue(defaultConfig.interAdEnableLanguage)
+        assertTrue(defaultConfig.canShowInterLanguage)
+
         // Unit IDs
         assertTrue(defaultConfig.nativeAdIdInstallUninstall.isNotBlank())
         assertTrue(defaultConfig.interAdId.isNotBlank())
@@ -269,6 +273,7 @@ class RemoteConfigManagerTest {
           "native_ad_id_language": "ca-app-pub-3940256099942544/2247696110",
           "native_ad_id_install_uninstall": "ca-app-pub-3940256099942544/2247696110",
           "native_ad_google_search_item_interval": 2,
+          "inter_ad_enable_language": true,
           "inter_ad_id": "ca-app-pub-3940256099942544/1033173712",
           "app_open_ad_id": "ca-app-pub-3940256099942544/9257395921",
           "preload_ad_banner": false,
@@ -316,6 +321,8 @@ class RemoteConfigManagerTest {
         assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdLanguage)
         assertEquals("ca-app-pub-3940256099942544/2247696110", parsed.nativeAdIdInstallUninstall)
         assertEquals(2, parsed.nativeAdGoogleSearchItemInterval)
+        assertTrue(parsed.interAdEnableLanguage)
+        assertTrue(parsed.canShowInterLanguage)
         assertEquals("ca-app-pub-3940256099942544/1033173712", parsed.interAdId)
         assertEquals("ca-app-pub-3940256099942544/9257395921", parsed.appOpenAdId)
         assertFalse(parsed.preloadAdBanner)
@@ -330,5 +337,21 @@ class RemoteConfigManagerTest {
         assertEquals("https://example.com/terms-of-service", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.DEFAULT_TERMS_AND_CONDITIONS_URL)
         assertEquals("privacy_policy_url", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.KEY_PRIVACY_POLICY_URL)
         assertEquals("terms_and_conditions_url", com.example.findmyphonebyclaplauncher.config.FirebaseConfigManager.KEY_TERMS_AND_CONDITIONS_URL)
+    }
+
+    @Test
+    fun interAdEnableLanguage_screenFlag_correctlyControlsLanguageInterstitialVisibility() {
+        val defaultConfig = AdsConfig.DEFAULT
+        assertTrue(defaultConfig.canShowInterLanguage)
+
+        // Disable language interstitial dynamically
+        val languageInterDisabled = defaultConfig.copy(interAdEnableLanguage = false)
+        assertFalse(languageInterDisabled.canShowInterLanguage)
+        assertTrue("General Interstitial remains enabled", languageInterDisabled.canShowInter)
+
+        // Master switch disabled
+        val masterDisabled = defaultConfig.copy(isInterAdEnabled = false, interAdEnableLanguage = true)
+        assertFalse(masterDisabled.canShowInterLanguage)
+        assertFalse(masterDisabled.canShowInter)
     }
 }
