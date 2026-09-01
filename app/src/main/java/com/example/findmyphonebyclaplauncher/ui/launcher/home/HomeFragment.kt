@@ -55,10 +55,6 @@ class HomeFragment : Fragment() {
     private var pendingUninstallPackage: String? = null
     private var uninstallInProgress = false
 
-    private val callPermissionsLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { _ -> }
-
     private val clockHandler = Handler(Looper.getMainLooper())
     private val clockTick = object : Runnable {
         override fun run() {
@@ -255,23 +251,6 @@ class HomeFragment : Fragment() {
         clockHandler.post(clockTick)
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
-        checkAfterCallPermissions()
-    }
-
-    private fun checkAfterCallPermissions() {
-        val context = context ?: return
-        val requiredPermissions = arrayOf(
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_CALL_LOG,
-            Manifest.permission.READ_CONTACTS
-        )
-        val missingPermissions = requiredPermissions.filter {
-            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
-        }
-
-        if (missingPermissions.isNotEmpty()) {
-            callPermissionsLauncher.launch(missingPermissions.toTypedArray())
-        }
     }
 
     override fun onPause() {

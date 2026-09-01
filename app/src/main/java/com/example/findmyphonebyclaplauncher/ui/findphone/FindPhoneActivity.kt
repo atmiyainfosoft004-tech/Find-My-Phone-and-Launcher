@@ -74,6 +74,11 @@ class FindPhoneActivity : BaseActivity() {
 
     private fun handleLaunchExtras(intent: Intent?) {
         if (intent == null) return
+        val targetPage = intent.getIntExtra(EXTRA_TARGET_PAGE, -1)
+        if (targetPage != -1) {
+            val host = supportFragmentManager.findFragmentById(R.id.launcherHostContainer) as? LauncherHostFragment
+            host?.setPage(targetPage, false)
+        }
         if (intent.getBooleanExtra("LAUNCH_AFTER_CALL", false)) {
             intent.removeExtra("LAUNCH_AFTER_CALL")
             val afterCallIntent = Intent(this, com.example.findmyphonebyclaplauncher.ui.aftercall.AfterCallActivity::class.java).apply {
@@ -132,5 +137,9 @@ class FindPhoneActivity : BaseActivity() {
                 }
             }
         })
+    }
+
+    companion object {
+        const val EXTRA_TARGET_PAGE = "extra_target_page"
     }
 }

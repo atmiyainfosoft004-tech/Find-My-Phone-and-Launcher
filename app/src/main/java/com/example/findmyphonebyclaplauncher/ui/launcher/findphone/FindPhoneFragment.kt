@@ -10,9 +10,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.content.pm.PackageManager
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -49,6 +51,12 @@ class FindPhoneFragment : Fragment() {
         val micGranted = results[Manifest.permission.RECORD_AUDIO] == true
         handlePermissionResult(micGranted)
     }
+
+    private var hasRequestedCallPermissions = false
+
+    private val callPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { _ -> }
 
     private val configChangeListener = com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.OnConfigChangeListener {
         loadBannerAd()
@@ -141,6 +149,21 @@ class FindPhoneFragment : Fragment() {
         viewModel.refreshState(requireContext())
         refreshSettingsUI()
         loadBannerAd()
+        checkAfterCallPermissions()
+    }
+
+    private fun checkAfterCallPermissions() {
+        if (hasRequestedCallPermissions) return
+        val context = context ?: return
+        val requiredPermissions = PermissionManager.requiredAfterCallPermissions()
+        val missingPermissions = requiredPermissions.filter {
+            ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missingPermissions.isNotEmpty()) {
+            hasRequestedCallPermissions = true
+            callPermissionsLauncher.launch(missingPermissions.toTypedArray())
+        }
     }
 
     fun loadBannerAd() {

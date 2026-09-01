@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.launcher.dashboard.DashboardFragment
 
 class LauncherHostFragment : Fragment() {
@@ -72,8 +73,13 @@ class LauncherHostFragment : Fragment() {
             insets
         }
 
-        binding.viewPager.setCurrentItem(LauncherPagerAdapter.PAGE_HOME, false)
-        updateChrome(LauncherPagerAdapter.PAGE_HOME)
+        val targetPage = activity?.intent?.getIntExtra(
+            FindPhoneActivity.EXTRA_TARGET_PAGE,
+            LauncherPagerAdapter.PAGE_HOME
+        ) ?: LauncherPagerAdapter.PAGE_HOME
+
+        binding.viewPager.setCurrentItem(targetPage, false)
+        updateChrome(targetPage)
 
         binding.root.post {
             val h = binding.drawerContainer.height.toFloat().coerceAtLeast(1f)
@@ -372,6 +378,13 @@ class LauncherHostFragment : Fragment() {
         }
         binding.viewPager.setCurrentItem(LauncherPagerAdapter.PAGE_HOME, false)
         updateChrome(LauncherPagerAdapter.PAGE_HOME)
+    }
+
+    fun setPage(page: Int, smoothScroll: Boolean = false) {
+        if (_binding == null) return
+        forceCloseDrawer()
+        binding.viewPager.setCurrentItem(page, smoothScroll)
+        updateChrome(page)
     }
 
     override fun onDestroyView() {

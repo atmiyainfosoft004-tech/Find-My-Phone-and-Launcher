@@ -17,4 +17,12 @@ class OnboardingFlowTest {
         assertEquals("Fourth onboarding page (index 3) must be Screen 5", 3, OnboardingPagerAdapter.PAGE_SCREEN_5)
         assertEquals("Fifth onboarding page (index 4) must be Screen 6", 4, OnboardingPagerAdapter.PAGE_SCREEN_6)
     }
+
+    @Test
+    fun finalOnboardingCompletion_targetsFindPhoneFragment() {
+        assertEquals("FindPhoneFragment must be at index 0 in LauncherPagerAdapter", 0, com.example.findmyphonebyclaplauncher.ui.launcher.adapter.LauncherPagerAdapter.PAGE_FIND_PHONE)
+        assertEquals("HomeFragment must be at index 1 in LauncherPagerAdapter", 1, com.example.findmyphonebyclaplauncher.ui.launcher.adapter.LauncherPagerAdapter.PAGE_HOME)
+        assertEquals("DashboardFragment must be at index 2 in LauncherPagerAdapter", 2, com.example.findmyphonebyclaplauncher.ui.launcher.adapter.LauncherPagerAdapter.PAGE_DASHBOARD)
+        assertEquals("EXTRA_TARGET_PAGE key must match expected intent extra", "extra_target_page", com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity.EXTRA_TARGET_PAGE)
+    }
 }

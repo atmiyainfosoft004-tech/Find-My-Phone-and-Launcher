@@ -12,6 +12,7 @@ import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSourc
 import com.example.findmyphonebyclaplauncher.databinding.ActivityOnboardingBinding
 import com.example.findmyphonebyclaplauncher.ui.common.BaseActivity
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
+import com.example.findmyphonebyclaplauncher.ui.launcher.adapter.LauncherPagerAdapter
 import com.example.findmyphonebyclaplauncher.ui.onboarding.adapter.OnboardingPagerAdapter
 import com.example.findmyphonebyclaplauncher.ui.onboarding.fragments.OnboardingScreen4Fragment
 
@@ -92,6 +93,7 @@ class OnboardingActivity : BaseActivity() {
         prefs.isOnboardingCompleted = true
 
         val intent = Intent(this, FindPhoneActivity::class.java).apply {
+            putExtra(FindPhoneActivity.EXTRA_TARGET_PAGE, LauncherPagerAdapter.PAGE_FIND_PHONE)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
@@ -191,6 +193,7 @@ class OnboardingActivity : BaseActivity() {
     private fun navigateToMain() {
         isNavigatingToMain = true
         val intent = Intent(this, FindPhoneActivity::class.java).apply {
+            putExtra(FindPhoneActivity.EXTRA_TARGET_PAGE, com.example.findmyphonebyclaplauncher.ui.launcher.adapter.LauncherPagerAdapter.PAGE_FIND_PHONE)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
