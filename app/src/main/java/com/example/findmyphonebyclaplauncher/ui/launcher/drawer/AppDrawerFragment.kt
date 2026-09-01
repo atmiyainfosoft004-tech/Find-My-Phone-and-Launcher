@@ -12,6 +12,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -48,7 +50,9 @@ class AppDrawerFragment : Fragment() {
     private var hasAttemptedBannerLoadInCurrentSession = false
 
     private val configChangeListener = AdsConfigManager.OnConfigChangeListener {
-        loadBannerAd(forceReload = true)
+        if (launcherViewModel.drawerOpen.value == true) {
+            loadBannerAd(forceReload = true)
+        }
     }
 
     override fun onCreateView(
@@ -84,6 +88,17 @@ class AppDrawerFragment : Fragment() {
         binding.rvApps.setHasFixedSize(true)
         binding.rvApps.setItemViewCacheSize(24)
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
+            v.setPadding(
+                v.paddingLeft,
+                statusBars.top.coerceAtLeast(resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._24sdp)),
+                v.paddingRight,
+                0
+            )
+            insets
+        }
+
         setupTabs(showFavorites = false)
         setupSearch()
         observe()
@@ -91,8 +106,16 @@ class AppDrawerFragment : Fragment() {
         com.example.findmyphonebyclaplauncher.util.NetworkUtil.observeNetwork(
             requireContext(),
             viewLifecycleOwner,
-            onAvailable = { loadBannerAd(forceReload = true) },
-            onLost = { loadBannerAd(forceReload = true) }
+            onAvailable = {
+                if (launcherViewModel.drawerOpen.value == true) {
+                    loadBannerAd(forceReload = true)
+                }
+            },
+            onLost = {
+                if (launcherViewModel.drawerOpen.value == true) {
+                    loadBannerAd(forceReload = true)
+                }
+            }
         )
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
@@ -101,12 +124,14 @@ class AppDrawerFragment : Fragment() {
     fun loadBannerAd(forceReload: Boolean = false) {
         val binding = _binding ?: return
         if (!isAdded) return
+        if (launcherViewModel.drawerOpen.value != true) return
         if (hasAttemptedBannerLoadInCurrentSession && !forceReload) {
             return
         }
         hasAttemptedBannerLoadInCurrentSession = true
+        val config = AdsConfigManager.config
         if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
-            !AdsConfigManager.config.canShowBannerAppDrawer
+            !config.canShowBannerAppDrawer
         ) {
             BannerAdLoader.instance?.hideBannerContainer(
                 binding.drawerBanner.bannerAdFrameLayout,
@@ -127,7 +152,9 @@ class AppDrawerFragment : Fragment() {
         super.onResume()
         uninstallInProgress = false
         viewModel.refreshApps()
-        loadBannerAd(forceReload = true)
+        if (launcherViewModel.drawerOpen.value == true) {
+            loadBannerAd(forceReload = true)
+        }
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
     }
@@ -361,6 +388,11 @@ class AppDrawerFragment : Fragment() {
                         if (!open) {
                             hideKeyboard()
                             hasAttemptedBannerLoadInCurrentSession = false
+                            _binding?.let { b ->
+                                BannerAdLoader.instance?.destroyBanner(b.drawerBanner.bannerAdFrameLayout)
+                            }
+                        } else {
+                            loadBannerAd(forceReload = true)
                         }
                     }
                 }

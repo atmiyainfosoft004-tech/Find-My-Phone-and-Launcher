@@ -99,6 +99,8 @@ class LauncherHostFragment : Fragment() {
         super.onResume()
         loadSystemWallpaper()
         if (_binding != null) {
+            val isDrawerOpen = ::drawerMotion.isInitialized && drawerMotion.isOpen
+            (activity as? FindPhoneActivity)?.applyLauncherPageSystemBars(binding.viewPager.currentItem, isDrawerOpen = isDrawerOpen)
             when (binding.viewPager.currentItem) {
                 LauncherPagerAdapter.PAGE_FIND_PHONE -> {
                     (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_FIND_PHONE}") as? FindPhoneFragment)?.loadBannerAd()
@@ -107,7 +109,7 @@ class LauncherHostFragment : Fragment() {
                     (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_DASHBOARD}") as? DashboardFragment)?.refreshNativeAd()
                 }
             }
-            if (::drawerMotion.isInitialized && drawerMotion.isOpen) {
+            if (isDrawerOpen) {
                 (childFragmentManager.findFragmentByTag(DRAWER_TAG) as? AppDrawerFragment)?.loadBannerAd()
             }
         }
@@ -284,6 +286,7 @@ class LauncherHostFragment : Fragment() {
         drawerMotion.openAppDrawer {
             viewModel.setDrawerOpenState(true)
             updateSwipeEnabled()
+            (activity as? FindPhoneActivity)?.applyLauncherPageSystemBars(binding.viewPager.currentItem, isDrawerOpen = true)
             if (!wasAlreadyOpen) {
                 (childFragmentManager.findFragmentByTag(DRAWER_TAG) as? AppDrawerFragment)?.loadBannerAd(forceReload = true)
             }
@@ -297,6 +300,7 @@ class LauncherHostFragment : Fragment() {
             binding.viewPager.isUserInputEnabled = true
             updateSwipeEnabled()
             updateChrome(binding.viewPager.currentItem)
+            (activity as? FindPhoneActivity)?.applyLauncherPageSystemBars(binding.viewPager.currentItem, isDrawerOpen = false)
         }
     }
 
@@ -306,6 +310,7 @@ class LauncherHostFragment : Fragment() {
         binding.viewPager.isUserInputEnabled = true
         updateSwipeEnabled()
         updateChrome(binding.viewPager.currentItem)
+        (activity as? FindPhoneActivity)?.applyLauncherPageSystemBars(binding.viewPager.currentItem, isDrawerOpen = false)
     }
 
     private fun ensureDrawerHeight() {

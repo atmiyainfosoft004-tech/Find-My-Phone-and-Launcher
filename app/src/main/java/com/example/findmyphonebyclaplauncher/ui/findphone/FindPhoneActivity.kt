@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
@@ -107,13 +108,16 @@ class FindPhoneActivity : BaseActivity() {
         }
     }
 
-    fun applyLauncherPageSystemBars(page: Int) {
+    fun applyLauncherPageSystemBars(page: Int, isDrawerOpen: Boolean = false) {
         configureTransparentSystemBars()
-        val lightTheme = page == LauncherPagerAdapter.PAGE_FIND_PHONE
-        WindowInsetsControllerCompat(window, binding.root).apply {
-            isAppearanceLightStatusBars = lightTheme
-            isAppearanceLightNavigationBars = lightTheme
+        val insetsController = WindowInsetsControllerCompat(window, binding.root)
+        if (isDrawerOpen) {
+            insetsController.isAppearanceLightStatusBars = false
+        } else {
+            val lightTheme = page == LauncherPagerAdapter.PAGE_FIND_PHONE
+            insetsController.isAppearanceLightStatusBars = lightTheme
         }
+        com.example.findmyphonebyclaplauncher.util.SystemUiHelper.applyStickyImmersiveMode(this)
     }
 
     private fun handleHomeIntent(intent: Intent?) {
