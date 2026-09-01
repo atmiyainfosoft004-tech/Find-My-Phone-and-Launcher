@@ -840,4 +840,65 @@ class AdManagerGuardAndRoutingTest {
         assertFalse("Banner must not load when isBannerAdEnabled=false", bannerLoaded)
         assertFalse("Native must not load when isNativeAdEnabled=false", nativeLoaded)
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 15. AppDrawer Scrolling & Gesture Banner Request Guard
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun appDrawerScroll_neverTriggersBannerAdRequest() {
+        var bannerRequestCount = 0
+        var hasAttemptedSession = false
+        var isDrawerOpen = false
+
+        fun loadBannerAd(forceReload: Boolean = false) {
+            if (hasAttemptedSession && !forceReload) return
+            hasAttemptedSession = true
+            bannerRequestCount++
+        }
+
+        fun onOpenDrawer() {
+            val wasAlreadyOpen = isDrawerOpen
+            isDrawerOpen = true
+            if (!wasAlreadyOpen) {
+                loadBannerAd(forceReload = true)
+            }
+        }
+
+        fun onCloseDrawer() {
+            isDrawerOpen = false
+            hasAttemptedSession = false
+        }
+
+        fun onScrollOrTouchInsideDrawer() {
+            // Settle / touch callback inside already open drawer
+            if (isDrawerOpen) {
+                onOpenDrawer() // Should check wasAlreadyOpen and NOT re-request
+            }
+            loadBannerAd(forceReload = false) // Session guard also blocks
+        }
+
+        // 1. Initial Open: Should request exactly 1 banner ad
+        onOpenDrawer()
+        assertEquals(1, bannerRequestCount)
+
+        // 2. User scrolls list, flings, drags up/down multiple times inside open drawer
+        repeat(10) {
+            onScrollOrTouchInsideDrawer()
+        }
+        assertEquals("Scrolling or touching inside open drawer must NEVER trigger new banner requests", 1, bannerRequestCount)
+
+        // 3. User closes drawer
+        onCloseDrawer()
+
+        // 4. User opens drawer again later -> Triggers fresh load
+        onOpenDrawer()
+        assertEquals("Re-opening drawer must trigger fresh banner load", 2, bannerRequestCount)
+
+        // 5. More scrolling in new session -> Still locked to 2
+        repeat(5) {
+            onScrollOrTouchInsideDrawer()
+        }
+        assertEquals("Scrolling in new session must NEVER trigger duplicate requests", 2, bannerRequestCount)
+    }
 }

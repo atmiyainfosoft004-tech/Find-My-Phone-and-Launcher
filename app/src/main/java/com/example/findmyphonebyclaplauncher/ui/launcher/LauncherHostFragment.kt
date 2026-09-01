@@ -277,13 +277,16 @@ class LauncherHostFragment : Fragment() {
     }
 
     fun openAppDrawer() {
+        val wasAlreadyOpen = viewModel.drawerOpen.value
         ensureDrawerHeight()
         binding.viewPager.isUserInputEnabled = false
         updateSwipeEnabled()
         drawerMotion.openAppDrawer {
             viewModel.setDrawerOpenState(true)
             updateSwipeEnabled()
-            (childFragmentManager.findFragmentByTag(DRAWER_TAG) as? AppDrawerFragment)?.loadBannerAd()
+            if (!wasAlreadyOpen) {
+                (childFragmentManager.findFragmentByTag(DRAWER_TAG) as? AppDrawerFragment)?.loadBannerAd(forceReload = true)
+            }
         }
     }
 

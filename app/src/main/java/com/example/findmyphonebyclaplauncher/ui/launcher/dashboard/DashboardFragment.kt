@@ -98,15 +98,26 @@ class DashboardFragment : Fragment() {
         binding.root.animate().alpha(1f).setDuration(280).start()
     }
 
+    private var hasAttemptedNativeLoadInCurrentSession = false
+
     override fun onResume() {
         super.onResume()
         viewModel.refreshUsageCard(requireContext())
-        refreshNativeAd()
+        refreshNativeAd(forceReload = true)
     }
 
-    fun refreshNativeAd() {
+    override fun onPause() {
+        super.onPause()
+        hasAttemptedNativeLoadInCurrentSession = false
+    }
+
+    fun refreshNativeAd(forceReload: Boolean = false) {
         val binding = _binding ?: return
         if (!isAdded) return
+        if (hasAttemptedNativeLoadInCurrentSession && !forceReload) {
+            return
+        }
+        hasAttemptedNativeLoadInCurrentSession = true
         if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
             !AdsConfigManager.config.canShowNativeDashboard
         ) {

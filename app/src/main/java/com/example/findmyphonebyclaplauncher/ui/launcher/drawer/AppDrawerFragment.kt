@@ -45,9 +45,10 @@ class AppDrawerFragment : Fragment() {
     private var pendingUninstallPackage: String? = null
     private var uninstallInProgress = false
     private var favoritesTabVisible = false
+    private var hasAttemptedBannerLoadInCurrentSession = false
 
     private val configChangeListener = AdsConfigManager.OnConfigChangeListener {
-        loadBannerAd()
+        loadBannerAd(forceReload = true)
     }
 
     override fun onCreateView(
@@ -90,16 +91,20 @@ class AppDrawerFragment : Fragment() {
         com.example.findmyphonebyclaplauncher.util.NetworkUtil.observeNetwork(
             requireContext(),
             viewLifecycleOwner,
-            onAvailable = { loadBannerAd() },
-            onLost = { loadBannerAd() }
+            onAvailable = { loadBannerAd(forceReload = true) },
+            onLost = { loadBannerAd(forceReload = true) }
         )
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
     }
 
-    fun loadBannerAd() {
+    fun loadBannerAd(forceReload: Boolean = false) {
         val binding = _binding ?: return
         if (!isAdded) return
+        if (hasAttemptedBannerLoadInCurrentSession && !forceReload) {
+            return
+        }
+        hasAttemptedBannerLoadInCurrentSession = true
         if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
             !AdsConfigManager.config.canShowBannerAppDrawer
         ) {
@@ -122,9 +127,14 @@ class AppDrawerFragment : Fragment() {
         super.onResume()
         uninstallInProgress = false
         viewModel.refreshApps()
-        loadBannerAd()
+        loadBannerAd(forceReload = true)
         LauncherAdsHelper.preloadInterstitial(requireActivity())
         LauncherAdsHelper.preloadAppOpen(requireActivity())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        hasAttemptedBannerLoadInCurrentSession = false
     }
 
     private fun setupTabs(showFavorites: Boolean) {
@@ -348,7 +358,10 @@ class AppDrawerFragment : Fragment() {
                 }
                 launch {
                     launcherViewModel.drawerOpen.collect { open ->
-                        if (!open) hideKeyboard()
+                        if (!open) {
+                            hideKeyboard()
+                            hasAttemptedBannerLoadInCurrentSession = false
+                        }
                     }
                 }
                 launch {

@@ -140,6 +140,8 @@ class FindPhoneFragment : Fragment() {
         refreshSettingsUI()
     }
 
+    private var hasAttemptedBannerLoadInCurrentSession = false
+
     override fun onResume() {
         super.onResume()
         context?.let { ctx ->
@@ -148,8 +150,13 @@ class FindPhoneFragment : Fragment() {
         updateLocalizedTexts()
         viewModel.refreshState(requireContext())
         refreshSettingsUI()
-        loadBannerAd()
+        loadBannerAd(forceReload = true)
         checkAfterCallPermissions()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        hasAttemptedBannerLoadInCurrentSession = false
     }
 
     private fun checkAfterCallPermissions() {
@@ -166,9 +173,13 @@ class FindPhoneFragment : Fragment() {
         }
     }
 
-    fun loadBannerAd() {
+    fun loadBannerAd(forceReload: Boolean = false) {
         val binding = _binding ?: return
         if (!isAdded) return
+        if (hasAttemptedBannerLoadInCurrentSession && !forceReload) {
+            return
+        }
+        hasAttemptedBannerLoadInCurrentSession = true
         if (!com.example.findmyphonebyclaplauncher.util.NetworkUtil.isNetworkAvailable(context) ||
             !com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.config.canShowBannerFindPhone
         ) {
