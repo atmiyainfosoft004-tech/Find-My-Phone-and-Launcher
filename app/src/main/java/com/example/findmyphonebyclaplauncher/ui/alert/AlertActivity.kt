@@ -30,9 +30,16 @@ import kotlinx.coroutines.launch
  */
 class AlertActivity : BaseActivity() {
 
+    companion object {
+        @Volatile
+        var isAlertActivityVisible = false
+            private set
+    }
+
     private lateinit var binding: ActivityAlertBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        isAlertActivityVisible = true
         // 1. Set window features FIRST before super.onCreate
         requestWindowFeature(android.view.Window.FEATURE_NO_TITLE)
 
@@ -89,8 +96,14 @@ class AlertActivity : BaseActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        isAlertActivityVisible = true
+    }
+
     override fun onResume() {
         super.onResume()
+        isAlertActivityVisible = true
         loadBannerAd()
     }
 
@@ -135,6 +148,7 @@ class AlertActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
+        isAlertActivityVisible = false
         com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.destroyBanner(binding.alertBanner.bannerAdFrameLayout)
         super.onDestroy()
         // Stop alert only if the activity is explicitly finishing (user stop / duration timeout)

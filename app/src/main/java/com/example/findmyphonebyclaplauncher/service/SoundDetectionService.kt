@@ -20,6 +20,7 @@ import com.example.findmyphonebyclaplauncher.R
 import com.example.findmyphonebyclaplauncher.data.local.UserPreferencesDataSource
 import com.example.findmyphonebyclaplauncher.domain.detector.ClapDetector
 import com.example.findmyphonebyclaplauncher.domain.detector.WhistleDetector
+import com.example.findmyphonebyclaplauncher.ui.alert.AlertActivity
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.utils.Constants
 import com.example.findmyphonebyclaplauncher.utils.PermissionManager
@@ -105,17 +106,27 @@ class SoundDetectionService : Service() {
                 Log.d(tag, "Clap $count detected")
             },
             onThreeClapsDetected = {
-                Log.d(tag, "Three claps → triggering Find Phone")
-                val flashEnabled = userPrefs.isFlashlightEnabled
-                (application as App).findPhoneManager.triggerFindPhone(flashEnabled)
+                val findPhoneManager = (application as? App)?.findPhoneManager
+                if (findPhoneManager?.isAlertActive() != true && !AlertActivity.isAlertActivityVisible) {
+                    Log.d(tag, "Three claps → triggering Find Phone")
+                    val flashEnabled = userPrefs.isFlashlightEnabled
+                    findPhoneManager?.triggerFindPhone(flashEnabled)
+                } else {
+                    Log.d(tag, "Three claps detected but alert is already active — ignoring")
+                }
             }
         )
 
         whistleDetector = WhistleDetector(
             onWhistleDetected = {
-                Log.d(tag, "Whistle → triggering Find Phone")
-                val flashEnabled = userPrefs.isFlashlightEnabled
-                (application as App).findPhoneManager.triggerFindPhone(flashEnabled)
+                val findPhoneManager = (application as? App)?.findPhoneManager
+                if (findPhoneManager?.isAlertActive() != true && !AlertActivity.isAlertActivityVisible) {
+                    Log.d(tag, "Whistle → triggering Find Phone")
+                    val flashEnabled = userPrefs.isFlashlightEnabled
+                    findPhoneManager?.triggerFindPhone(flashEnabled)
+                } else {
+                    Log.d(tag, "Whistle detected but alert is already active — ignoring")
+                }
             }
         )
 
@@ -241,6 +252,15 @@ class SoundDetectionService : Service() {
                     if (read < 0) {
                         Log.e(tag, "AudioRecord.read returned error code: $read")
                         break
+                    }
+
+                    val findPhoneManager = (application as? App)?.findPhoneManager
+                    val isAlertRunning = findPhoneManager?.isAlertActive() == true || AlertActivity.isAlertActivityVisible
+                    if (isAlertRunning) {
+                        clapDetector.reset()
+                        whistleDetector.reset()
+                        warmupUntilTime = System.currentTimeMillis() + 600L
+                        continue
                     }
 
                     if (System.currentTimeMillis() < warmupUntilTime) {

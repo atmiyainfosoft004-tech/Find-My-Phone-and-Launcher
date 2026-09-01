@@ -285,9 +285,13 @@ class FindPhoneManager(private val context: Context) {
     }
 
     private fun launchAlertActivity() {
+        if (AlertActivity.isAlertActivityVisible) {
+            Log.d(tag, "AlertActivity is already visible — skipping launch")
+            return
+        }
         try {
             val intent = Intent(context, AlertActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
             }
             context.startActivity(intent)
         } catch (e: Exception) {
