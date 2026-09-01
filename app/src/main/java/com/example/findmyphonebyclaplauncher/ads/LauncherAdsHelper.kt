@@ -37,8 +37,11 @@ object LauncherAdsHelper {
     fun preloadLanguageInterstitial(activity: Activity) {
         if (!NetworkUtil.isNetworkAvailable(activity)) return
         val config = AdsConfigManager.config
-        if (config.canShowInterLanguage) {
+        if (config.canShowInterLanguage && config.preloadAdInterstitial) {
+            Log.d(TAG, "preloadLanguageInterstitial: Initiating preload on Language screen")
             InterAdLoader.instance?.loadInterstitialAds(activity)
+        } else {
+            Log.d(TAG, "preloadLanguageInterstitial: Suppressed. canShowInterLanguage=${config.canShowInterLanguage}, preloadAdInterstitial=${config.preloadAdInterstitial}")
         }
     }
 

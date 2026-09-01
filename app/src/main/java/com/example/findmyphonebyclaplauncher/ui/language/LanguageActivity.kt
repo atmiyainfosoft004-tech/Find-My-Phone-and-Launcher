@@ -40,7 +40,9 @@ class LanguageActivity : BaseActivity() {
         setupRecyclerView(savedInstanceState)
         setupListeners()
         loadBannerAd()
-        LauncherAdsHelper.preloadLanguageInterstitial(this)
+        if (isFirstTime) {
+            LauncherAdsHelper.preloadLanguageInterstitial(this)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -56,6 +58,9 @@ class LanguageActivity : BaseActivity() {
         super.onResume()
         isUserLeaving = false
         loadBannerAd()
+        if (isFirstTime) {
+            LauncherAdsHelper.preloadLanguageInterstitial(this)
+        }
     }
 
     override fun onUserLeaveHint() {
@@ -236,8 +241,13 @@ class LanguageActivity : BaseActivity() {
             // 3. Persist the chosen language via LocaleHelper / SharedPreferences and update locale
             LocaleHelper.setLocale(this, selectedItem.code)
 
-            // 4. Show Interstitial Ad then navigate to next screen
-            LauncherAdsHelper.showLanguageDoneInterstitial(this) {
+            // 4. Interstitial ad flow executes ONLY for the first-time Language onboarding flow
+            if (isFirstTime) {
+                LauncherAdsHelper.showLanguageDoneInterstitial(this) {
+                    proceedToNextScreen()
+                }
+            } else {
+                // Opened from Settings/Menu -> Zero Interstitial ad requests, zero loading dialog
                 proceedToNextScreen()
             }
         }

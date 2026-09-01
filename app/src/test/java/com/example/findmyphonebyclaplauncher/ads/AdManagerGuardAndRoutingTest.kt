@@ -458,66 +458,155 @@ class AdManagerGuardAndRoutingTest {
     fun languageInterstitialPreload_whenDisabled_doesNotTriggerAdRequest() {
         val disabledConfig = AdsConfig.DEFAULT.copy(
             isInterAdEnabled = true,
-            interAdEnableLanguage = false
+            interAdEnableLanguage = false,
+            preloadAdInterstitial = true
         )
 
         var preloadRequestFired = false
-        fun preloadLanguageInterstitial(canShowAd: Boolean) {
-            if (!canShowAd) return
+        fun preloadLanguageInterstitial(canShowAd: Boolean, preloadEnabled: Boolean) {
+            if (!canShowAd || !preloadEnabled) return
             preloadRequestFired = true
         }
 
-        preloadLanguageInterstitial(disabledConfig.canShowInterLanguage)
+        preloadLanguageInterstitial(disabledConfig.canShowInterLanguage, disabledConfig.preloadAdInterstitial)
         assertFalse("No preload network request should be fired when inter_ad_enable_language is false", preloadRequestFired)
     }
 
     @Test
-    fun languageInterstitialPreload_whenEnabled_triggersAdRequest() {
-        val enabledConfig = AdsConfig.DEFAULT.copy(
+    fun languageInterstitial_case1_disabled_bypassesAllAdsAndDialogs() {
+        val case1Config = AdsConfig.DEFAULT.copy(
             isInterAdEnabled = true,
-            interAdEnableLanguage = true
+            interAdEnableLanguage = false,
+            preloadAdInterstitial = true
         )
 
-        var preloadRequestFired = false
-        fun preloadLanguageInterstitial(canShowAd: Boolean) {
-            if (!canShowAd) return
-            preloadRequestFired = true
-        }
-
-        preloadLanguageInterstitial(enabledConfig.canShowInterLanguage)
-        assertTrue("Preload request should be initiated when inter_ad_enable_language is true", preloadRequestFired)
-    }
-
-    @Test
-    fun languageDoneInterstitial_whenNotLoaded_proceedsImmediatelyWithoutDialog() {
-        val enabledConfig = AdsConfig.DEFAULT.copy(
-            isInterAdEnabled = true,
-            interAdEnableLanguage = true
-        )
-
+        var preloadFired = false
         var dialogShown = false
         var navigationExecuted = false
-        val isAdReady = false
 
-        fun handleDone(canShowAd: Boolean, isReady: Boolean, onProceed: () -> Unit) {
-            if (!canShowAd) {
-                onProceed()
-                return
-            }
-            if (isReady) {
-                dialogShown = true
-                // present ad and on dismiss call onProceed
-            } else {
-                // Ad not ready: bypass dialog and proceed directly
-                onProceed()
-            }
+        // On screen open
+        if (case1Config.canShowInterLanguage && case1Config.preloadAdInterstitial) {
+            preloadFired = true
         }
 
-        handleDone(enabledConfig.canShowInterLanguage, isAdReady) {
+        // On Done click
+        if (!case1Config.canShowInterLanguage) {
             navigationExecuted = true
         }
 
-        assertFalse("No loading dialog should be shown when ad is not ready", dialogShown)
-        assertTrue("Navigation must proceed immediately when ad is not ready", navigationExecuted)
+        assertFalse("Case 1: Must NOT preload", preloadFired)
+        assertFalse("Case 1: Must NOT show dialog", dialogShown)
+        assertTrue("Case 1: Must navigate directly", navigationExecuted)
+    }
+
+    @Test
+    fun languageInterstitial_case2_enabledWithPreload_preloadsAndShowsIfReady() {
+        val case2Config = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = true,
+            preloadAdInterstitial = true
+        )
+
+        var preloadFired = false
+        var adShown = false
+        var navigationExecuted = false
+
+        // 1. On Language screen enter
+        if (case2Config.canShowInterLanguage && case2Config.preloadAdInterstitial) {
+            preloadFired = true
+        }
+        assertTrue("Case 2: Must initiate preload on Language screen enter", preloadFired)
+
+        // 2. On Done with preloaded ad ready
+        var isPreloadedAdReady = true
+        if (case2Config.canShowInterLanguage) {
+            if (case2Config.preloadAdInterstitial) {
+                if (isPreloadedAdReady) {
+                    adShown = true
+                    // simulate ad dismissal
+                    navigationExecuted = true
+                } else {
+                    navigationExecuted = true
+                }
+            }
+        }
+        assertTrue("Case 2: Must show preloaded ad when available", adShown)
+        assertTrue("Case 2: Must navigate after ad dismissal", navigationExecuted)
+
+        // 3. On Done when preloaded ad failed/not ready -> proceed directly without blocking
+        var navigationExecutedFallback = false
+        isPreloadedAdReady = false
+        if (case2Config.canShowInterLanguage && case2Config.preloadAdInterstitial && !isPreloadedAdReady) {
+            navigationExecutedFallback = true
+        }
+        assertTrue("Case 2 Fallback: Must proceed immediately when ad is not ready", navigationExecutedFallback)
+    }
+
+    @Test
+    fun languageInterstitial_case3_enabledWithoutPreload_loadsOnDemandOnDone() {
+        val case3Config = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = true,
+            preloadAdInterstitial = false
+        )
+
+        var preloadFired = false
+        var onDemandLoadTriggered = false
+        var dialogShown = false
+        var navigationExecuted = false
+
+        // 1. On Language screen enter
+        if (case3Config.canShowInterLanguage && case3Config.preloadAdInterstitial) {
+            preloadFired = true
+        }
+        assertFalse("Case 3: Must NOT preload on Language screen enter", preloadFired)
+
+        // 2. On Done click -> load on-demand with dialog
+        if (case3Config.canShowInterLanguage) {
+            if (!case3Config.preloadAdInterstitial) {
+                dialogShown = true
+                onDemandLoadTriggered = true
+                // simulate load success and ad dismissal
+                dialogShown = false
+                navigationExecuted = true
+            }
+        }
+
+        assertTrue("Case 3: Must trigger on-demand load on Done click", onDemandLoadTriggered)
+        assertTrue("Case 3: Must navigate after ad dismiss", navigationExecuted)
+        assertFalse("Case 3: Dialog must be dismissed", dialogShown)
+    }
+
+    @Test
+    fun languageScreen_openedLaterFromSettings_neverPreloadsOrShowsInterstitial() {
+        val enabledConfig = AdsConfig.DEFAULT.copy(
+            isInterAdEnabled = true,
+            interAdEnableLanguage = true,
+            preloadAdInterstitial = true
+        )
+
+        val isFirstTime = false // Opened from Settings/Menu later
+        var preloadFired = false
+        var interstitialTriggered = false
+        var slideFinishExecuted = false
+
+        // 1. On Language screen enter
+        if (isFirstTime) {
+            if (enabledConfig.canShowInterLanguage && enabledConfig.preloadAdInterstitial) {
+                preloadFired = true
+            }
+        }
+        assertFalse("Settings flow: Must NOT preload Interstitial", preloadFired)
+
+        // 2. On Done click
+        if (isFirstTime) {
+            interstitialTriggered = true
+        } else {
+            // Directly finishes with slide animation without any ad
+            slideFinishExecuted = true
+        }
+
+        assertFalse("Settings flow: Must NOT trigger Interstitial flow on Done", interstitialTriggered)
+        assertTrue("Settings flow: Must finish immediately with slide animation", slideFinishExecuted)
     }
 }

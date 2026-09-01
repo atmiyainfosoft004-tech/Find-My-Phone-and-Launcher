@@ -212,7 +212,7 @@ class InterAdLoader {
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 logAds(activity, "inter_dismissed")
-                if (ads.canShowInter && NetworkUtil.isNetworkAvailable(activity)) {
+                if (ads.canShowInter && ads.preloadAdInterstitial && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
                 listener.onDismiss()
@@ -225,7 +225,7 @@ class InterAdLoader {
                 isInterstitialShowing = false
                 SystemUiHelper.applyStickyImmersiveMode(activity)
                 logAds(activity, "inter_failed_to_show_" + adError.code)
-                if (ads.canShowInter && NetworkUtil.isNetworkAvailable(activity)) {
+                if (ads.canShowInter && ads.preloadAdInterstitial && NetworkUtil.isNetworkAvailable(activity)) {
                     loadInterstitialAd(activity)
                 }
                 listener.onDismiss()
@@ -263,39 +263,76 @@ class InterAdLoader {
                 return@runWhenMobileAdsReady
             }
 
-            if (isInterstitialReady) {
-                Log.d("InterstitialAd", "showLanguageDoneInterstitial: Preloaded ad ready -> presenting ad")
-                val loadingDialog = AdLoadingDialog(activity)
-                var isActionHandled = false
+            // Case 2: Preload enabled (preload_ad_interstitial == true)
+            if (ads.preloadAdInterstitial) {
+                if (isInterstitialReady) {
+                    Log.d("InterstitialAd", "showLanguageDoneInterstitial: Preloaded ad ready -> presenting ad")
+                    val loadingDialog = AdLoadingDialog(activity)
+                    var isActionHandled = false
 
-                fun safeDismissAndPresent() {
-                    if (isActionHandled) return
-                    isActionHandled = true
-                    loadingDialog.dismiss()
-                    if (!ads.canShowInterLanguage || activity.isFinishing || activity.isDestroyed) {
-                        Log.d("InterstitialAd", "showLanguageDoneInterstitial: canShowInterLanguage is false before ad display -> bypassing ad")
-                        listener.onDismiss()
-                        return
-                    }
-                    presentInterstitial(activity, isFromBack = false, listener)
-                }
-
-                loadingDialog.show(timeoutMs = 1200L) {
-                    Log.d("InterstitialAd", "showLanguageDoneInterstitial: Loading dialog timeout -> presenting ad")
-                    safeDismissAndPresent()
-                }
-
-                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                    if (!activity.isFinishing && !activity.isDestroyed) {
-                        safeDismissAndPresent()
-                    } else {
+                    fun safeDismissAndPresent() {
+                        if (isActionHandled) return
+                        isActionHandled = true
                         loadingDialog.dismiss()
-                        listener.onDismiss()
+                        if (!ads.canShowInterLanguage || activity.isFinishing || activity.isDestroyed) {
+                            Log.d("InterstitialAd", "showLanguageDoneInterstitial: canShowInterLanguage is false before ad display -> bypassing ad")
+                            listener.onDismiss()
+                            return
+                        }
+                        presentInterstitial(activity, isFromBack = false, listener)
                     }
-                }, 350L)
-            } else {
-                Log.d("InterstitialAd", "showLanguageDoneInterstitial: Ad not loaded -> continuing directly without dialog")
+
+                    loadingDialog.show(timeoutMs = 1200L) {
+                        Log.d("InterstitialAd", "showLanguageDoneInterstitial: Loading dialog timeout -> presenting ad")
+                        safeDismissAndPresent()
+                    }
+
+                    android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                        if (!activity.isFinishing && !activity.isDestroyed) {
+                            safeDismissAndPresent()
+                        } else {
+                            loadingDialog.dismiss()
+                            listener.onDismiss()
+                        }
+                    }, 350L)
+                } else {
+                    Log.d("InterstitialAd", "showLanguageDoneInterstitial: Preload enabled but ad not available/failed -> continuing directly without dialog")
+                    listener.onDismiss()
+                }
+                return@runWhenMobileAdsReady
+            }
+
+            // Case 3: Preload disabled (preload_ad_interstitial == false) -> On-demand load on Done click
+            Log.d("InterstitialAd", "showLanguageDoneInterstitial: Preload disabled (preload_ad_interstitial=false) -> loading on-demand with dialog")
+            val loadingDialog = AdLoadingDialog(activity)
+            var actionExecuted = false
+
+            fun safeDismissAndContinue() {
+                if (actionExecuted) return
+                actionExecuted = true
+                loadingDialog.dismiss()
+                SystemUiHelper.applyStickyImmersiveMode(activity)
                 listener.onDismiss()
+            }
+
+            loadingDialog.show(timeoutMs = 2500L) {
+                Log.d("InterstitialAd", "showLanguageDoneInterstitial: On-demand loading dialog TIMEOUT -> proceeding")
+                safeDismissAndContinue()
+            }
+
+            loadInterstitialAd(activity) {
+                if (actionExecuted) return@loadInterstitialAd
+                if (activity.isFinishing || activity.isDestroyed || !ads.canShowInterLanguage) {
+                    safeDismissAndContinue()
+                    return@loadInterstitialAd
+                }
+                if (interstitialAd != null) {
+                    loadingDialog.dismiss()
+                    presentInterstitial(activity, isFromBack = false, listener)
+                } else {
+                    Log.d("InterstitialAd", "showLanguageDoneInterstitial: On-demand ad load failed -> proceeding")
+                    safeDismissAndContinue()
+                }
             }
         }
     }
