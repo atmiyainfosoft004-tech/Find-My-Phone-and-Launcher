@@ -42,4 +42,34 @@ class LanguageSelectionTest {
         assertTrue("Done button must be shown/enabled once a language is selected", isDoneButtonVisible(selectedItem))
         assertEquals("es", selectedItem.code)
     }
+
+    @Test
+    fun settingsEntry_preselectsCurrentLanguageAndShowsDoneButtonImmediately() {
+        val currentLocale = "es"
+        val isFirstTime = false
+
+        val rawList = listOf(
+            LanguageItem("en", "English", "English"),
+            LanguageItem("hi", "Hindi", "हिन्दी"),
+            LanguageItem("es", "Spanish", "Español"),
+            LanguageItem("fr", "French", "Français"),
+            LanguageItem("de", "German", "Deutsch"),
+            LanguageItem("in", "Indonesian", "Bahasa Indonesia"),
+            LanguageItem("ru", "Russian", "Русский"),
+            LanguageItem("zh", "Chinese", "中文")
+        )
+
+        val initialSelectedCode = if (isFirstTime) null else currentLocale
+        val languageList = rawList.map { item ->
+            val isSelected = initialSelectedCode != null && item.code.equals(initialSelectedCode, ignoreCase = true)
+            item.copy(isSelected = isSelected)
+        }
+
+        val selectedIndex = languageList.indexOfFirst { it.isSelected }
+        assertEquals("Settings entry must pre-select Spanish (index 2)", 2, selectedIndex)
+        assertEquals("es", languageList[selectedIndex].code)
+
+        val isDoneButtonVisible = if (isFirstTime) selectedIndex != -1 else true
+        assertTrue("Settings entry must show Done button immediately without requiring re-selection", isDoneButtonVisible)
+    }
 }

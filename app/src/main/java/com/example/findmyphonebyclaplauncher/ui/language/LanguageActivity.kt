@@ -173,7 +173,15 @@ class LanguageActivity : BaseActivity() {
     }
 
     private fun setupRecyclerView(savedInstanceState: Bundle? = null) {
-        val languageList = getSupportedLanguages()
+        val initialSelectedCode = if (isFirstTime) {
+            null
+        } else {
+            val currentLocale = LocaleHelper.getLocale(this)
+            val prefsLang = UserPreferencesDataSource(this).selectedLanguage
+            if (currentLocale.isNotBlank()) currentLocale else prefsLang
+        }
+
+        val languageList = getSupportedLanguages(initialSelectedCode)
 
         adapter = LanguageAdapter(languageList) { _ ->
             updateDoneButtonState()
@@ -194,21 +202,31 @@ class LanguageActivity : BaseActivity() {
 
     private fun updateDoneButtonState() {
         val hasSelection = adapter.getSelectedItem() != null
-        binding.btnApplyLanguage.isVisible = hasSelection
-        binding.btnApplyLanguage.isEnabled = hasSelection
+        val shouldShowDone = if (isFirstTime) {
+            hasSelection
+        } else {
+            true
+        }
+        binding.btnApplyLanguage.isVisible = shouldShowDone
+        binding.btnApplyLanguage.isEnabled = shouldShowDone && (hasSelection || !isFirstTime)
     }
 
-    private fun getSupportedLanguages(): List<LanguageItem> {
-        return listOf(
-            LanguageItem("en", "English", "English", isSelected = false),
-            LanguageItem("hi", "Hindi", "हिन्दी", isSelected = false),
-            LanguageItem("es", "Spanish", "Español", isSelected = false),
-            LanguageItem("fr", "French", "Français", isSelected = false),
-            LanguageItem("de", "German", "Deutsch", isSelected = false),
-            LanguageItem("in", "Indonesian", "Bahasa Indonesia", isSelected = false),
-            LanguageItem("ru", "Russian", "Русский", isSelected = false),
-            LanguageItem("zh", "Chinese", "中文", isSelected = false)
+    private fun getSupportedLanguages(selectedCode: String? = null): List<LanguageItem> {
+        val rawList = listOf(
+            LanguageItem("en", "English", "English"),
+            LanguageItem("hi", "Hindi", "हिन्दी"),
+            LanguageItem("es", "Spanish", "Español"),
+            LanguageItem("fr", "French", "Français"),
+            LanguageItem("de", "German", "Deutsch"),
+            LanguageItem("in", "Indonesian", "Bahasa Indonesia"),
+            LanguageItem("ru", "Russian", "Русский"),
+            LanguageItem("zh", "Chinese", "中文")
         )
+
+        return rawList.map { item ->
+            val isSelected = selectedCode != null && item.code.equals(selectedCode, ignoreCase = true)
+            item.copy(isSelected = isSelected)
+        }
     }
 
     private fun setupListeners() {
