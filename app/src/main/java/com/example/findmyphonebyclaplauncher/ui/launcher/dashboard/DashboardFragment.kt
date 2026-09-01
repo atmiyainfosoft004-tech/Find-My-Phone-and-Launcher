@@ -117,14 +117,12 @@ class DashboardFragment : Fragment() {
             return
         }
 
-        if (binding.nativeAdFrameLayout.childCount == 0) {
-            LauncherAdsHelper.showDashboardNative(
-                requireActivity(),
-                binding.nativeAdFrameLayout,
-                binding.nativeAdShimmerFrameLayout.root,
-                binding.nativeAdCardView
-            )
-        }
+        LauncherAdsHelper.showDashboardNative(
+            requireActivity(),
+            binding.nativeAdFrameLayout,
+            binding.nativeAdShimmerFrameLayout.root,
+            binding.nativeAdCardView
+        )
     }
 
     private fun updateLocalizedTexts() {
@@ -152,6 +150,9 @@ class DashboardFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        _binding?.let { b ->
+            com.example.findmyphonebyclaplauncher.ads.NativeAdLoader.instance?.destroyNative(b.nativeAdFrameLayout)
+        }
         AdsConfigManager.removeConfigChangeListener(configChangeListener)
         super.onDestroyView()
         _binding = null

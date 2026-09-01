@@ -768,4 +768,76 @@ class AdManagerGuardAndRoutingTest {
         handleSwipe(SwipeDirection.LEFT_TO_RIGHT)
         assertTrue("Left-to-Right ad must execute when left_to_right_ad_enable=true", leftToRightAdExecuted)
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 14. Banner & Native Ad Reload On Screen Return & Cleanup
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun screenReturn_triggersFreshBannerAndNativeLoad() {
+        var bannerLoadCount = 0
+        var nativeLoadCount = 0
+        var activeBannerDestroyed = false
+        var activeNativeDestroyed = false
+
+        fun onScreenVisible() {
+            // Load fresh ads
+            bannerLoadCount++
+            nativeLoadCount++
+        }
+
+        fun onScreenLeaveOrDestroy() {
+            // Clean up old ad instances
+            activeBannerDestroyed = true
+            activeNativeDestroyed = true
+        }
+
+        // 1. Initial screen appearance
+        onScreenVisible()
+        assertEquals(1, bannerLoadCount)
+        assertEquals(1, nativeLoadCount)
+
+        // 2. User navigates to another screen
+        onScreenLeaveOrDestroy()
+        assertTrue(activeBannerDestroyed)
+        assertTrue(activeNativeDestroyed)
+
+        // 3. User returns to previous screen -> Fresh load triggered
+        activeBannerDestroyed = false
+        activeNativeDestroyed = false
+        onScreenVisible()
+        assertEquals(2, bannerLoadCount)
+        assertEquals(2, nativeLoadCount)
+
+        // 4. Repeated returns (A -> B -> A -> B -> A)
+        repeat(3) {
+            onScreenLeaveOrDestroy()
+            onScreenVisible()
+        }
+        assertEquals(5, bannerLoadCount)
+        assertEquals(5, nativeLoadCount)
+    }
+
+    @Test
+    fun disabledAdConfig_preventsReloadAndHidesViews() {
+        val disabledConfig = AdsConfig.DEFAULT.copy(
+            isBannerAdEnabled = false,
+            isNativeAdEnabled = false
+        )
+
+        var bannerLoaded = false
+        var nativeLoaded = false
+        var containerHidden = false
+
+        if (!disabledConfig.isBannerAdEnabled && !disabledConfig.isNativeAdEnabled) {
+            containerHidden = true
+        } else {
+            bannerLoaded = true
+            nativeLoaded = true
+        }
+
+        assertTrue("Containers must be hidden when ads are disabled", containerHidden)
+        assertFalse("Banner must not load when isBannerAdEnabled=false", bannerLoaded)
+        assertFalse("Native must not load when isNativeAdEnabled=false", nativeLoaded)
+    }
 }

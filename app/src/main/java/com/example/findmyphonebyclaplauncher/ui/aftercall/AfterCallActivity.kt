@@ -152,4 +152,12 @@ class AfterCallActivity : BaseActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        val adFrame = findViewById<FrameLayout>(R.id.bannerAdFrameLayout)
+        if (adFrame != null) {
+            BannerAdLoader.instance?.destroyBanner(adFrame)
+        }
+        super.onDestroy()
+    }
 }

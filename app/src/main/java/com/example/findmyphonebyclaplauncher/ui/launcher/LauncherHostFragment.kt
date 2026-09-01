@@ -31,6 +31,7 @@ import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
 import com.example.findmyphonebyclaplauncher.ads.SwipeDirection
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.launcher.dashboard.DashboardFragment
+import com.example.findmyphonebyclaplauncher.ui.launcher.findphone.FindPhoneFragment
 
 class LauncherHostFragment : Fragment() {
 
@@ -97,6 +98,19 @@ class LauncherHostFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         loadSystemWallpaper()
+        if (_binding != null) {
+            when (binding.viewPager.currentItem) {
+                LauncherPagerAdapter.PAGE_FIND_PHONE -> {
+                    (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_FIND_PHONE}") as? FindPhoneFragment)?.loadBannerAd()
+                }
+                LauncherPagerAdapter.PAGE_DASHBOARD -> {
+                    (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_DASHBOARD}") as? DashboardFragment)?.refreshNativeAd()
+                }
+            }
+            if (::drawerMotion.isInitialized && drawerMotion.isOpen) {
+                (childFragmentManager.findFragmentByTag(DRAWER_TAG) as? AppDrawerFragment)?.loadBannerAd()
+            }
+        }
     }
 
     private fun loadSystemWallpaper() {
@@ -157,6 +171,8 @@ class LauncherHostFragment : Fragment() {
                 updateSwipeEnabled()
                 if (position == LauncherPagerAdapter.PAGE_DASHBOARD) {
                     (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_DASHBOARD}") as? DashboardFragment)?.refreshNativeAd()
+                } else if (position == LauncherPagerAdapter.PAGE_FIND_PHONE) {
+                    (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_FIND_PHONE}") as? FindPhoneFragment)?.loadBannerAd()
                 }
                 maybeShowSwipeAd(direction)
             }

@@ -111,7 +111,6 @@ class OnboardingActivity : BaseActivity() {
             )
             return
         }
-        if (binding.onboardingBanner.bannerAdFrameLayout.childCount > 0) return
         com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showOnboardingBanner(
             this,
             binding.onboardingBanner.bannerAdFrameLayout,
@@ -198,5 +197,10 @@ class OnboardingActivity : BaseActivity() {
         }
         startActivity(intent)
         finish()
+    }
+
+    override fun onDestroy() {
+        com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.destroyBanner(binding.onboardingBanner.bannerAdFrameLayout)
+        super.onDestroy()
     }
 }

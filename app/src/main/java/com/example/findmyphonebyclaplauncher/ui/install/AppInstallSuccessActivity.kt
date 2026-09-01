@@ -51,6 +51,16 @@ class AppInstallSuccessActivity : BaseActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        loadNativeAd()
+    }
+
+    override fun onDestroy() {
+        NativeAdLoader.instance?.destroyNative(binding.nativeAdFrameLayout)
+        super.onDestroy()
+    }
+
     private fun bindAppDetails() {
         val pm = packageManager
         val extraAppLabel = intent.getStringExtra(EXTRA_APP_LABEL)

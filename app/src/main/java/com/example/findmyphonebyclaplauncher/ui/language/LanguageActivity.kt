@@ -119,7 +119,6 @@ class LanguageActivity : BaseActivity() {
             )
             return
         }
-        if (binding.languageBanner.bannerAdFrameLayout.childCount > 0) return
         com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showLanguageRectBanner(
             this,
             binding.languageBanner.bannerAdFrameLayout,
@@ -294,6 +293,11 @@ class LanguageActivity : BaseActivity() {
         LauncherAdsHelper.showBackAd(this) {
             finishWithSlideAnimation()
         }
+    }
+
+    override fun onDestroy() {
+        com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.destroyBanner(binding.languageBanner.bannerAdFrameLayout)
+        super.onDestroy()
     }
 
     companion object {

@@ -110,7 +110,6 @@ class AppDrawerFragment : Fragment() {
             )
             return
         }
-        if (binding.drawerBanner.bannerAdFrameLayout.childCount > 0) return
         LauncherAdsHelper.showDrawerBanner(
             requireActivity(),
             binding.drawerBanner.bannerAdFrameLayout,
@@ -362,6 +361,9 @@ class AppDrawerFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        _binding?.let { b ->
+            BannerAdLoader.instance?.destroyBanner(b.drawerBanner.bannerAdFrameLayout)
+        }
         AdsConfigManager.removeConfigChangeListener(configChangeListener)
         unregisterPackageRemovedReceiver()
         contextPopup?.dismiss()

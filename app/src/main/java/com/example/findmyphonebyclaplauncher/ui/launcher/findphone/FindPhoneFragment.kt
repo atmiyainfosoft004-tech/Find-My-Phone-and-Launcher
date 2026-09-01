@@ -179,7 +179,6 @@ class FindPhoneFragment : Fragment() {
             )
             return
         }
-        if (binding.findPhoneBanner.bannerAdFrameLayout.childCount > 0) return
         com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper.showFindPhoneBanner(
             requireActivity(),
             binding.findPhoneBanner.bannerAdFrameLayout,
@@ -478,6 +477,9 @@ class FindPhoneFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        _binding?.let { b ->
+            com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.destroyBanner(b.findPhoneBanner.bannerAdFrameLayout)
+        }
         com.example.findmyphonebyclaplauncher.ads.config.AdsConfigManager.removeConfigChangeListener(configChangeListener)
         super.onDestroyView()
         _binding = null

@@ -74,6 +74,20 @@ class NativeAdLoader {
         }
     }
 
+    fun destroyNative(ltNativeAds: FrameLayout) {
+        for (i in 0 until ltNativeAds.childCount) {
+            val child = ltNativeAds.getChildAt(i)
+            if (child is NativeAdView) {
+                try {
+                    child.destroy()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error destroying NativeAdView: ${e.message}")
+                }
+            }
+        }
+        ltNativeAds.removeAllViews()
+    }
+
     fun hideNativeContainer(
         ltNativeAds: FrameLayout,
         ltNativeShimmerAds: FrameLayout,
@@ -81,7 +95,7 @@ class NativeAdLoader {
     ) {
         stopShimmerAnimation(ltNativeShimmerAds)
         ltNativeShimmerAds.visibility = View.GONE
-        ltNativeAds.removeAllViews()
+        destroyNative(ltNativeAds)
         ltNativeAds.visibility = View.GONE
         cardView?.visibility = View.GONE
     }
@@ -503,7 +517,7 @@ class NativeAdLoader {
 
         Log.d(TAG, "On-demand Native Ad load: Showing shimmer layout for $type (Unit ID: $adUnitID)")
         cardView?.visibility = View.VISIBLE
-        ltUniversal.removeAllViews()
+        destroyNative(ltUniversal)
         ltUniversal.visibility = View.GONE
         startShimmerAnimation(adsNativeBigLoadingBinding)
 
@@ -722,7 +736,7 @@ class NativeAdLoader {
                 }
             }
         }
-        ltUniversal.removeAllViews()
+        destroyNative(ltUniversal)
         logAds(activity, "native_Showed_$type")
         ltUniversal.addView(adView)
 

@@ -78,6 +78,20 @@ class BannerAdLoader {
         }
     }
 
+    fun destroyBanner(frameLayout: FrameLayout) {
+        for (i in 0 until frameLayout.childCount) {
+            val child = frameLayout.getChildAt(i)
+            if (child is AdView) {
+                try {
+                    child.destroy()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error destroying AdView: ${e.message}")
+                }
+            }
+        }
+        frameLayout.removeAllViews()
+    }
+
     fun hideBannerContainer(
         frameLayout: FrameLayout,
         shimmerFrameLayout: View,
@@ -85,7 +99,7 @@ class BannerAdLoader {
     ) {
         stopShimmerAnimation(shimmerFrameLayout)
         shimmerFrameLayout.visibility = View.GONE
-        frameLayout.removeAllViews()
+        destroyBanner(frameLayout)
         frameLayout.visibility = View.GONE
         rootContainer?.visibility = View.GONE
 
@@ -421,7 +435,7 @@ class BannerAdLoader {
             }
             stopShimmerAnimation(shimmerFrameLayout)
             shimmerFrameLayout.visibility = View.GONE
-            frameLayout.removeAllViews()
+            destroyBanner(frameLayout)
             frameLayout.addView(preloaded)
             frameLayout.visibility = View.VISIBLE
             rootContainer?.visibility = View.VISIBLE
@@ -525,7 +539,7 @@ class BannerAdLoader {
                 hideBannerContainer(frameLayout, shimmerFrameLayout, rootContainer)
             }
         }
-        frameLayout.removeAllViews()
+        destroyBanner(frameLayout)
         frameLayout.addView(adView)
         logAds(activity, "banner_req")
         adView.loadAd(AdRequest.Builder().build())
@@ -584,7 +598,7 @@ class BannerAdLoader {
                 if (adView.parent != null) {
                     (adView.parent as ViewGroup).removeView(adView)
                 }
-                frameLayout.removeAllViews()
+                destroyBanner(frameLayout)
                 logAds(activity, "banner_showed")
                 frameLayout.addView(adView)
 
@@ -684,7 +698,7 @@ class BannerAdLoader {
                         if (adView.parent != null) {
                             (adView.parent as ViewGroup).removeView(adView)
                         }
-                        frameLayout.removeAllViews()
+                        destroyBanner(frameLayout)
                         logAds(activity, "banner_showed")
                         frameLayout.addView(adView)
 

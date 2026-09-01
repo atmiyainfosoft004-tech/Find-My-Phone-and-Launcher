@@ -105,7 +105,6 @@ class AlertActivity : BaseActivity() {
             )
             return
         }
-        if (binding.alertBanner.bannerAdFrameLayout.childCount > 0) return
         LauncherAdsHelper.showAlertBanner(
             this,
             binding.alertBanner.bannerAdFrameLayout,
@@ -136,6 +135,7 @@ class AlertActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
+        com.example.findmyphonebyclaplauncher.ads.BannerAdLoader.instance?.destroyBanner(binding.alertBanner.bannerAdFrameLayout)
         super.onDestroy()
         // Stop alert only if the activity is explicitly finishing (user stop / duration timeout)
         if (isFinishing && !isChangingConfigurations) {
