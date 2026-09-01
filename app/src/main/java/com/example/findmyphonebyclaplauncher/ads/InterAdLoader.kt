@@ -419,10 +419,44 @@ class InterAdLoader {
             resetInAppBackCount()
             resetLauncherClickCount()
             resetFailedCountInterstitial()
+            resetRightToLeftCount()
+            resetLeftToRightCount()
         }
 
         private const val KEY_LAUNCHER_CLICK_COUNT = "KeyLauncherClickCount"
         private const val KEY_IN_APP_BACK_COUNT = "KeyInAppBackCount"
+        private const val KEY_RIGHT_TO_LEFT_SWIPE_COUNT = "KeyRightToLeftSwipeCount"
+        private const val KEY_LEFT_TO_RIGHT_SWIPE_COUNT = "KeyLeftToRightSwipeCount"
+
+        fun increaseRightToLeftCount(): Int {
+            val next = rightToLeftCount + 1
+            preference.edit().putInt(KEY_RIGHT_TO_LEFT_SWIPE_COUNT, next).apply()
+            Log.d("AdCounter", "Right->Left swipe count incremented: $next")
+            return next
+        }
+
+        fun resetRightToLeftCount() {
+            Log.d("AdCounter", "Resetting Right->Left swipe counter to 0")
+            preference.edit().putInt(KEY_RIGHT_TO_LEFT_SWIPE_COUNT, 0).apply()
+        }
+
+        val rightToLeftCount: Int
+            get() = preference.getInt(KEY_RIGHT_TO_LEFT_SWIPE_COUNT, 0)
+
+        fun increaseLeftToRightCount(): Int {
+            val next = leftToRightCount + 1
+            preference.edit().putInt(KEY_LEFT_TO_RIGHT_SWIPE_COUNT, next).apply()
+            Log.d("AdCounter", "Left->Right swipe count incremented: $next")
+            return next
+        }
+
+        fun resetLeftToRightCount() {
+            Log.d("AdCounter", "Resetting Left->Right swipe counter to 0")
+            preference.edit().putInt(KEY_LEFT_TO_RIGHT_SWIPE_COUNT, 0).apply()
+        }
+
+        val leftToRightCount: Int
+            get() = preference.getInt(KEY_LEFT_TO_RIGHT_SWIPE_COUNT, 0)
 
         fun increaseInterstitialForwardCount(): Int {
             val next = interstitialForwardCount + 1

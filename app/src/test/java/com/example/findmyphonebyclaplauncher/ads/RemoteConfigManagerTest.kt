@@ -41,6 +41,8 @@ class RemoteConfigManagerTest {
         assertTrue("is_swipe_ad_interstitial should default to true", defaultConfig.isSwipeAdInterstitial)
 
         // Counter triggers
+        assertEquals(3, defaultConfig.rightToLeft)
+        assertEquals(3, defaultConfig.leftToRight)
         assertEquals(3, defaultConfig.interAdCounterTrigger)
         assertEquals(3, defaultConfig.interAdBackCounterTrigger)
         assertEquals(3, defaultConfig.clickAdCounterTrigger)
@@ -89,6 +91,10 @@ class RemoteConfigManagerTest {
                 "is_back_ad_enabled": false,
                 "is_click_ad_interstitial": false,
                 "is_swipe_ad_interstitial": true,
+                "right_to_left_ad_enable": true,
+                "left_to_right_ad_enable": false,
+                "right_to_left_count": 3,
+                "left_to_right_count": 5,
                 "inter_ad_counter_trigger": 5,
                 "inter_ad_back_counter_trigger": 2,
                 "click_ad_counter_trigger": 4,
@@ -113,11 +119,17 @@ class RemoteConfigManagerTest {
 
         assertTrue(parsed.isClickAdEnabled)
         assertTrue(parsed.isSwipeAdEnabled)
+        assertTrue(parsed.rightToLeftAdEnable)
+        assertFalse(parsed.leftToRightAdEnable)
         assertFalse(parsed.isBackAdEnabled)
 
         assertFalse(parsed.isClickAdInterstitial)
         assertTrue(parsed.isSwipeAdInterstitial)
 
+        assertEquals(3, parsed.rightToLeftCount)
+        assertEquals(5, parsed.leftToRightCount)
+        assertEquals(3, parsed.rightToLeft)
+        assertEquals(5, parsed.leftToRight)
         assertEquals(5, parsed.interAdCounterTrigger)
         assertEquals(2, parsed.interAdBackCounterTrigger)
         assertEquals(4, parsed.clickAdCounterTrigger)

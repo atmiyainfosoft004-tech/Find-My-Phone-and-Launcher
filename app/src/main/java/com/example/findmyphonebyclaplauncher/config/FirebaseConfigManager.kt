@@ -61,11 +61,15 @@ object FirebaseConfigManager {
 
                 "is_click_ad_enabled" to true,
                 "is_swipe_ad_enabled" to true,
+                "right_to_left_ad_enable" to true,
+                "left_to_right_ad_enable" to true,
                 "is_back_ad_enabled" to true,
 
                 "is_click_ad_interstitial" to true,
                 "is_swipe_ad_interstitial" to true,
 
+                "right_to_left_count" to 3,
+                "left_to_right_count" to 3,
                 "inter_ad_counter_trigger" to 3,
                 "inter_ad_back_counter_trigger" to 3,
                 "click_ad_counter_trigger" to 3,

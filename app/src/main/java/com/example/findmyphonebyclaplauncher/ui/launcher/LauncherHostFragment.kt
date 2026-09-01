@@ -1,6 +1,7 @@
 package com.example.findmyphonebyclaplauncher.ui.launcher
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 import com.example.findmyphonebyclaplauncher.ads.LauncherAdsHelper
+import com.example.findmyphonebyclaplauncher.ads.SwipeDirection
 import com.example.findmyphonebyclaplauncher.ui.findphone.FindPhoneActivity
 import com.example.findmyphonebyclaplauncher.ui.launcher.dashboard.DashboardFragment
 
@@ -40,6 +42,7 @@ class LauncherHostFragment : Fragment() {
     private lateinit var drawerMotion: AppDrawerMotionController
     private var skipNextPageSelectedAd = true
     private var pageChangeFromUserSwipe = false
+    private var currentPageIndex: Int = LauncherPagerAdapter.PAGE_HOME
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -78,6 +81,7 @@ class LauncherHostFragment : Fragment() {
             LauncherPagerAdapter.PAGE_HOME
         ) ?: LauncherPagerAdapter.PAGE_HOME
 
+        currentPageIndex = targetPage
         binding.viewPager.setCurrentItem(targetPage, false)
         updateChrome(targetPage)
 
@@ -128,27 +132,47 @@ class LauncherHostFragment : Fragment() {
             }
 
             override fun onPageSelected(position: Int) {
+                val previousPage = currentPageIndex
+                currentPageIndex = position
+
+                val direction = when {
+                    previousPage == LauncherPagerAdapter.PAGE_HOME && position == LauncherPagerAdapter.PAGE_DASHBOARD -> {
+                        // Home -> Dashboard: Right-to-Left swipe
+                        SwipeDirection.RIGHT_TO_LEFT
+                    }
+                    previousPage == LauncherPagerAdapter.PAGE_HOME && position == LauncherPagerAdapter.PAGE_FIND_PHONE -> {
+                        // Home -> Phone: Left-to-Right swipe
+                        SwipeDirection.LEFT_TO_RIGHT
+                    }
+                    else -> {
+                        // Dashboard -> Home, Phone -> Home, or other transitions are NOT counted
+                        null
+                    }
+                }
+
+                Log.d("AdCounter", "LauncherHost: onPageSelected -> from page $previousPage to $position (direction: $direction, userSwipe: $pageChangeFromUserSwipe)")
+
                 viewModel.setPage(position)
                 updateChrome(position)
                 updateSwipeEnabled()
                 if (position == LauncherPagerAdapter.PAGE_DASHBOARD) {
                     (childFragmentManager.findFragmentByTag("f${LauncherPagerAdapter.PAGE_DASHBOARD}") as? DashboardFragment)?.refreshNativeAd()
                 }
-                maybeShowSwipeAd()
+                maybeShowSwipeAd(direction)
             }
         })
     }
 
-    private fun maybeShowSwipeAd() {
+    private fun maybeShowSwipeAd(direction: SwipeDirection?) {
         if (skipNextPageSelectedAd) {
             skipNextPageSelectedAd = false
             pageChangeFromUserSwipe = false
             return
         }
-        if (!pageChangeFromUserSwipe) return
+        if (!pageChangeFromUserSwipe || direction == null) return
         pageChangeFromUserSwipe = false
         val activity = activity ?: return
-        LauncherAdsHelper.showSwipeAd(activity)
+        LauncherAdsHelper.showSwipeAd(activity, direction)
     }
 
     private fun setupPageIndicator() {
@@ -376,6 +400,7 @@ class LauncherHostFragment : Fragment() {
         if (childFragmentManager.backStackEntryCount > 0) {
             childFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
         }
+        currentPageIndex = LauncherPagerAdapter.PAGE_HOME
         binding.viewPager.setCurrentItem(LauncherPagerAdapter.PAGE_HOME, false)
         updateChrome(LauncherPagerAdapter.PAGE_HOME)
     }
@@ -383,6 +408,7 @@ class LauncherHostFragment : Fragment() {
     fun setPage(page: Int, smoothScroll: Boolean = false) {
         if (_binding == null) return
         forceCloseDrawer()
+        currentPageIndex = page
         binding.viewPager.setCurrentItem(page, smoothScroll)
         updateChrome(page)
     }

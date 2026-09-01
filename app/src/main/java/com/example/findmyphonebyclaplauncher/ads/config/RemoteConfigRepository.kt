@@ -27,11 +27,17 @@ object RemoteConfigRepository {
     const val KEY_IS_APP_OPEN_AD_ENABLED = "is_app_open_ad_enabled"
     const val KEY_IS_CLICK_AD_ENABLED = "is_click_ad_enabled"
     const val KEY_IS_SWIPE_AD_ENABLED = "is_swipe_ad_enabled"
+    const val KEY_RIGHT_TO_LEFT_AD_ENABLE = "right_to_left_ad_enable"
+    const val KEY_LEFT_TO_RIGHT_AD_ENABLE = "left_to_right_ad_enable"
     const val KEY_IS_BACK_AD_ENABLED = "is_back_ad_enabled"
     const val KEY_IS_CLICK_AD_INTERSTITIAL = "is_click_ad_interstitial"
     const val KEY_IS_SWIPE_AD_INTERSTITIAL = "is_swipe_ad_interstitial"
 
     // Trigger Counters
+    const val KEY_RIGHT_TO_LEFT_COUNT = "right_to_left_count"
+    const val KEY_LEFT_TO_RIGHT_COUNT = "left_to_right_count"
+    const val KEY_RIGHT_TO_LEFT_LEGACY = "right_to_left"
+    const val KEY_LEFT_TO_RIGHT_LEGACY = "left_to_right"
     const val KEY_INTER_AD_COUNTER_TRIGGER = "inter_ad_counter_trigger"
     const val KEY_INTER_AD_BACK_COUNTER_TRIGGER = "inter_ad_back_counter_trigger"
     const val KEY_CLICK_AD_COUNTER_TRIGGER = "click_ad_counter_trigger"
@@ -193,9 +199,13 @@ object RemoteConfigRepository {
                 KEY_IS_APP_OPEN_AD_ENABLED to true,
                 KEY_IS_CLICK_AD_ENABLED to true,
                 KEY_IS_SWIPE_AD_ENABLED to true,
+                KEY_RIGHT_TO_LEFT_AD_ENABLE to true,
+                KEY_LEFT_TO_RIGHT_AD_ENABLE to true,
                 KEY_IS_BACK_AD_ENABLED to true,
                 KEY_IS_CLICK_AD_INTERSTITIAL to true,
                 KEY_IS_SWIPE_AD_INTERSTITIAL to true,
+                KEY_RIGHT_TO_LEFT_COUNT to 3,
+                KEY_LEFT_TO_RIGHT_COUNT to 3,
                 KEY_INTER_AD_COUNTER_TRIGGER to 3,
                 KEY_INTER_AD_BACK_COUNTER_TRIGGER to 3,
                 KEY_CLICK_AD_COUNTER_TRIGGER to 3,
@@ -317,6 +327,12 @@ object RemoteConfigRepository {
     val isSwipeAdEnabled: Boolean
         get() = getBoolean(KEY_IS_SWIPE_AD_ENABLED, true)
 
+    val isRightToLeftAdEnabled: Boolean
+        get() = getBoolean(KEY_RIGHT_TO_LEFT_AD_ENABLE, true)
+
+    val isLeftToRightAdEnabled: Boolean
+        get() = getBoolean(KEY_LEFT_TO_RIGHT_AD_ENABLE, true)
+
     val isBackAdEnabled: Boolean
         get() = getBoolean(KEY_IS_BACK_AD_ENABLED, true)
 
@@ -325,6 +341,19 @@ object RemoteConfigRepository {
 
     val isSwipeAdInterstitial: Boolean
         get() = getBoolean(KEY_IS_SWIPE_AD_INTERSTITIAL, true)
+
+    fun getRightToLeftCount(): Int {
+        val count = getInt(KEY_RIGHT_TO_LEFT_COUNT, 3)
+        return if (count > 0) count else 3
+    }
+
+    fun getLeftToRightCount(): Int {
+        val count = getInt(KEY_LEFT_TO_RIGHT_COUNT, 3)
+        return if (count > 0) count else 3
+    }
+
+    fun getRightToLeftTrigger(): Int = getRightToLeftCount()
+    fun getLeftToRightTrigger(): Int = getLeftToRightCount()
 
     fun getInterAdCounterTrigger(): Int {
         val count = getInt(KEY_INTER_AD_COUNTER_TRIGGER, 3)

@@ -29,6 +29,14 @@
         <value>true</value>
     </entry>
     <entry>
+        <key>right_to_left_ad_enable</key>
+        <value>true</value>
+    </entry>
+    <entry>
+        <key>left_to_right_ad_enable</key>
+        <value>true</value>
+    </entry>
+    <entry>
         <key>is_back_ad_enabled</key>
         <value>true</value>
     </entry>
@@ -39,6 +47,15 @@
     <entry>
         <key>is_swipe_ad_interstitial</key>
         <value>true</value>
+    </entry>
+
+    <entry>
+        <key>right_to_left_count</key>
+        <value>3</value>
+    </entry>
+    <entry>
+        <key>left_to_right_count</key>
+        <value>3</value>
     </entry>
 
     <entry>

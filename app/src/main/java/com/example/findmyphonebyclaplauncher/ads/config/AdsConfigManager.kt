@@ -31,6 +31,8 @@ object AdsConfigManager {
     // Action-Level Ad Switches
     const val KEY_IS_CLICK_AD_ENABLED = "is_click_ad_enabled"
     const val KEY_IS_SWIPE_AD_ENABLED = "is_swipe_ad_enabled"
+    const val KEY_RIGHT_TO_LEFT_AD_ENABLE = "right_to_left_ad_enable"
+    const val KEY_LEFT_TO_RIGHT_AD_ENABLE = "left_to_right_ad_enable"
     const val KEY_IS_BACK_AD_ENABLED = "is_back_ad_enabled"
 
     // Action Ad Format Selectors (true = Interstitial | false = App Open)
@@ -40,6 +42,10 @@ object AdsConfigManager {
     const val KEY_SWIPE_INTER_LEGACY = "isRightLeftSwipeInterOn"
 
     // Counters & Triggers
+    const val KEY_RIGHT_TO_LEFT_COUNT = "right_to_left_count"
+    const val KEY_LEFT_TO_RIGHT_COUNT = "left_to_right_count"
+    const val KEY_RIGHT_TO_LEFT_LEGACY = "right_to_left"
+    const val KEY_LEFT_TO_RIGHT_LEGACY = "left_to_right"
     const val KEY_INTER_COUNTER_TRIGGER = "inter_ad_counter_trigger"
     const val KEY_INTER_BACK_COUNTER_TRIGGER = "inter_ad_back_counter_trigger"
     const val KEY_CLICK_AD_COUNTER_TRIGGER = "click_ad_counter_trigger"
@@ -289,8 +295,8 @@ object AdsConfigManager {
         } else null
 
         val parsed = AdsConfig(
-            systemHideNavigationBarAuto = fromJson?.systemHideNavigationBarAuto
-                ?: remoteConfig.extractBoolean(KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO, default = true),
+//            systemHideNavigationBarAuto = fromJson?.systemHideNavigationBarAuto
+//                ?: remoteConfig.extractBoolean(KEY_SYSTEM_HIDE_NAVIGATION_BAR_AUTO, default = true),
 
             isBannerAdEnabled = fromJson?.isBannerAdEnabled
                 ?: remoteConfig.extractBoolean(KEY_IS_BANNER_AD_ENABLED, default = true),
@@ -305,6 +311,10 @@ object AdsConfigManager {
                 ?: remoteConfig.extractBoolean(KEY_IS_CLICK_AD_ENABLED, default = true),
             isSwipeAdEnabled = fromJson?.isSwipeAdEnabled
                 ?: remoteConfig.extractBoolean(KEY_IS_SWIPE_AD_ENABLED, default = true),
+            rightToLeftAdEnable = fromJson?.rightToLeftAdEnable
+                ?: remoteConfig.extractBoolean(KEY_RIGHT_TO_LEFT_AD_ENABLE, default = true),
+            leftToRightAdEnable = fromJson?.leftToRightAdEnable
+                ?: remoteConfig.extractBoolean(KEY_LEFT_TO_RIGHT_AD_ENABLE, default = true),
             isBackAdEnabled = fromJson?.isBackAdEnabled
                 ?: remoteConfig.extractBoolean(KEY_IS_BACK_AD_ENABLED, default = true),
 
@@ -313,6 +323,10 @@ object AdsConfigManager {
             isSwipeAdInterstitial = fromJson?.isSwipeAdInterstitial
                 ?: remoteConfig.extractBoolean(KEY_IS_SWIPE_AD_INTERSTITIAL, KEY_SWIPE_INTER_LEGACY, default = true),
 
+            rightToLeftCount = fromJson?.rightToLeftCount
+                ?: remoteConfig.extractInt(KEY_RIGHT_TO_LEFT_COUNT, KEY_RIGHT_TO_LEFT_LEGACY, default = 3).let { if (it > 0) it else 3 },
+            leftToRightCount = fromJson?.leftToRightCount
+                ?: remoteConfig.extractInt(KEY_LEFT_TO_RIGHT_COUNT, KEY_LEFT_TO_RIGHT_LEGACY, default = 3).let { if (it > 0) it else 3 },
             interAdCounterTrigger = fromJson?.interAdCounterTrigger
                 ?: remoteConfig.extractInt(KEY_INTER_COUNTER_TRIGGER, KEY_INTER_COUNT_LEGACY, default = 3).coerceAtLeast(1),
             interAdBackCounterTrigger = fromJson?.interAdBackCounterTrigger

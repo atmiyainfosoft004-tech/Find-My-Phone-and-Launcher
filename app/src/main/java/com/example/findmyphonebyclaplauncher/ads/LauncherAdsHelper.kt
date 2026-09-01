@@ -239,7 +239,7 @@ object LauncherAdsHelper {
         }
     }
 
-    fun showSwipeAd(activity: Activity, onDone: () -> Unit = {}) {
+    fun showSwipeAd(activity: Activity, direction: SwipeDirection = SwipeDirection.RIGHT_TO_LEFT, onDone: () -> Unit = {}) {
         if (activity.isFinishing || activity.isDestroyed) {
             onDone()
             return
@@ -254,7 +254,6 @@ object LauncherAdsHelper {
         val config = AdsConfigManager.config
         val isSwipeEnabled = config.isSwipeAdEnabled
         val isSwipeInter = config.isSwipeAdInterstitial
-        val trigger = config.interAdCounterTrigger.coerceAtLeast(1)
 
         if (!isSwipeEnabled) {
             Log.d("AdCounter", "is_swipe_ad_enabled is false -> skipping swipe ad")
@@ -262,19 +261,52 @@ object LauncherAdsHelper {
             return
         }
 
-        val count = InterAdLoader.increaseForwardCount()
-        Log.d("AdCounter", "Swipe action performed. Current count: $count / Trigger: $trigger")
+        // Check direction-specific enable flag
+        val isDirectionEnabled = when (direction) {
+            SwipeDirection.RIGHT_TO_LEFT -> config.rightToLeftAdEnable
+            SwipeDirection.LEFT_TO_RIGHT -> config.leftToRightAdEnable
+        }
+
+        val flagName = if (direction == SwipeDirection.RIGHT_TO_LEFT) "right_to_left_ad_enable" else "left_to_right_ad_enable"
+        Log.d("AdCounter", "Swipe transition: $direction | Flag: $flagName = $isDirectionEnabled")
+
+        if (!isDirectionEnabled) {
+            Log.d("AdCounter", "Swipe ad for $direction is disabled ($flagName=false) -> skipping ad, zero loading dialog")
+            onDone()
+            return
+        }
+
+        val trigger = when (direction) {
+            SwipeDirection.RIGHT_TO_LEFT -> config.rightToLeftCount
+            SwipeDirection.LEFT_TO_RIGHT -> config.leftToRightCount
+        }
+
+        if (trigger <= 0) {
+            Log.d("AdCounter", "Swipe trigger for $direction is <= 0 ($trigger) -> skipping ad")
+            onDone()
+            return
+        }
+
+        val count = when (direction) {
+            SwipeDirection.RIGHT_TO_LEFT -> InterAdLoader.increaseRightToLeftCount()
+            SwipeDirection.LEFT_TO_RIGHT -> InterAdLoader.increaseLeftToRightCount()
+        }
+
+        Log.d("AdCounter", "Swipe transition: $direction | Flag: $flagName=true | Current count: $count / Trigger: $trigger")
 
         if (count >= trigger) {
-            Log.d("AdCounter", "Swipe threshold reached ($count >= $trigger). Resetting count to 0.")
-            InterAdLoader.resetForwardCount()
+            Log.d("AdCounter", "Swipe $direction threshold reached ($count >= $trigger). Resetting count to 0.")
+            when (direction) {
+                SwipeDirection.RIGHT_TO_LEFT -> InterAdLoader.resetRightToLeftCount()
+                SwipeDirection.LEFT_TO_RIGHT -> InterAdLoader.resetLeftToRightCount()
+            }
             if (isSwipeInter) {
-                Log.d("InterstitialAd", "Swipe trigger hit. is_swipe_ad_interstitial=true. Showing Interstitial.")
+                Log.d("InterstitialAd", "Swipe $direction trigger hit. is_swipe_ad_interstitial=true. Showing Interstitial.")
                 showClickInterstitialAd(activity) {
                     onDone()
                 }
             } else {
-                Log.d("AppOpenAd", "Swipe trigger hit. is_swipe_ad_interstitial=false. Showing App Open Ad.")
+                Log.d("AppOpenAd", "Swipe $direction trigger hit. is_swipe_ad_interstitial=false. Showing App Open Ad.")
                 showAppOpenAd(activity) {
                     onDone()
                 }
@@ -284,8 +316,16 @@ object LauncherAdsHelper {
         }
     }
 
-    fun showSwapInterstitialAd(activity: Activity, onDone: () -> Unit = {}) {
-        showSwipeAd(activity, onDone)
+    fun showSwipeAd(activity: Activity, onDone: () -> Unit) {
+        showSwipeAd(activity, SwipeDirection.RIGHT_TO_LEFT, onDone)
+    }
+
+    fun showSwapInterstitialAd(activity: Activity, direction: SwipeDirection = SwipeDirection.RIGHT_TO_LEFT, onDone: () -> Unit = {}) {
+        showSwipeAd(activity, direction, onDone)
+    }
+
+    fun showSwapInterstitialAd(activity: Activity, onDone: () -> Unit) {
+        showSwipeAd(activity, SwipeDirection.RIGHT_TO_LEFT, onDone)
     }
 
     fun getBackAdTriggerCount(): Int {

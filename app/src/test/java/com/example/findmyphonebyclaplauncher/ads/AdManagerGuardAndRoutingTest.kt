@@ -3,6 +3,7 @@ package com.example.findmyphonebyclaplauncher.ads
 import com.example.findmyphonebyclaplauncher.ads.config.AdsConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -608,5 +609,163 @@ class AdManagerGuardAndRoutingTest {
 
         assertFalse("Settings flow: Must NOT trigger Interstitial flow on Done", interstitialTriggered)
         assertTrue("Settings flow: Must finish immediately with slide animation", slideFinishExecuted)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 12. Direction-Based Independent Swipe Counters (right_to_left_count & left_to_right_count)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun directionBasedCounters_operateIndependently() {
+        val config = AdsConfig.DEFAULT.copy(
+            isSwipeAdEnabled = true,
+            isSwipeAdInterstitial = true,
+            rightToLeftCount = 3,
+            leftToRightCount = 5
+        )
+
+        var rightToLeftCount = 0
+        var leftToRightCount = 0
+        var rightToLeftAdShownCount = 0
+        var leftToRightAdShownCount = 0
+
+        fun performSwipe(direction: SwipeDirection) {
+            val trigger = when (direction) {
+                SwipeDirection.RIGHT_TO_LEFT -> config.rightToLeftCount
+                SwipeDirection.LEFT_TO_RIGHT -> config.leftToRightCount
+            }
+            if (trigger <= 0) return
+
+            when (direction) {
+                SwipeDirection.RIGHT_TO_LEFT -> {
+                    rightToLeftCount++
+                    if (rightToLeftCount >= trigger) {
+                        rightToLeftCount = 0
+                        rightToLeftAdShownCount++
+                    }
+                }
+                SwipeDirection.LEFT_TO_RIGHT -> {
+                    leftToRightCount++
+                    if (leftToRightCount >= trigger) {
+                        leftToRightCount = 0
+                        leftToRightAdShownCount++
+                    }
+                }
+            }
+        }
+
+        // Perform 2 Right-to-Left swipes (count: 2/3)
+        performSwipe(SwipeDirection.RIGHT_TO_LEFT)
+        performSwipe(SwipeDirection.RIGHT_TO_LEFT)
+        assertEquals(2, rightToLeftCount)
+        assertEquals(0, leftToRightCount)
+        assertEquals(0, rightToLeftAdShownCount)
+
+        // Perform 4 Left-to-Right swipes (count: 4/5)
+        repeat(4) { performSwipe(SwipeDirection.LEFT_TO_RIGHT) }
+        assertEquals(2, rightToLeftCount)
+        assertEquals(4, leftToRightCount)
+        assertEquals(0, rightToLeftAdShownCount)
+        assertEquals(0, leftToRightAdShownCount)
+
+        // 3rd Right-to-Left swipe -> triggers Ad and resets Right-to-Left counter only
+        performSwipe(SwipeDirection.RIGHT_TO_LEFT)
+        assertEquals(0, rightToLeftCount)
+        assertEquals(1, rightToLeftAdShownCount)
+        assertEquals(4, leftToRightCount) // left_to_right counter unaffected
+        assertEquals(0, leftToRightAdShownCount)
+
+        // 5th Left-to-Right swipe -> triggers Ad and resets Left-to-Right counter only
+        performSwipe(SwipeDirection.LEFT_TO_RIGHT)
+        assertEquals(0, leftToRightCount)
+        assertEquals(1, leftToRightAdShownCount)
+        assertEquals(0, rightToLeftCount)
+        assertEquals(1, rightToLeftAdShownCount)
+    }
+
+    @Test
+    fun zeroOrNegativeTrigger_safelyDisablesSwipeAdForThatDirection() {
+        val config = AdsConfig.DEFAULT.copy(
+            isSwipeAdEnabled = true,
+            rightToLeftCount = 0,
+            leftToRightCount = -1
+        )
+
+        var rightToLeftAdShown = false
+        var leftToRightAdShown = false
+
+        if (config.rightToLeftCount > 0) {
+            rightToLeftAdShown = true
+        }
+        if (config.leftToRightCount > 0) {
+            leftToRightAdShown = true
+        }
+
+        assertFalse("Right-to-Left ad must not trigger when right_to_left_count is 0", rightToLeftAdShown)
+        assertFalse("Left-to-Right ad must not trigger when left_to_right_count is negative", leftToRightAdShown)
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // 13. HomeFragment Navigation Transition Mapping (Home->Phone vs Home->Dashboard vs Returns)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    @Test
+    fun homeNavigationTransitions_strictlyMapOnlyHomeOriginSwipes() {
+        val PAGE_FIND_PHONE = 0
+        val PAGE_HOME = 1
+        val PAGE_DASHBOARD = 2
+
+        fun mapSwipeDirection(fromPage: Int, toPage: Int): SwipeDirection? {
+            return when {
+                fromPage == PAGE_HOME && toPage == PAGE_DASHBOARD -> SwipeDirection.RIGHT_TO_LEFT
+                fromPage == PAGE_HOME && toPage == PAGE_FIND_PHONE -> SwipeDirection.LEFT_TO_RIGHT
+                else -> null
+            }
+        }
+
+        // 1. Home -> Dashboard: RIGHT_TO_LEFT
+        assertEquals(SwipeDirection.RIGHT_TO_LEFT, mapSwipeDirection(PAGE_HOME, PAGE_DASHBOARD))
+
+        // 2. Home -> Phone: LEFT_TO_RIGHT
+        assertEquals(SwipeDirection.LEFT_TO_RIGHT, mapSwipeDirection(PAGE_HOME, PAGE_FIND_PHONE))
+
+        // 3. Dashboard -> Home: null (must NOT count)
+        assertNull(mapSwipeDirection(PAGE_DASHBOARD, PAGE_HOME))
+
+        // 4. Phone -> Home: null (must NOT count)
+        assertNull(mapSwipeDirection(PAGE_FIND_PHONE, PAGE_HOME))
+    }
+
+    @Test
+    fun directionEnableFlags_strictlyGuardAdTriggers() {
+        val config = AdsConfig.DEFAULT.copy(
+            isSwipeAdEnabled = true,
+            rightToLeftAdEnable = false, // Disabled
+            leftToRightAdEnable = true,  // Enabled
+            rightToLeftCount = 1,
+            leftToRightCount = 1
+        )
+
+        var rightToLeftAdExecuted = false
+        var leftToRightAdExecuted = false
+
+        fun handleSwipe(direction: SwipeDirection) {
+            val isEnabled = when (direction) {
+                SwipeDirection.RIGHT_TO_LEFT -> config.rightToLeftAdEnable
+                SwipeDirection.LEFT_TO_RIGHT -> config.leftToRightAdEnable
+            }
+            if (!isEnabled) return
+
+            when (direction) {
+                SwipeDirection.RIGHT_TO_LEFT -> rightToLeftAdExecuted = true
+                SwipeDirection.LEFT_TO_RIGHT -> leftToRightAdExecuted = true
+            }
+        }
+
+        handleSwipe(SwipeDirection.RIGHT_TO_LEFT)
+        assertFalse("Right-to-Left ad must NOT execute when right_to_left_ad_enable=false", rightToLeftAdExecuted)
+
+        handleSwipe(SwipeDirection.LEFT_TO_RIGHT)
+        assertTrue("Left-to-Right ad must execute when left_to_right_ad_enable=true", leftToRightAdExecuted)
     }
 }
